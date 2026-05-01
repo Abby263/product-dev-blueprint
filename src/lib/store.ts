@@ -9,6 +9,7 @@ interface State {
   projects: Record<string, Project>;
   order: string[];
   createProject: (name: string, oneLiner: string, ideaDescription?: string) => string;
+  createFromTemplate: (overrides: Partial<Project>) => string;
   deleteProject: (id: string) => void;
   updateProject: (id: string, patch: Partial<Project>) => void;
   patchDomain: <K extends keyof Project>(id: string, key: K, value: Project[K]) => void;
@@ -212,6 +213,27 @@ export const useStore = create<State>()(
       order: [],
       createProject: (name, oneLiner, ideaDescription = "") => {
         const project = emptyProject(name || "Untitled project", oneLiner || "", ideaDescription);
+        set((s) => ({
+          projects: { ...s.projects, [project.id]: project },
+          order: [project.id, ...s.order],
+        }));
+        return project.id;
+      },
+      createFromTemplate: (overrides) => {
+        const base = emptyProject(
+          overrides.name || "Untitled project",
+          overrides.oneLiner || "",
+          overrides.ideaDescription || "",
+        );
+        // Top-level merge — every domain block in `overrides` replaces the
+        // empty default wholesale. Templates supply complete domain blocks.
+        const project: Project = {
+          ...base,
+          ...overrides,
+          id: base.id,
+          createdAt: base.createdAt,
+          updatedAt: base.updatedAt,
+        };
         set((s) => ({
           projects: { ...s.projects, [project.id]: project },
           order: [project.id, ...s.order],
