@@ -1,10 +1,15 @@
 # Product Dev Blueprint
 
-A schema-first product-definition system. Run a guided, role-aware intake across thirteen domains, build one canonical project schema, and render seventeen artifacts from that single source of truth — all the way to a coding-agent prompt pack you can paste into Cursor, Lovable, or Replit.
+> **Live:** [product-dev-blueprint.vercel.app](https://product-dev-blueprint.vercel.app)
+
+Turn any idea into a **production-ready app blueprint**. Describe what you want to build; the platform helps you figure out the SOW, PRD, system design, technical stack, security and compliance posture, and go-to-market plan — together, in one guided flow. The output is a complete bundle of engineering- and exec-ready documents that an agent or team can build from.
+
+[![CI](https://github.com/Abby263/product-dev-blueprint/actions/workflows/ci.yml/badge.svg)](https://github.com/Abby263/product-dev-blueprint/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Built for **Product Managers, Founders, Business Analysts, Solution Architects, Engineering Managers, Pre-sales Consultants, and Innovation / Enterprise Transformation teams.**
 
-## What it produces
+## What you get
 
 Every project generates a draft bundle of:
 
@@ -34,12 +39,11 @@ Bundle exports include **Markdown** + **DOCX** for every artifact, plus the raw 
 
 ## How it works
 
-1. **Guided intake** — thirteen role-aware domains:
-   - Project basics → Problem & objectives → Customer & market → Experience surface → Platform & channels → Functional requirements → Feature builder → Quality attributes → System design → Data & tech → AI & automation → Security & compliance → Commercial & GTM → Delivery & governance.
-   - Conditional questions branch by surface, vertical, platform, and timing model.
-2. **Canonical schema** — every answer writes to one `Project` object (see [`src/lib/schema.ts`](src/lib/schema.ts)). Intake autosaves to `localStorage`.
-3. **Schema-first generation** — deterministic generators (under [`src/lib/generators/`](src/lib/generators)) read from the schema and render markdown. Change one answer and every relevant document updates consistently.
-4. **Bundle export** — download the full set as Markdown + DOCX in a single zip, plus `project.json`.
+1. **Describe your idea** — name the project, write a one-liner, paste a longer description.
+2. **Walk thirteen guided domains** — Problem → Market → Experience → Platform & stack → Functional → Features → Quality attributes → System design → Data & tech → AI → Security → GTM → Governance. Conditional questions branch by surface, vertical, platform, and timing model.
+3. **One canonical schema** — every answer writes to one `Project` object (see [`src/lib/schema.ts`](src/lib/schema.ts)). Intake autosaves to `localStorage`.
+4. **Schema-first generation** — deterministic generators (under [`src/lib/generators/`](src/lib/generators)) read from the schema and render markdown. Change one answer and every relevant document updates consistently.
+5. **Hand off** — download the full bundle as Markdown + DOCX in a single zip, or paste the coding-agent prompt pack into Cursor / Lovable / Replit.
 
 The platform infers context-specific corner cases (e.g. virtual-queue UX cases when the timing model is real-time) and activates compliance packs (PIPEDA, HIPAA, PHIPA, OSFI, PCI DSS, GDPR, OWASP ASVS, OWASP LLM Top 10, NIST AI RMF) by vertical and geography.
 
@@ -48,7 +52,7 @@ A rule-based **feature suggestion engine** seeds tailored feature lists when the
 ## Stack
 
 - Next.js 14 (App Router) + TypeScript
-- Tailwind CSS
+- Tailwind CSS with class-based dark mode (system preference + manual toggle)
 - Zustand with `localStorage` persistence (single-user demo — no backend required)
 - `react-markdown` + `remark-gfm` for rendering
 - `docx` for Word-compatible exports, `jszip` for bundle export
@@ -56,44 +60,66 @@ A rule-based **feature suggestion engine** seeds tailored feature lists when the
 ## Run locally
 
 ```bash
+nvm use            # picks up .nvmrc (Node 20)
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # production build
+npm run dev        # http://localhost:3000
+npm run build      # production build
 npm run typecheck
 ```
+
+## Deployment
+
+Production runs on **Vercel** with the GitHub integration:
+
+- Every push to `main` triggers a **production deploy** to [product-dev-blueprint.vercel.app](https://product-dev-blueprint.vercel.app).
+- Every pull request triggers a **preview deploy** with its own URL.
+- CI (`.github/workflows/ci.yml`) runs `npm run typecheck` and `npm run build` on every PR and push to main.
 
 ## Project structure
 
 ```
+.github/
+  workflows/ci.yml                  # type-check + build on every PR + push
+  dependabot.yml                    # weekly npm + monthly actions updates
+  pull_request_template.md
 src/
   app/
-    page.tsx                              # Landing
-    settings/page.tsx                     # Settings (export/import/clear)
+    page.tsx                        # Landing
+    settings/page.tsx               # Settings (export/import/clear)
     projects/
-      page.tsx                            # Dashboard
-      new/page.tsx                        # Create
-      [id]/page.tsx                       # Overview
-      [id]/intake/page.tsx                # Wizard host
-      [id]/artifacts/page.tsx             # Generated docs + export
+      page.tsx                      # Dashboard
+      new/page.tsx                  # Create
+      [id]/page.tsx                 # Overview
+      [id]/intake/page.tsx          # Wizard host
+      [id]/artifacts/page.tsx       # Generated docs + export
   components/
-    ui.tsx                                # Buttons, inputs, cards, badges
+    ui.tsx                          # Buttons, inputs, cards, badges
+    ThemeToggle.tsx                 # Light/dark toggle
     wizard/
-      WizardShell.tsx                     # Step navigation + progress
-      steps.tsx                           # Basics, Problem, Market, Experience, Functional, NF, DataTech, GTM, Governance
-      steps-extended.tsx                  # Platform, Features, SystemDesign, AI, Compliance
+      WizardShell.tsx               # Step navigation + progress
+      steps.tsx                     # Basics, Problem, Market, Experience,
+                                    # Functional, NF, DataTech, GTM, Governance
+      steps-extended.tsx            # Platform, Features, SystemDesign, AI, Compliance
   lib/
-    schema.ts                             # Canonical Project type
-    store.ts                              # Zustand store
-    ids.ts                                # Stable ID allocation
-    feature-suggestions.ts                # Rule-based feature seeding
-    docx.ts                               # Markdown → DOCX renderer
-    export.ts                             # Zip bundle + JSON downloads
-    generators/                           # Markdown renderers per artifact
+    schema.ts                       # Canonical Project type
+    store.ts                        # Zustand store
+    ids.ts                          # Stable ID allocation
+    feature-suggestions.ts          # Rule-based feature seeding
+    docx.ts                         # Markdown → DOCX renderer
+    export.ts                       # Zip bundle + JSON downloads
+    generators/                     # Markdown renderers per artifact
 ```
 
-## Notes
+## Contributing
 
-Generated documents are **drafts**. Human review is mandatory for high-consequence outputs — the platform surfaces what was user-entered vs. what was inferred, with assumptions and unresolved questions pinned for approval before export.
+PRs welcome. The repo uses a standard PR workflow:
+
+1. Branch from `main`.
+2. `npm run typecheck && npm run build` locally.
+3. Open a PR — CI must pass before merge.
+4. Squash-merge into `main`. Vercel auto-deploys.
+
+## Roadmap
 
 This MVP intentionally does **not** include:
 
@@ -103,3 +129,7 @@ This MVP intentionally does **not** include:
 - Real-time collaboration, comments, version history
 
 These are explicit roadmap items documented in [`deep-research-report.md`](deep-research-report.md).
+
+## License
+
+[MIT](LICENSE).

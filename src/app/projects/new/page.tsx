@@ -43,14 +43,14 @@ export default function NewProjectPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">Start a new project</h1>
-      <p className="text-sm text-ink-600 mt-1">
+      <h1 className="text-3xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">Start a new project</h1>
+      <p className="text-sm text-ink-600 dark:text-ink-400 mt-1">
         Pick a starting point. You can change every answer later.
       </p>
 
       <div className="mt-8 space-y-6">
         <div>
-          <h2 className="text-sm font-semibold text-ink-800 mb-2">Template</h2>
+          <h2 className="text-sm font-semibold text-ink-800 dark:text-ink-200 mb-2">Template</h2>
           <div className="grid sm:grid-cols-3 gap-3">
             {TEMPLATES.map((t) => (
               <button
@@ -63,12 +63,12 @@ export default function NewProjectPage() {
                 className={
                   "text-left border rounded-lg p-4 transition-colors " +
                   (template === t.id
-                    ? "border-accent-500 ring-2 ring-accent-200 bg-accent-50/40"
-                    : "border-ink-200 bg-white hover:border-ink-300")
+                    ? "border-accent-500 ring-2 ring-accent-200 dark:ring-accent-700/40 bg-accent-50/40 dark:bg-accent-900/20"
+                    : "border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 hover:border-ink-300 dark:hover:border-ink-700")
                 }
               >
-                <div className="text-sm font-medium text-ink-900">{t.title}</div>
-                <div className="text-xs text-ink-600 mt-1 leading-relaxed">{t.body}</div>
+                <div className="text-sm font-medium text-ink-900 dark:text-ink-50">{t.title}</div>
+                <div className="text-xs text-ink-600 dark:text-ink-400 mt-1 leading-relaxed">{t.body}</div>
               </button>
             ))}
           </div>

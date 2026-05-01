@@ -45,8 +45,8 @@ export function PlatformStep({ project }: { project: Project }) {
         </Field>
 
         {isWeb && (
-          <div className="border-l-2 border-accent-300 pl-4 py-2 space-y-2">
-            <div className="text-xs font-medium text-accent-700">Web sub-choices</div>
+          <div className="border-l-2 border-accent-300 dark:border-accent-500 pl-4 py-2 space-y-2">
+            <div className="text-xs font-medium text-accent-700 dark:text-accent-200">Web sub-choices</div>
             <Checkbox label="Public marketing website" checked={v.webMarketing} onChange={(b) => set("webMarketing", b)} />
             <Checkbox label="Logged-in customer portal" checked={v.webPortal} onChange={(b) => set("webPortal", b)} />
             <Checkbox label="Admin dashboard" checked={v.webAdmin} onChange={(b) => set("webAdmin", b)} />
@@ -56,8 +56,8 @@ export function PlatformStep({ project }: { project: Project }) {
         )}
 
         {isMobile && (
-          <div className="border-l-2 border-accent-300 pl-4 py-2 space-y-3">
-            <div className="text-xs font-medium text-accent-700">Mobile sub-choices</div>
+          <div className="border-l-2 border-accent-300 dark:border-accent-500 pl-4 py-2 space-y-3">
+            <div className="text-xs font-medium text-accent-700 dark:text-accent-200">Mobile sub-choices</div>
             <div className="flex gap-4">
               <Checkbox label="iOS" checked={v.mobileIOS} onChange={(b) => set("mobileIOS", b)} />
               <Checkbox label="Android" checked={v.mobileAndroid} onChange={(b) => set("mobileAndroid", b)} />
@@ -76,7 +76,7 @@ export function PlatformStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800">Frontend stack</div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Frontend stack</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Framework">
             <Select value={v.frontend} onChange={(e) => set("frontend", e.target.value as typeof v.frontend)}>
@@ -107,7 +107,7 @@ export function PlatformStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800">Backend stack</div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Backend stack</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Framework">
             <Select value={v.backend} onChange={(e) => set("backend", e.target.value as typeof v.backend)}>
@@ -152,7 +152,7 @@ export function PlatformStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800">Database</div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Database</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Primary store">
             <Select value={v.database} onChange={(e) => set("database", e.target.value as typeof v.database)}>
@@ -184,7 +184,7 @@ export function PlatformStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800">Cloud & deployment</div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Cloud & deployment</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Cloud / host">
             <Select value={v.cloud} onChange={(e) => set("cloud", e.target.value as typeof v.cloud)}>
@@ -273,7 +273,7 @@ export function FeaturesStep({ project }: { project: Project }) {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-sm font-medium text-ink-800">Feature library</div>
+            <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Feature library</div>
             <p className="text-xs text-ink-500 mt-0.5 max-w-2xl">
               Capture each feature with priority, complexity, business value, and release. Suggestions are rule-based — they
               react to your timing model, vertical, and platform choices.
@@ -291,7 +291,7 @@ export function FeaturesStep({ project }: { project: Project }) {
         )}
         <div className="space-y-3">
           {features.map((f, i) => (
-            <div key={f.id} className="border border-ink-200 rounded-md p-3 space-y-2">
+            <div key={f.id} className="border border-ink-200 dark:border-ink-800 rounded-md p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <Badge tone="accent">{f.id}</Badge>
                 <Input className="flex-1" placeholder="Name" value={f.name} onChange={(e) => patchFeat(i, { name: e.target.value })} />
@@ -339,7 +339,7 @@ export function FeaturesStep({ project }: { project: Project }) {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-sm font-medium text-ink-800">KPIs</div>
+            <div className="text-sm font-medium text-ink-800 dark:text-ink-100">KPIs</div>
             <p className="text-xs text-ink-500 mt-0.5">Outcome metrics that prove the work was worth it.</p>
           </div>
           <Button variant="ghost" onClick={addKpi}>+ Add KPI</Button>
@@ -378,7 +378,7 @@ export function SystemDesignStep({ project }: { project: Project }) {
   return (
     <div className="space-y-6">
       <Card className="p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800">Capacity expectations</div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Capacity expectations</div>
         <div className="grid md:grid-cols-3 gap-5">
           <Field label="Total expected users (lifetime)">
             <Input type="number" min={0} value={v.expectedUsersTotal} onChange={(e) => set("expectedUsersTotal", Number(e.target.value || 0))} />
@@ -409,24 +409,24 @@ export function SystemDesignStep({ project }: { project: Project }) {
           </Field>
         </div>
 
-        <div className="rounded-lg border border-accent-200 bg-accent-50/50 p-4 text-xs text-ink-700 grid sm:grid-cols-3 gap-3">
+        <div className="rounded-lg border border-accent-200 dark:border-accent-700/40 bg-accent-50/50 dark:bg-accent-900/20 p-4 text-xs text-ink-700 dark:text-ink-200 grid sm:grid-cols-3 gap-3">
           <div>
             <div className="uppercase tracking-wider text-accent-700 mb-1">Avg requests / day</div>
-            <div className="font-semibold text-base text-ink-900">{reqsPerDay.toLocaleString()}</div>
+            <div className="font-semibold text-base text-ink-900 dark:text-ink-50">{reqsPerDay.toLocaleString()}</div>
           </div>
           <div>
             <div className="uppercase tracking-wider text-accent-700 mb-1">Avg requests / sec</div>
-            <div className="font-semibold text-base text-ink-900">{reqsPerSec.toFixed(2)}</div>
+            <div className="font-semibold text-base text-ink-900 dark:text-ink-50">{reqsPerSec.toFixed(2)}</div>
           </div>
           <div>
             <div className="uppercase tracking-wider text-accent-700 mb-1">Estimated peak RPS</div>
-            <div className="font-semibold text-base text-ink-900">{peakRps.toFixed(2)}</div>
+            <div className="font-semibold text-base text-ink-900 dark:text-ink-50">{peakRps.toFixed(2)}</div>
           </div>
         </div>
       </Card>
 
       <Card className="p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800">Geographic & resilience</div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Geographic & resilience</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Geographic coverage">
             <Input value={v.geographicCoverage} onChange={(e) => set("geographicCoverage", e.target.value)} placeholder="e.g. North America; later EU" />
@@ -442,7 +442,7 @@ export function SystemDesignStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800">Strategy</div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Strategy</div>
         <Field label="Caching strategy">
           <Textarea rows={2} value={v.cachingStrategy} onChange={(e) => set("cachingStrategy", e.target.value)} placeholder="e.g. CDN edge for static, Redis for hot reads, query cache." />
         </Field>
@@ -537,7 +537,7 @@ export function ComplianceStep({ project }: { project: Project }) {
   }
   return (
     <Card className="p-6 space-y-5">
-      <div className="text-sm font-medium text-ink-800">Data classes processed</div>
+      <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Data classes processed</div>
       <div className="flex flex-wrap gap-4">
         <Checkbox label="Personal data" checked={v.processesPersonalData} onChange={(b) => set("processesPersonalData", b)} />
         <Checkbox label="Financial / payment data" checked={v.processesFinancialData} onChange={(b) => set("processesFinancialData", b)} />
@@ -566,7 +566,7 @@ export function ComplianceStep({ project }: { project: Project }) {
         />
       </Field>
 
-      <div className="text-sm font-medium text-ink-800">Controls required</div>
+      <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Controls required</div>
       <div className="flex flex-wrap gap-4">
         <Checkbox label="Consent management" checked={v.consentMgmt} onChange={(b) => set("consentMgmt", b)} />
         <Checkbox label="Audit logging" checked={v.auditLogs} onChange={(b) => set("auditLogs", b)} />

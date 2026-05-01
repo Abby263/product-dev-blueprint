@@ -80,7 +80,7 @@ function StakeholdersEditor({ project }: { project: Project }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <div className="text-sm font-medium text-ink-800">Stakeholders</div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Stakeholders</div>
         <Button variant="ghost" onClick={add}>+ Add</Button>
       </div>
       <p className="text-xs text-ink-500 mb-3 leading-relaxed">
@@ -300,9 +300,9 @@ export function ExperienceStep({ project }: { project: Project }) {
       <Checkbox label="Offline-tolerant experience required" checked={v.offline} onChange={(b) => set("offline", b)} />
 
       {(v.timingModel === "real-time-queue" || v.timingModel === "both") && (
-        <div className="border-l-2 border-accent-300 pl-4 bg-accent-50/40 py-3 rounded-r">
-          <div className="text-xs font-medium text-accent-700">Virtual-queue UX considerations</div>
-          <p className="text-xs text-ink-700 mt-1 leading-relaxed">
+        <div className="border-l-2 border-accent-300 dark:border-accent-500 pl-4 bg-accent-50/40 dark:bg-accent-900/20 py-3 rounded-r">
+          <div className="text-xs font-medium text-accent-700 dark:text-accent-200">Virtual-queue UX considerations</div>
+          <p className="text-xs text-ink-700 dark:text-ink-300 mt-1 leading-relaxed">
             Respect users' time, let them do other things while waiting, reduce accidental exits, and design fallbacks for
             users without an app or with intermittent connectivity. We'll seed corner cases for these on the artifacts page.
           </p>
@@ -354,7 +354,7 @@ export function FunctionalStep({ project }: { project: Project }) {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-sm font-medium text-ink-800">Personas</div>
+            <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Personas</div>
             <p className="text-xs text-ink-500 mt-0.5">Who initiates flows and what their top job is.</p>
           </div>
           <Button variant="ghost" onClick={addPersona}>+ Add persona</Button>
@@ -362,7 +362,7 @@ export function FunctionalStep({ project }: { project: Project }) {
         {v.personas.length === 0 && <div className="text-xs text-ink-500 italic">No personas yet.</div>}
         <div className="space-y-3">
           {v.personas.map((p, i) => (
-            <div key={p.id} className="border border-ink-200 rounded-md p-3 grid md:grid-cols-2 gap-3">
+            <div key={p.id} className="border border-ink-200 dark:border-ink-800 rounded-md p-3 grid md:grid-cols-2 gap-3">
               <Input placeholder="Name (e.g. Branch teller)" value={p.name} onChange={(e) => patchPersona(i, { name: e.target.value })} />
               <Select value={p.channel} onChange={(e) => patchPersona(i, { channel: e.target.value as Persona["channel"] })}>
                 <option value="any">Any channel</option>
@@ -394,7 +394,7 @@ export function FunctionalStep({ project }: { project: Project }) {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-sm font-medium text-ink-800">Requirements</div>
+            <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Requirements</div>
             <p className="text-xs text-ink-500 mt-0.5">
               IDs are stable across every generated document — they form the spine of the traceability matrix.
             </p>
@@ -407,7 +407,7 @@ export function FunctionalStep({ project }: { project: Project }) {
         {v.requirements.length === 0 && <div className="text-xs text-ink-500 italic">No requirements yet.</div>}
         <div className="space-y-3">
           {v.requirements.map((r, i) => (
-            <div key={r.id} className="border border-ink-200 rounded-md p-3 space-y-2">
+            <div key={r.id} className="border border-ink-200 dark:border-ink-800 rounded-md p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <Badge tone={r.kind === "functional" ? "accent" : "neutral"}>{r.id}</Badge>
                 <Input
@@ -510,7 +510,7 @@ export function NonFunctionalStep({ project }: { project: Project }) {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-sm font-medium text-ink-800">Service level objectives</div>
+            <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Service level objectives</div>
             <p className="text-xs text-ink-500 mt-0.5">Per surface, not one global number.</p>
           </div>
           <Button variant="ghost" onClick={addSlo}>+ Add SLO</Button>
@@ -597,7 +597,7 @@ export function DataTechStep({ project }: { project: Project }) {
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-ink-800">Canonical entities</div>
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Canonical entities</div>
           <Button variant="ghost" onClick={addEntity}>+ Add entity</Button>
         </div>
         {v.entities.length === 0 && <div className="text-xs text-ink-500 italic">No entities yet.</div>}
@@ -617,7 +617,7 @@ export function DataTechStep({ project }: { project: Project }) {
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-ink-800">Integrations</div>
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Integrations</div>
           <Button variant="ghost" onClick={addInteg}>+ Add integration</Button>
         </div>
         {v.integrations.length === 0 && <div className="text-xs text-ink-500 italic">No integrations yet.</div>}
@@ -810,13 +810,13 @@ export function GovernanceStep({ project }: { project: Project }) {
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-ink-800">Architecture decisions (ADRs)</div>
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Architecture decisions (ADRs)</div>
           <Button variant="ghost" onClick={addDecision}>+ Add decision</Button>
         </div>
         {project.decisions.length === 0 && <div className="text-xs text-ink-500 italic">No decisions yet.</div>}
         <div className="space-y-3">
           {project.decisions.map((d, i) => (
-            <div key={d.id} className="border border-ink-200 rounded-md p-3 space-y-2">
+            <div key={d.id} className="border border-ink-200 dark:border-ink-800 rounded-md p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <Badge tone="accent">{d.id}</Badge>
                 <Input className="flex-1" placeholder="Title" value={d.title} onChange={(e) => patchDecision(i, { title: e.target.value })} />
@@ -843,7 +843,7 @@ export function GovernanceStep({ project }: { project: Project }) {
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-ink-800">Risks</div>
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Risks</div>
           <Button variant="ghost" onClick={addRisk}>+ Add risk</Button>
         </div>
         {project.risks.length === 0 && <div className="text-xs text-ink-500 italic">No risks yet.</div>}
@@ -871,7 +871,7 @@ export function GovernanceStep({ project }: { project: Project }) {
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-ink-800">Assumptions</div>
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Assumptions</div>
           <Button variant="ghost" onClick={addAssumption}>+ Add assumption</Button>
         </div>
         {project.assumptions.length === 0 && <div className="text-xs text-ink-500 italic">No assumptions yet.</div>}
@@ -892,7 +892,7 @@ export function GovernanceStep({ project }: { project: Project }) {
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-ink-800">Open questions</div>
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Open questions</div>
           <Button variant="ghost" onClick={addQ}>+ Add question</Button>
         </div>
         {project.openQuestions.length === 0 && <div className="text-xs text-ink-500 italic">No open questions yet.</div>}

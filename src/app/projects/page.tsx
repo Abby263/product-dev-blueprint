@@ -18,7 +18,7 @@ export default function ProjectsPage() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
-          <p className="text-sm text-ink-600 mt-1">
+          <p className="text-sm text-ink-600 dark:text-ink-400 mt-1">
             Each project owns a canonical schema. Open it to continue intake or regenerate the artifact bundle.
           </p>
         </div>
@@ -30,7 +30,7 @@ export default function ProjectsPage() {
       {!hydrated ? null : list.length === 0 ? (
         <EmptyState
           title="No projects yet"
-          body="Start a new project to walk through the eight intake domains and generate the full artifact bundle."
+          body="Start a new project to walk through the thirteen intake domains and generate the full artifact bundle."
           action={
             <Link href="/projects/new">
               <Button>Start a new project</Button>
@@ -47,21 +47,21 @@ export default function ProjectsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <Link href={`/projects/${p.id}`} className="block">
-                      <h3 className="text-base font-semibold text-ink-900 truncate hover:underline">{p.name}</h3>
+                      <h3 className="text-base font-semibold text-ink-900 dark:text-ink-50 truncate hover:underline">{p.name}</h3>
                     </Link>
-                    <p className="text-xs text-ink-500 mt-1 line-clamp-2">{p.oneLiner || "No one-liner yet."}</p>
+                    <p className="text-xs text-ink-500 dark:text-ink-400 mt-1 line-clamp-2">{p.oneLiner || "No one-liner yet."}</p>
                   </div>
                   <Badge tone={pct === 100 ? "good" : pct > 0 ? "accent" : "neutral"}>{pct}%</Badge>
                 </div>
 
                 <div className="mt-4">
                   <ProgressBar value={completed} max={DOMAIN_ORDER.length} />
-                  <div className="text-xs text-ink-500 mt-2">
+                  <div className="text-xs text-ink-500 dark:text-ink-400 mt-2">
                     {completed} of {DOMAIN_ORDER.length} domains complete
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-2 text-xs text-ink-500">
+                <div className="mt-4 flex items-center gap-2 text-xs text-ink-500 dark:text-ink-400">
                   <span>Updated {new Date(p.updatedAt).toLocaleString()}</span>
                 </div>
 
@@ -76,13 +76,13 @@ export default function ProjectsPage() {
 
                 <div className="mt-3 flex items-center justify-between text-xs">
                   <button
-                    className="text-ink-500 hover:text-ink-800"
+                    className="text-ink-500 dark:text-ink-400 hover:text-ink-800 dark:hover:text-ink-100"
                     onClick={() => duplicateProject(p.id)}
                   >
                     Duplicate
                   </button>
                   <button
-                    className="text-red-600 hover:text-red-700"
+                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                     onClick={() => {
                       if (confirm(`Delete "${p.name}"? This cannot be undone.`)) deleteProject(p.id);
                     }}

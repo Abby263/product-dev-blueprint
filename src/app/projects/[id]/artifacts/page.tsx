@@ -58,11 +58,11 @@ export default function ArtifactsPage() {
     <div className="max-w-7xl mx-auto px-6 py-10">
       <div className="flex items-start justify-between gap-6 mb-8">
         <div className="min-w-0">
-          <Link href={`/projects/${project.id}`} className="text-xs text-ink-500 hover:text-ink-800">
+          <Link href={`/projects/${project.id}`} className="text-xs text-ink-500 dark:text-ink-400 hover:text-ink-800 dark:hover:text-ink-100">
             ← {project.name || "Project"}
           </Link>
-          <h1 className="text-3xl font-semibold tracking-tight mt-1">Artifacts</h1>
-          <p className="text-sm text-ink-600 mt-1 max-w-2xl">
+          <h1 className="text-3xl font-semibold tracking-tight mt-1 text-ink-900 dark:text-ink-50">Artifacts</h1>
+          <p className="text-sm text-ink-600 dark:text-ink-400 mt-1 max-w-2xl">
             Every document below is generated from this project's canonical schema. Change an answer in intake and the
             relevant sections will update consistently. Bundle includes Markdown + DOCX formats and the raw project.json.
           </p>
@@ -80,7 +80,7 @@ export default function ArtifactsPage() {
       </div>
 
       {pct < 100 && (
-        <div className="mb-6 border border-amber-200 bg-amber-50 text-amber-800 rounded-lg p-4 text-sm">
+        <div className="mb-6 border border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 rounded-lg p-4 text-sm">
           Intake is not complete ({completed} of {DOMAIN_ORDER.length} domains). Sections will show <em>Not yet captured</em>
           where input is missing. Finish intake to produce a complete bundle.
         </div>
@@ -97,12 +97,12 @@ export default function ArtifactsPage() {
                 className={
                   "w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors " +
                   (isActive
-                    ? "bg-ink-900 text-white"
-                    : "bg-white text-ink-800 hover:bg-ink-100 border border-ink-200")
+                    ? "bg-ink-900 text-white dark:bg-ink-50 dark:text-ink-900"
+                    : "bg-white dark:bg-ink-900 text-ink-800 dark:text-ink-200 hover:bg-ink-100 dark:hover:bg-ink-800 border border-ink-200 dark:border-ink-800")
                 }
               >
                 <div className="font-medium">{b.title}</div>
-                <div className={isActive ? "text-ink-300 text-xs mt-0.5" : "text-ink-500 text-xs mt-0.5"}>
+                <div className={isActive ? "text-ink-400 dark:text-ink-600 text-xs mt-0.5" : "text-ink-500 dark:text-ink-400 text-xs mt-0.5"}>
                   {b.description}
                 </div>
               </button>
@@ -113,8 +113,8 @@ export default function ArtifactsPage() {
         <Card className="p-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <div className="text-xs uppercase tracking-wider text-ink-500">{active.title}</div>
-              <div className="text-sm text-ink-500 mt-1">Source file: <code className="text-xs">{active.filename}</code></div>
+              <div className="text-xs uppercase tracking-wider text-ink-500 dark:text-ink-400">{active.title}</div>
+              <div className="text-sm text-ink-500 dark:text-ink-400 mt-1">Source file: <code className="text-xs">{active.filename}</code></div>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="secondary" onClick={() => downloadFile(active.filename, active.body)}>

@@ -58,16 +58,16 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12">
-      <Link href="/projects" className="text-xs text-ink-500 hover:text-ink-800">← Projects</Link>
-      <h1 className="text-3xl font-semibold tracking-tight mt-1">Settings</h1>
-      <p className="text-sm text-ink-600 mt-1">
+      <Link href="/projects" className="text-xs text-ink-500 dark:text-ink-400 hover:text-ink-800 dark:hover:text-ink-100">← Projects</Link>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1 text-ink-900 dark:text-ink-50">Settings</h1>
+      <p className="text-sm text-ink-600 dark:text-ink-400 mt-1">
         All data is stored locally in your browser. Use the controls below to back up, restore, or wipe your projects.
       </p>
 
       <div className="mt-8 space-y-6">
         <Card className="p-6">
-          <div className="text-sm font-medium text-ink-800">Storage</div>
-          <p className="text-xs text-ink-500 mt-1">
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Storage</div>
+          <p className="text-xs text-ink-500 dark:text-ink-400 mt-1">
             {list.length} project{list.length === 1 ? "" : "s"} stored under <code className="text-[11px]">pdb-store-v2</code> in localStorage.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -82,8 +82,8 @@ export default function SettingsPage() {
 
         <Card className="p-6 space-y-3">
           <div>
-            <div className="text-sm font-medium text-ink-800">Import projects</div>
-            <p className="text-xs text-ink-500 mt-1">
+            <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Import projects</div>
+            <p className="text-xs text-ink-500 dark:text-ink-400 mt-1">
               Paste a single project JSON or an array of project JSONs (e.g. an export from another browser).
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function SettingsPage() {
             <Textarea rows={10} value={importText} onChange={(e) => setImportText(e.target.value)} placeholder='{"name":"…","oneLiner":"…", …}' />
           </Field>
           {importError && (
-            <div className="text-xs text-red-700 bg-red-50 border border-red-200 px-3 py-2 rounded-md">
+            <div className="text-xs text-red-700 dark:text-red-200 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700/50 px-3 py-2 rounded-md">
               {importError}
             </div>
           )}
@@ -101,8 +101,8 @@ export default function SettingsPage() {
         </Card>
 
         <Card className="p-6">
-          <div className="text-sm font-medium text-ink-800">About</div>
-          <p className="text-xs text-ink-600 mt-2 leading-relaxed">
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">About</div>
+          <p className="text-xs text-ink-600 dark:text-ink-400 mt-2 leading-relaxed">
             Product Dev Blueprint is a schema-first product-definition system. Intake answers populate one canonical{" "}
             <code className="text-[11px]">Project</code> object; every artifact is rendered deterministically from that schema.
             See the README in the repo for architecture details and the future roadmap (LLM orchestration, real-time
