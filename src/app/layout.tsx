@@ -4,9 +4,9 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const metadata: Metadata = {
-  title: "Product Dev Blueprint — turn any idea into a production-ready plan",
+  title: "Product Dev Blueprint — type your idea, get the full app blueprint",
   description:
-    "From a raw idea to SOW, PRD, system design, technical spec, ADRs, RTM, test strategy, launch & ops plan, GTM brief, and a coding-agent prompt pack — all generated from one canonical schema.",
+    "Answer a structured questionnaire. Get the SOW, PRD, technical design, system design, security posture, GTM plan, coding-agent prompts, and a boilerplate scaffold — all from one canonical schema.",
 };
 
 const NO_FOUC_SCRIPT = `

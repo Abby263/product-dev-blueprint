@@ -35,7 +35,7 @@ Every project generates a draft bundle of:
 
 Stable IDs (`FR-001`, `NFR-001`, `FEAT-001`, `ADR-001`, `RISK-001`, `ASM-001`, `Q-001`, `INT-001`, `ENT-001`, `SLO-001`, `KPI-001`) are assigned at creation and persist across every document.
 
-Bundle exports include **Markdown** + **DOCX** for every artifact, plus the raw `project.json`.
+Bundle exports include **Markdown** + **DOCX** for every artifact, the raw `project.json`, and a **`scaffold/` folder** with a starter README, `.env.example`, `docker-compose.yml`, and CI workflow stub matched to your platform stack.
 
 ## How it works
 
@@ -105,6 +105,7 @@ src/
     store.ts                        # Zustand store
     ids.ts                          # Stable ID allocation
     feature-suggestions.ts          # Rule-based feature seeding
+    scaffold.ts                     # Stack-aware boilerplate scaffold
     docx.ts                         # Markdown → DOCX renderer
     export.ts                       # Zip bundle + JSON downloads
     generators/                     # Markdown renderers per artifact
