@@ -47,7 +47,7 @@ export function generateDataInterfaceSpec(p: Project): string {
     ``,
     `## 4. Auth strategy`,
     ``,
-    fallback(p.dataTech.authStrategy),
+    `${p.platform.authMethod}${p.platform.rbacRequired ? " with RBAC" : ""}`,
   );
 
   return out.join("\n");

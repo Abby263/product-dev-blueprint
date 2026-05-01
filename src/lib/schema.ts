@@ -257,12 +257,49 @@ export interface SystemDesign {
   notes: string;
 }
 
+export type AIAgentFramework =
+  | "none"
+  | "langgraph"
+  | "langchain"
+  | "llamaindex"
+  | "crewai"
+  | "autogen"
+  | "openai-assistants"
+  | "vercel-ai-sdk"
+  | "haystack"
+  | "custom";
+
+export type AIObservability =
+  | "none"
+  | "langsmith"
+  | "langfuse"
+  | "weights-biases"
+  | "arize"
+  | "openllmetry"
+  | "datadog-llm"
+  | "helicone"
+  | "custom";
+
+export type VectorDB =
+  | "none"
+  | "pgvector"
+  | "pinecone"
+  | "weaviate"
+  | "qdrant"
+  | "chroma"
+  | "milvus"
+  | "elasticsearch"
+  | "redis-stack";
+
 export interface AIAutomation {
   needsAI: boolean;
   kinds: string[];                 // chatbot, agent, recommender, classifier, summarizer, automation, vision, voice
   ragNeeded: boolean;
   dataSources: string;
   modelProvider: "openai" | "anthropic" | "azure-openai" | "vertex" | "bedrock" | "open-source" | "mixed" | "tbd";
+  agentFramework: AIAgentFramework;
+  observability: AIObservability;
+  vectorDb: VectorDB;
   humanInLoop: boolean;
   guardrails: boolean;
   evaluation: boolean;
@@ -292,12 +329,6 @@ export interface DataAndTech {
   entities: Entity[];
   integrations: Integration[];
   dataResidency: string;
-  frontend: string;
-  backend: string;
-  database: string;
-  authStrategy: string;
-  cicd: string;
-  hosting: string;
   buildVsBuy: string;
 }
 

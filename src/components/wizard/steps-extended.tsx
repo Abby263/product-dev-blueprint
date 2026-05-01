@@ -2,14 +2,32 @@
 
 import { useStore } from "@/lib/store";
 import { Field, Input, Textarea, Select, MultiCheck, Checkbox, Button, Card, Badge } from "@/components/ui";
+import { OptionSelect } from "@/components/OptionSelect";
 import {
   Project,
   Feature,
   KPI,
   PlatformKind,
+  AIAgentFramework,
+  AIObservability,
+  VectorDB,
 } from "@/lib/schema";
 import { nextId } from "@/lib/ids";
 import { suggestFeatures, newBlankFeature } from "@/lib/feature-suggestions";
+import {
+  FRONTEND_OPTIONS,
+  BACKEND_OPTIONS,
+  API_STYLE_OPTIONS,
+  AUTH_METHOD_OPTIONS,
+  DATABASE_OPTIONS,
+  DATA_SHAPE_OPTIONS,
+  CLOUD_OPTIONS,
+  CONTAINERIZATION_OPTIONS,
+  AI_PROVIDER_OPTIONS,
+  AI_AGENT_FRAMEWORK_OPTIONS,
+  AI_OBSERVABILITY_OPTIONS,
+  VECTOR_DB_OPTIONS,
+} from "@/lib/options";
 
 // ─── Platform & channels ────────────────────────────────────────────────────
 export function PlatformStep({ project }: { project: Project }) {
@@ -79,23 +97,15 @@ export function PlatformStep({ project }: { project: Project }) {
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Frontend stack</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Framework">
-            <Select value={v.frontend} onChange={(e) => set("frontend", e.target.value as typeof v.frontend)}>
-              <option value="nextjs">Next.js</option>
-              <option value="react">React (CRA / Vite)</option>
-              <option value="vue">Vue</option>
-              <option value="angular">Angular</option>
-              <option value="svelte">Svelte / SvelteKit</option>
-              <option value="html">Plain HTML/CSS/JS</option>
-              <option value="other">Other</option>
-            </Select>
+            <OptionSelect value={v.frontend} options={FRONTEND_OPTIONS} onChange={(val) => set("frontend", val as typeof v.frontend)} />
           </Field>
-          <Field label="UI framework">
-            <Input value={v.uiFramework} onChange={(e) => set("uiFramework", e.target.value)} placeholder="shadcn/ui, MUI, Chakra…" />
+          <Field label="UI framework" hint="e.g. shadcn/ui, MUI, Chakra, Tailwind UI.">
+            <Input value={v.uiFramework} onChange={(e) => set("uiFramework", e.target.value)} placeholder="shadcn/ui" />
           </Field>
-          <Field label="State management">
-            <Input value={v.stateMgmt} onChange={(e) => set("stateMgmt", e.target.value)} placeholder="Zustand, Redux Toolkit, none…" />
+          <Field label="State management" hint="e.g. Zustand, Redux Toolkit, Jotai, none.">
+            <Input value={v.stateMgmt} onChange={(e) => set("stateMgmt", e.target.value)} placeholder="Zustand" />
           </Field>
-          <Field label="Design system reference">
+          <Field label="Design system reference" hint="What you're aiming for visually.">
             <Input value={v.designSystem} onChange={(e) => set("designSystem", e.target.value)} placeholder="Material 3, Stripe, custom…" />
           </Field>
         </div>
@@ -110,35 +120,13 @@ export function PlatformStep({ project }: { project: Project }) {
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Backend stack</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Framework">
-            <Select value={v.backend} onChange={(e) => set("backend", e.target.value as typeof v.backend)}>
-              <option value="fastapi">Python FastAPI</option>
-              <option value="django">Python Django</option>
-              <option value="express">Node.js Express</option>
-              <option value="nestjs">NestJS</option>
-              <option value="spring">Java Spring Boot</option>
-              <option value="dotnet">.NET Core</option>
-              <option value="go">Go</option>
-              <option value="rails">Ruby on Rails</option>
-              <option value="other">Other</option>
-            </Select>
+            <OptionSelect value={v.backend} options={BACKEND_OPTIONS} onChange={(val) => set("backend", val as typeof v.backend)} />
           </Field>
           <Field label="API style">
-            <Select value={v.apiStyle} onChange={(e) => set("apiStyle", e.target.value as typeof v.apiStyle)}>
-              <option value="rest">REST</option>
-              <option value="graphql">GraphQL</option>
-              <option value="grpc">gRPC</option>
-              <option value="mixed">Mixed</option>
-            </Select>
+            <OptionSelect value={v.apiStyle} options={API_STYLE_OPTIONS} onChange={(val) => set("apiStyle", val as typeof v.apiStyle)} />
           </Field>
           <Field label="Auth method">
-            <Select value={v.authMethod} onChange={(e) => set("authMethod", e.target.value as typeof v.authMethod)}>
-              <option value="oidc">OIDC / OAuth2</option>
-              <option value="saml">SAML</option>
-              <option value="jwt">JWT</option>
-              <option value="session">Server sessions</option>
-              <option value="api-key">API keys</option>
-              <option value="magic-link">Magic link</option>
-            </Select>
+            <OptionSelect value={v.authMethod} options={AUTH_METHOD_OPTIONS} onChange={(val) => set("authMethod", val as typeof v.authMethod)} />
           </Field>
         </div>
         <div className="flex flex-wrap gap-4">
@@ -155,25 +143,10 @@ export function PlatformStep({ project }: { project: Project }) {
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Database</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Primary store">
-            <Select value={v.database} onChange={(e) => set("database", e.target.value as typeof v.database)}>
-              <option value="postgres">PostgreSQL</option>
-              <option value="mysql">MySQL</option>
-              <option value="mongodb">MongoDB</option>
-              <option value="dynamodb">DynamoDB</option>
-              <option value="firebase">Firebase</option>
-              <option value="supabase">Supabase</option>
-              <option value="redis">Redis</option>
-              <option value="elasticsearch">Elasticsearch / OpenSearch</option>
-              <option value="other">Other</option>
-            </Select>
+            <OptionSelect value={v.database} options={DATABASE_OPTIONS} onChange={(val) => set("database", val as typeof v.database)} />
           </Field>
           <Field label="Data shape">
-            <Select value={v.dataShape} onChange={(e) => set("dataShape", e.target.value as typeof v.dataShape)}>
-              <option value="structured">Structured</option>
-              <option value="semi-structured">Semi-structured</option>
-              <option value="unstructured">Unstructured</option>
-              <option value="mixed">Mixed</option>
-            </Select>
+            <OptionSelect value={v.dataShape} options={DATA_SHAPE_OPTIONS} onChange={(val) => set("dataShape", val as typeof v.dataShape)} />
           </Field>
         </div>
         <div className="flex flex-wrap gap-4">
@@ -187,37 +160,22 @@ export function PlatformStep({ project }: { project: Project }) {
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Cloud & deployment</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Cloud / host">
-            <Select value={v.cloud} onChange={(e) => set("cloud", e.target.value as typeof v.cloud)}>
-              <option value="vercel">Vercel</option>
-              <option value="aws">AWS</option>
-              <option value="azure">Azure</option>
-              <option value="gcp">Google Cloud</option>
-              <option value="netlify">Netlify</option>
-              <option value="render">Render</option>
-              <option value="railway">Railway</option>
-              <option value="heroku">Heroku</option>
-              <option value="kubernetes">Kubernetes (any)</option>
-              <option value="self-hosted">Self-hosted</option>
-            </Select>
-          </Field>
-          <Field label="CI/CD">
-            <Input value={v.cicd} onChange={(e) => set("cicd", e.target.value)} />
+            <OptionSelect value={v.cloud} options={CLOUD_OPTIONS} onChange={(val) => set("cloud", val as typeof v.cloud)} />
           </Field>
           <Field label="Containerization">
-            <Select value={v.containerization} onChange={(e) => set("containerization", e.target.value as typeof v.containerization)}>
-              <option value="none">None</option>
-              <option value="docker">Docker</option>
-              <option value="kubernetes">Kubernetes</option>
-            </Select>
+            <OptionSelect value={v.containerization} options={CONTAINERIZATION_OPTIONS} onChange={(val) => set("containerization", val as typeof v.containerization)} />
           </Field>
-          <Field label="Environment strategy">
-            <Input value={v.envStrategy} onChange={(e) => set("envStrategy", e.target.value)} />
+          <Field label="CI/CD" hint="e.g. GitHub Actions, GitLab CI, CircleCI.">
+            <Input value={v.cicd} onChange={(e) => set("cicd", e.target.value)} placeholder="GitHub Actions" />
           </Field>
-          <Field label="Infrastructure as code">
-            <Input value={v.iac} onChange={(e) => set("iac", e.target.value)} />
+          <Field label="Environment strategy" hint="e.g. dev / stage / prod, ephemeral previews per PR.">
+            <Input value={v.envStrategy} onChange={(e) => set("envStrategy", e.target.value)} placeholder="dev / stage / prod" />
           </Field>
-          <Field label="Observability">
-            <Input value={v.observability} onChange={(e) => set("observability", e.target.value)} />
+          <Field label="Infrastructure as code" hint="e.g. Terraform, Pulumi, CDK.">
+            <Input value={v.iac} onChange={(e) => set("iac", e.target.value)} placeholder="Terraform" />
+          </Field>
+          <Field label="Observability" hint="e.g. OpenTelemetry + Datadog, Grafana + Loki + Tempo.">
+            <Input value={v.observability} onChange={(e) => set("observability", e.target.value)} placeholder="OpenTelemetry + Datadog" />
           </Field>
         </div>
       </Card>
@@ -493,21 +451,25 @@ export function AIStep({ project }: { project: Project }) {
 
           <div className="grid md:grid-cols-2 gap-5">
             <Field label="Model provider">
-              <Select value={v.modelProvider} onChange={(e) => set("modelProvider", e.target.value as typeof v.modelProvider)}>
-                <option value="tbd">TBD</option>
-                <option value="openai">OpenAI</option>
-                <option value="anthropic">Anthropic</option>
-                <option value="azure-openai">Azure OpenAI</option>
-                <option value="vertex">Google Vertex</option>
-                <option value="bedrock">AWS Bedrock</option>
-                <option value="open-source">Open-source / self-hosted</option>
-                <option value="mixed">Mixed</option>
-              </Select>
+              <OptionSelect value={v.modelProvider} options={AI_PROVIDER_OPTIONS} onChange={(val) => set("modelProvider", val as typeof v.modelProvider)} />
             </Field>
-            <Field label="Approved data sources for grounding">
+            <Field label="Approved data sources for grounding" hint="Where the agent is allowed to read from.">
               <Input value={v.dataSources} onChange={(e) => set("dataSources", e.target.value)} placeholder="docs, knowledge base, CRM…" />
             </Field>
           </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            <Field label="Agent framework">
+              <OptionSelect value={v.agentFramework} options={AI_AGENT_FRAMEWORK_OPTIONS} onChange={(val) => set("agentFramework", val as AIAgentFramework)} />
+            </Field>
+            <Field label="LLM observability / tracing">
+              <OptionSelect value={v.observability} options={AI_OBSERVABILITY_OPTIONS} onChange={(val) => set("observability", val as AIObservability)} />
+            </Field>
+          </div>
+
+          <Field label="Vector database">
+            <OptionSelect value={v.vectorDb} options={VECTOR_DB_OPTIONS} onChange={(val) => set("vectorDb", val as VectorDB)} />
+          </Field>
 
           <div className="flex flex-wrap gap-4">
             <Checkbox label="RAG needed" checked={v.ragNeeded} onChange={(b) => set("ragNeeded", b)} />

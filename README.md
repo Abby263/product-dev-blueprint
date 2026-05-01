@@ -31,7 +31,8 @@ Every project generates a draft bundle of:
 | 14 | Security & compliance checklist | Frameworks, controls, framework-specific reminders |
 | 15 | Feature specification | Per-feature acceptance, edge cases, security, ops |
 | 16 | Implementation roadmap | Features grouped by release with quality gates |
-| 17 | Coding-agent prompt pack | Cursor / Lovable / Replit-ready prompts wired to the bundle |
+| 17 | Cost estimate | Order-of-magnitude monthly infra cost (compute + DB + AI tooling + bandwidth) based on your stack and capacity |
+| 18 | Coding-agent prompt pack | Cursor / Lovable / Replit-ready prompts wired to the bundle |
 
 Stable IDs (`FR-001`, `NFR-001`, `FEAT-001`, `ADR-001`, `RISK-001`, `ASM-001`, `Q-001`, `INT-001`, `ENT-001`, `SLO-001`, `KPI-001`) are assigned at creation and persist across every document.
 
@@ -48,6 +49,10 @@ Bundle exports include **Markdown** + **DOCX** for every artifact, the raw `proj
 The platform infers context-specific corner cases (e.g. virtual-queue UX cases when the timing model is real-time) and activates compliance packs (PIPEDA, HIPAA, PHIPA, OSFI, PCI DSS, GDPR, OWASP ASVS, OWASP LLM Top 10, NIST AI RMF) by vertical and geography.
 
 A rule-based **feature suggestion engine** seeds tailored feature lists when the user clicks _Suggest features_ in the Feature Builder — driven by surface, timing model, vertical, AI, and platform choices.
+
+Every dropdown in the wizard ships with **inline "best for" guidance** under the selected option — so you don't need to leave the page to research what each stack/framework choice implies.
+
+The AI step covers more than just provider choice: **agent framework** (LangGraph, LangChain, LlamaIndex, CrewAI, AutoGen, OpenAI Assistants, Vercel AI SDK, Haystack), **observability/tracing** (LangSmith, Langfuse, W&B Weave, Arize, OpenLLMetry, Datadog LLM, Helicone), and **vector database** (pgvector, Pinecone, Weaviate, Qdrant, Chroma, Milvus, etc.) — all with the same inline guidance.
 
 ## Stack
 
@@ -104,11 +109,12 @@ src/
     schema.ts                       # Canonical Project type
     store.ts                        # Zustand store
     ids.ts                          # Stable ID allocation
+    options.ts                      # Dropdown option catalog with "best for" hints
     feature-suggestions.ts          # Rule-based feature seeding
     scaffold.ts                     # Stack-aware boilerplate scaffold
     docx.ts                         # Markdown → DOCX renderer
     export.ts                       # Zip bundle + JSON downloads
-    generators/                     # Markdown renderers per artifact
+    generators/                     # Markdown renderers per artifact (18 docs)
 ```
 
 ## Contributing

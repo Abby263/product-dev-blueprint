@@ -7,7 +7,8 @@ updates:
       day: monday
       time: "09:00"
       timezone: America/Toronto
-    open-pull-requests-limit: 5
+    # Paused: set back to 5 once we have a regular dep-bump review cadence.
+    open-pull-requests-limit: 0
     versioning-strategy: increase
     groups:
       next:
@@ -36,6 +37,7 @@ updates:
     directory: "/"
     schedule:
       interval: monthly
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - github-actions

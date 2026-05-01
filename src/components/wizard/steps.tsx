@@ -565,32 +565,16 @@ export function DataTechStep({ project }: { project: Project }) {
   return (
     <div className="space-y-6">
       <Card className="p-6 space-y-5">
-        <div className="grid md:grid-cols-2 gap-5">
-          <Field label="Frontend">
-            <Input value={v.frontend} onChange={(e) => set("frontend", e.target.value)} placeholder="e.g. Next.js + React" />
-          </Field>
-          <Field label="Backend">
-            <Input value={v.backend} onChange={(e) => set("backend", e.target.value)} placeholder="e.g. Node.js / Go / Python" />
-          </Field>
-          <Field label="Database">
-            <Input value={v.database} onChange={(e) => set("database", e.target.value)} placeholder="e.g. Postgres + Redis" />
-          </Field>
-          <Field label="Auth strategy">
-            <Input value={v.authStrategy} onChange={(e) => set("authStrategy", e.target.value)} placeholder="e.g. OIDC via Okta" />
-          </Field>
-          <Field label="CI/CD">
-            <Input value={v.cicd} onChange={(e) => set("cicd", e.target.value)} placeholder="e.g. GitHub Actions, Argo" />
-          </Field>
-          <Field label="Hosting">
-            <Input value={v.hosting} onChange={(e) => set("hosting", e.target.value)} placeholder="e.g. AWS ca-central-1" />
-          </Field>
-        </div>
+        <p className="text-xs text-ink-500 dark:text-ink-400">
+          Stack picks (frontend, backend, database, cloud, auth method) live in the <strong>Platform &amp; channels</strong> step
+          — change them there. This step is the canonical model: entities, integrations, residency, and build-vs-buy.
+        </p>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Data residency" hint="Where data must live to satisfy contracts and regulators.">
-            <Input value={v.dataResidency} onChange={(e) => set("dataResidency", e.target.value)} />
+            <Input value={v.dataResidency} onChange={(e) => set("dataResidency", e.target.value)} placeholder="e.g. Canadian region only; EU never" />
           </Field>
-          <Field label="Build vs. buy decisions">
-            <Input value={v.buildVsBuy} onChange={(e) => set("buildVsBuy", e.target.value)} />
+          <Field label="Build vs. buy decisions" hint="What you'll buy off-the-shelf vs. build in-house, and why.">
+            <Input value={v.buildVsBuy} onChange={(e) => set("buildVsBuy", e.target.value)} placeholder="e.g. buy auth (Clerk); build queue engine" />
           </Field>
         </div>
       </Card>

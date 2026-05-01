@@ -35,6 +35,7 @@ export function generateCodingAgentPrompts(p: Project): string {
     `- 11-risk-register.md`,
     `- 15-feature-spec.md`,
     `- 16-implementation-roadmap.md`,
+    `- 17-cost-estimate.md`,
     ...(p.ai.needsAI ? [`- 13-ai-architecture.md`] : []),
     ``,
     `Constraints:`,

@@ -28,6 +28,7 @@ const HERO_DOCS = [
   "PRD",
   "Technical design",
   "System design",
+  "Cost estimate",
   "Security & compliance",
   "GTM brief",
   "Coding-agent prompts",
@@ -52,6 +53,7 @@ const FULL_BUNDLE = [
   "Feature specification",
   "Implementation roadmap",
   "Coding-agent prompt pack",
+  "Cost estimate",
 ];
 
 export default function Home() {

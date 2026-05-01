@@ -16,6 +16,7 @@ import { generateComplianceChecklist } from "./compliance-checklist";
 import { generateFeatureSpec } from "./feature-spec";
 import { generateRoadmap } from "./roadmap";
 import { generateCodingAgentPrompts } from "./coding-agent-prompts";
+import { generateCostEstimate } from "./cost-estimate";
 
 export interface Artifact {
   key: string;
@@ -140,9 +141,16 @@ export function generateBundle(project: Project): Artifact[] {
       body: generateRoadmap(project),
     },
     {
+      key: "cost-estimate",
+      title: "Cost estimate",
+      filename: "17-cost-estimate.md",
+      description: "Order-of-magnitude monthly infra cost based on your stack and capacity.",
+      body: generateCostEstimate(project),
+    },
+    {
       key: "coding-agent-prompts",
       title: "Coding-agent prompt pack",
-      filename: "17-coding-agent-prompts.md",
+      filename: "18-coding-agent-prompts.md",
       description: "Cursor / Lovable / Replit-ready prompts wired to the bundle.",
       body: generateCodingAgentPrompts(project),
     },
