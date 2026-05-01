@@ -20,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <nav className="flex items-center gap-5 text-sm">
               <Link href="/projects" className="text-ink-700 hover:text-ink-900">Projects</Link>
+              <Link href="/settings" className="text-ink-700 hover:text-ink-900">Settings</Link>
               <Link href="/projects/new" className="px-3 py-1.5 rounded-md bg-ink-900 text-white hover:bg-ink-800">
                 New project
               </Link>

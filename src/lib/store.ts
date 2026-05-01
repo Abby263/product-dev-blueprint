@@ -8,20 +8,22 @@ import { uid } from "./ids";
 interface State {
   projects: Record<string, Project>;
   order: string[];
-  createProject: (name: string, oneLiner: string) => string;
+  createProject: (name: string, oneLiner: string, ideaDescription?: string) => string;
   deleteProject: (id: string) => void;
   updateProject: (id: string, patch: Partial<Project>) => void;
   patchDomain: <K extends keyof Project>(id: string, key: K, value: Project[K]) => void;
   markStep: (id: string, step: DomainKey, status: "complete" | "in-progress") => void;
   duplicateProject: (id: string) => string | null;
+  importProject: (project: Project) => string;
 }
 
-export function emptyProject(name: string, oneLiner: string): Project {
+export function emptyProject(name: string, oneLiner: string, ideaDescription = ""): Project {
   const now = new Date().toISOString();
   return {
     id: uid(),
     name,
     oneLiner,
+    ideaDescription,
     createdAt: now,
     updatedAt: now,
     problem: {
@@ -54,9 +56,49 @@ export function emptyProject(name: string, oneLiner: string): Project {
       notifications: [],
       timingModel: "neither",
     },
+    platform: {
+      kinds: [],
+      webMarketing: false,
+      webPortal: false,
+      webAdmin: false,
+      webPwa: false,
+      webEnterprise: false,
+      mobileIOS: false,
+      mobileAndroid: false,
+      mobileFramework: "none",
+      frontend: "nextjs",
+      uiFramework: "shadcn/ui",
+      stateMgmt: "Zustand",
+      designSystem: "",
+      authRequired: true,
+      responsiveRequired: true,
+      accessibilityRequired: true,
+      backend: "fastapi",
+      apiStyle: "rest",
+      authMethod: "oidc",
+      rbacRequired: true,
+      backgroundJobs: false,
+      webhooks: false,
+      eventDriven: false,
+      rateLimiting: true,
+      caching: true,
+      database: "postgres",
+      dataShape: "structured",
+      multiTenant: false,
+      searchNeeded: false,
+      realtimeNeeded: false,
+      cloud: "vercel",
+      cicd: "GitHub Actions",
+      iac: "Terraform",
+      observability: "OpenTelemetry + Datadog",
+      containerization: "docker",
+      envStrategy: "dev / stage / prod",
+    },
     functional: {
       personas: [],
       requirements: [],
+      features: [],
+      kpis: [],
       businessRules: "",
       edgeCases: "",
     },
@@ -83,6 +125,54 @@ export function emptyProject(name: string, oneLiner: string): Project {
       hosting: "",
       buildVsBuy: "",
     },
+    systemDesign: {
+      expectedUsersTotal: 0,
+      dau: 0,
+      mau: 0,
+      peakConcurrent: 0,
+      avgRequestsPerUserPerDay: 0,
+      readWriteRatio: "80:20",
+      dataGrowthGBPerMonth: 0,
+      notificationsPerDay: 0,
+      availabilityTarget: "99.9%",
+      latencyTargetMs: 300,
+      geographicCoverage: "",
+      multiRegion: false,
+      drNeeded: false,
+      cachingStrategy: "",
+      dbScalingStrategy: "",
+      queueStrategy: "",
+      notes: "",
+    },
+    ai: {
+      needsAI: false,
+      kinds: [],
+      ragNeeded: false,
+      dataSources: "",
+      modelProvider: "tbd",
+      humanInLoop: false,
+      guardrails: false,
+      evaluation: false,
+      promptManagement: false,
+      auditLogs: false,
+      privacyFiltering: false,
+      notes: "",
+    },
+    compliance: {
+      processesPersonalData: false,
+      processesFinancialData: false,
+      processesHealthData: false,
+      frameworks: [],
+      consentMgmt: false,
+      auditLogs: false,
+      encryptionAtRest: true,
+      encryptionInTransit: true,
+      rbacRequired: true,
+      dataResidencyRequired: false,
+      incidentResponseRequired: true,
+      pentestCadence: "annual",
+      threatModel: "",
+    },
     gtm: {
       packaging: "saas",
       segments: "",
@@ -91,6 +181,13 @@ export function emptyProject(name: string, oneLiner: string): Project {
       channelStrategy: "",
       launchGeography: "",
       complianceGating: "",
+      pricingModel: "",
+      acquisitionChannels: "",
+      retentionStrategy: "",
+      partnerships: "",
+      competitors: "",
+      positioning: "",
+      marketingKpis: "",
     },
     governance: {
       owner: "",
@@ -116,8 +213,8 @@ export const useStore = create<State>()(
     (set, get) => ({
       projects: {},
       order: [],
-      createProject: (name, oneLiner) => {
-        const project = emptyProject(name || "Untitled project", oneLiner || "");
+      createProject: (name, oneLiner, ideaDescription = "") => {
+        const project = emptyProject(name || "Untitled project", oneLiner || "", ideaDescription);
         set((s) => ({
           projects: { ...s.projects, [project.id]: project },
           order: [project.id, ...s.order],
@@ -168,9 +265,17 @@ export const useStore = create<State>()(
         }));
         return copy.id;
       },
+      importProject: (project) => {
+        const copy: Project = { ...project, id: uid(), updatedAt: new Date().toISOString() };
+        set((s) => ({
+          projects: { ...s.projects, [copy.id]: copy },
+          order: [copy.id, ...s.order],
+        }));
+        return copy.id;
+      },
     }),
     {
-      name: "pdb-store-v1",
+      name: "pdb-store-v2",
       storage: createJSONStorage(() => localStorage),
     },
   ),

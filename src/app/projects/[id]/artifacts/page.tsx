@@ -8,7 +8,8 @@ import { useParams } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Badge, Button, Card } from "@/components/ui";
 import { generateBundle } from "@/lib/generators";
-import { downloadFile, downloadProjectBundle } from "@/lib/export";
+import { downloadFile, downloadProjectBundle, downloadProjectJSON } from "@/lib/export";
+import { downloadDocx } from "@/lib/docx";
 import { DOMAIN_ORDER } from "@/lib/schema";
 
 export default function ArtifactsPage() {
@@ -17,6 +18,7 @@ export default function ArtifactsPage() {
   const project = useStore((s) => s.projects[id]);
   const [hydrated, setHydrated] = useState(false);
   const [activeKey, setActiveKey] = useState("exec-summary");
+  const [downloading, setDownloading] = useState(false);
   useEffect(() => setHydrated(true), []);
 
   const bundle = useMemo(() => (project ? generateBundle(project) : []), [project]);
@@ -37,6 +39,21 @@ export default function ArtifactsPage() {
   const completed = DOMAIN_ORDER.filter((d) => project.progress[d] === "complete").length;
   const pct = Math.round((completed / DOMAIN_ORDER.length) * 100);
 
+  async function downloadActiveDocx() {
+    if (!active) return;
+    await downloadDocx(active.filename.replace(/\.md$/, ".docx"), active.title, active.body);
+  }
+
+  async function downloadFullBundle() {
+    if (!project) return;
+    setDownloading(true);
+    try {
+      await downloadProjectBundle(project);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
       <div className="flex items-start justify-between gap-6 mb-8">
@@ -47,7 +64,7 @@ export default function ArtifactsPage() {
           <h1 className="text-3xl font-semibold tracking-tight mt-1">Artifacts</h1>
           <p className="text-sm text-ink-600 mt-1 max-w-2xl">
             Every document below is generated from this project's canonical schema. Change an answer in intake and the
-            relevant sections will update consistently.
+            relevant sections will update consistently. Bundle includes Markdown + DOCX formats and the raw project.json.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -55,7 +72,10 @@ export default function ArtifactsPage() {
           <Link href={`/projects/${project.id}/intake`}>
             <Button variant="secondary">Edit intake</Button>
           </Link>
-          <Button onClick={() => downloadProjectBundle(project)}>Download bundle (.zip)</Button>
+          <Button variant="secondary" onClick={() => downloadProjectJSON(project)}>Download JSON</Button>
+          <Button onClick={downloadFullBundle} disabled={downloading}>
+            {downloading ? "Packing…" : "Download bundle (.zip)"}
+          </Button>
         </div>
       </div>
 
@@ -98,8 +118,9 @@ export default function ArtifactsPage() {
             </div>
             <div className="flex items-center gap-2">
               <Button variant="secondary" onClick={() => downloadFile(active.filename, active.body)}>
-                Download .md
+                .md
               </Button>
+              <Button variant="secondary" onClick={downloadActiveDocx}>.docx</Button>
               <Button
                 variant="ghost"
                 onClick={() => navigator.clipboard.writeText(active.body)}

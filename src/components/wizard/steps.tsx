@@ -47,6 +47,14 @@ export function BasicsStep({ project }: { project: Project }) {
           placeholder="A queueing platform that lets users hold their place from anywhere and arrive only when their turn is near."
         />
       </Field>
+      <Field label="Detailed idea description" hint="Several sentences: the longer pitch you would tell a stakeholder.">
+        <Textarea
+          rows={5}
+          value={project.ideaDescription}
+          onChange={(e) => update({ ideaDescription: e.target.value })}
+          placeholder="I want to build a queue-management app for clinics, banks, and restaurants where customers can reserve a queue number and get an estimated waiting time…"
+        />
+      </Field>
       <StakeholdersEditor project={project} />
     </Card>
   );
@@ -652,9 +660,18 @@ export function GTMStep({ project }: { project: Project }) {
           <option value="other">Other</option>
         </Select>
       </Field>
+      <Field label="Pricing model" hint="Per-seat, per-location, usage, freemium, hybrid…">
+        <Input value={v.pricingModel} onChange={(e) => set("pricingModel", e.target.value)} />
+      </Field>
       <div className="grid md:grid-cols-2 gap-5">
         <Field label="Target segments">
           <Textarea rows={2} value={v.segments} onChange={(e) => set("segments", e.target.value)} />
+        </Field>
+        <Field label="Positioning statement">
+          <Textarea rows={2} value={v.positioning} onChange={(e) => set("positioning", e.target.value)} placeholder="For [audience] who [need], our product is [category] that [value]." />
+        </Field>
+        <Field label="Top competitors">
+          <Textarea rows={2} value={v.competitors} onChange={(e) => set("competitors", e.target.value)} />
         </Field>
         <Field label="Buyer objections to plan for">
           <Textarea rows={2} value={v.buyerObjections} onChange={(e) => set("buyerObjections", e.target.value)} />
@@ -665,11 +682,23 @@ export function GTMStep({ project }: { project: Project }) {
         <Field label="Channel strategy">
           <Textarea rows={2} value={v.channelStrategy} onChange={(e) => set("channelStrategy", e.target.value)} />
         </Field>
+        <Field label="Acquisition channels">
+          <Textarea rows={2} value={v.acquisitionChannels} onChange={(e) => set("acquisitionChannels", e.target.value)} placeholder="SEO, partnerships, outbound, paid…" />
+        </Field>
+        <Field label="Retention strategy">
+          <Textarea rows={2} value={v.retentionStrategy} onChange={(e) => set("retentionStrategy", e.target.value)} />
+        </Field>
+        <Field label="Partnerships">
+          <Textarea rows={2} value={v.partnerships} onChange={(e) => set("partnerships", e.target.value)} />
+        </Field>
         <Field label="Launch geography">
           <Input value={v.launchGeography} onChange={(e) => set("launchGeography", e.target.value)} placeholder="e.g. Canada first, then US northeast" />
         </Field>
         <Field label="Compliance gating" hint="What must clear before each market opens.">
           <Textarea rows={2} value={v.complianceGating} onChange={(e) => set("complianceGating", e.target.value)} />
+        </Field>
+        <Field label="Marketing KPIs">
+          <Textarea rows={2} value={v.marketingKpis} onChange={(e) => set("marketingKpis", e.target.value)} />
         </Field>
       </div>
     </Card>

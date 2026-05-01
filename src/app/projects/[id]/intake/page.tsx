@@ -17,6 +17,13 @@ import {
   GTMStep,
   GovernanceStep,
 } from "@/components/wizard/steps";
+import {
+  PlatformStep,
+  FeaturesStep,
+  SystemDesignStep,
+  AIStep,
+  ComplianceStep,
+} from "@/components/wizard/steps-extended";
 import { DOMAIN_ORDER, DomainKey } from "@/lib/schema";
 
 export default function IntakePage() {
@@ -56,9 +63,14 @@ export default function IntakePage() {
       {step === "problem" && <ProblemStep project={project} />}
       {step === "market" && <MarketStep project={project} />}
       {step === "experience" && <ExperienceStep project={project} />}
+      {step === "platform" && <PlatformStep project={project} />}
       {step === "functional" && <FunctionalStep project={project} />}
+      {step === "features" && <FeaturesStep project={project} />}
       {step === "nonfunctional" && <NonFunctionalStep project={project} />}
+      {step === "systemDesign" && <SystemDesignStep project={project} />}
       {step === "dataTech" && <DataTechStep project={project} />}
+      {step === "ai" && <AIStep project={project} />}
+      {step === "compliance" && <ComplianceStep project={project} />}
       {step === "gtm" && <GTMStep project={project} />}
       {step === "governance" && <GovernanceStep project={project} />}
     </WizardShell>

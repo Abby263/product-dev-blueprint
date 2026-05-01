@@ -10,6 +10,12 @@ import { generateLaunchOps } from "./launch-ops";
 import { generateMarketingBrief } from "./marketing";
 import { generateDataInterfaceSpec } from "./data-interface";
 import { generateRiskRegister } from "./risk-register";
+import { generateSystemDesign } from "./system-design";
+import { generateAIArchitecture } from "./ai-architecture";
+import { generateComplianceChecklist } from "./compliance-checklist";
+import { generateFeatureSpec } from "./feature-spec";
+import { generateRoadmap } from "./roadmap";
+import { generateCodingAgentPrompts } from "./coding-agent-prompts";
 
 export interface Artifact {
   key: string;
@@ -32,7 +38,7 @@ export function generateBundle(project: Project): Artifact[] {
       key: "prd",
       title: "Product requirements (PRD)",
       filename: "02-prd.md",
-      description: "Goals, personas, requirements with acceptance criteria.",
+      description: "Goals, personas, requirements, features, KPIs.",
       body: generatePRD(project),
     },
     {
@@ -97,6 +103,48 @@ export function generateBundle(project: Project): Artifact[] {
       filename: "11-risk-register.md",
       description: "Risks, assumptions, open questions, compliance packs.",
       body: generateRiskRegister(project),
+    },
+    {
+      key: "system-design",
+      title: "System design",
+      filename: "12-system-design.md",
+      description: "Capacity estimates, scaling, caching, multi-region, DR.",
+      body: generateSystemDesign(project),
+    },
+    {
+      key: "ai-architecture",
+      title: "AI architecture",
+      filename: "13-ai-architecture.md",
+      description: "Pipeline, RAG, evals, guardrails, HITL — when AI is in scope.",
+      body: generateAIArchitecture(project),
+    },
+    {
+      key: "compliance",
+      title: "Security & compliance checklist",
+      filename: "14-compliance-checklist.md",
+      description: "Frameworks, controls, framework-specific reminders.",
+      body: generateComplianceChecklist(project),
+    },
+    {
+      key: "feature-spec",
+      title: "Feature specification",
+      filename: "15-feature-spec.md",
+      description: "Per-feature details with acceptance, edges, security.",
+      body: generateFeatureSpec(project),
+    },
+    {
+      key: "roadmap",
+      title: "Implementation roadmap",
+      filename: "16-implementation-roadmap.md",
+      description: "Features grouped by release with quality gates.",
+      body: generateRoadmap(project),
+    },
+    {
+      key: "coding-agent-prompts",
+      title: "Coding-agent prompt pack",
+      filename: "17-coding-agent-prompts.md",
+      description: "Cursor / Lovable / Replit-ready prompts wired to the bundle.",
+      body: generateCodingAgentPrompts(project),
     },
   ];
 }

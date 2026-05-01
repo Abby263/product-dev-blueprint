@@ -86,6 +86,39 @@ export function generatePRD(p: Project): string {
   }
 
   out.push(
+    `## 7a. Features`,
+    ``,
+    `Each feature has a stable ID. The full per-feature spec lives in document 13; the roadmap (document 14) groups them by release.`,
+    ``,
+  );
+
+  if (p.functional.features.length === 0) {
+    out.push("_No features captured yet — visit the Feature Builder step._", "");
+  } else {
+    out.push(`| ID | Name | Priority | Complexity | Value | Release |`);
+    out.push(`|---|---|---|---|---|---|`);
+    p.functional.features.forEach((f) => {
+      out.push(`| ${f.id} | ${f.name || "_untitled_"} | ${f.priority} | ${f.complexity} | ${f.businessValue} | ${f.release} |`);
+    });
+    out.push("");
+  }
+
+  out.push(
+    `## 7b. KPIs`,
+    ``,
+  );
+  if (p.functional.kpis.length === 0) {
+    out.push("_No KPIs captured._", "");
+  } else {
+    out.push(`| ID | Name | Definition | Target | Cadence |`);
+    out.push(`|---|---|---|---|---|`);
+    p.functional.kpis.forEach((k) => {
+      out.push(`| ${k.id} | ${k.name} | ${k.definition} | ${k.target} | ${k.cadence} |`);
+    });
+    out.push("");
+  }
+
+  out.push(
     `## 8. Quality attributes`,
     ``,
     `- **Availability target:** ${p.nonfunctional.availabilityTarget}`,
