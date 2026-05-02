@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { useId, useMemo, useState, type CSSProperties } from "react";
 
 type Direction = "LR" | "TD";
 
@@ -217,6 +217,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
   const markerId = useId().replace(/:/g, "");
   const diagram = useMemo(() => parseMermaidFlowchart(chart), [chart]);
   const layout = useMemo(() => (diagram ? layoutDiagram(diagram) : null), [diagram]);
+  const [expanded, setExpanded] = useState(false);
 
   if (!diagram || !layout) {
     return (
@@ -229,14 +230,17 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
     );
   }
 
-  return (
-    <div className="my-5 max-w-full overflow-x-auto rounded-lg border border-ink-200 bg-white p-3 dark:border-ink-800 dark:bg-ink-950">
+  const activeDiagram = diagram;
+  const activeLayout = layout;
+
+  function renderSvg(className: string, style: CSSProperties) {
+    return (
       <svg
         role="img"
         aria-label="Architecture diagram"
-        viewBox={`0 0 ${layout.width} ${layout.height}`}
-        className="h-auto min-w-[720px] max-w-none"
-        style={{ width: "100%" }}
+        viewBox={`0 0 ${activeLayout.width} ${activeLayout.height}`}
+        className={className}
+        style={style}
       >
         <defs>
           <marker
@@ -252,16 +256,16 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
           </marker>
         </defs>
 
-        {diagram.edges.map((edge, index) => {
-          const from = layout.nodes.get(edge.from);
-          const to = layout.nodes.get(edge.to);
+        {activeDiagram.edges.map((edge, index) => {
+          const from = activeLayout.nodes.get(edge.from);
+          const to = activeLayout.nodes.get(edge.to);
           if (!from || !to) return null;
           const labelX = (from.x + to.x + NODE_WIDTH) / 2;
           const labelY = (from.y + to.y + NODE_HEIGHT) / 2 - 8;
           return (
             <g key={`${edge.from}-${edge.to}-${index}`}>
               <path
-                d={edgePath(from, to, diagram.direction)}
+                d={edgePath(from, to, activeDiagram.direction)}
                 fill="none"
                 markerEnd={`url(#${markerId})`}
                 strokeWidth="2"
@@ -282,7 +286,7 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
           );
         })}
 
-        {Array.from(layout.nodes.values()).map((node) => {
+        {Array.from(activeLayout.nodes.values()).map((node) => {
           const lines = wrapLabel(node.label);
           const firstLineY = node.y + NODE_HEIGHT / 2 - (lines.length - 1) * 8;
           return (
@@ -312,6 +316,50 @@ export default function MermaidDiagram({ chart }: { chart: string }) {
           );
         })}
       </svg>
-    </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="my-5 max-w-full rounded-lg border border-ink-200 bg-white p-3 dark:border-ink-800 dark:bg-ink-950">
+        <div className="mb-3 flex items-center justify-end">
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="rounded-md border border-ink-200 bg-white px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:bg-ink-800"
+          >
+            Enlarge diagram
+          </button>
+        </div>
+        <div className="max-w-full overflow-x-auto">
+          {renderSvg("h-auto min-w-[720px] max-w-none", { width: "100%" })}
+        </div>
+      </div>
+
+      {expanded && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Expanded architecture diagram"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/80 p-3 sm:p-6"
+        >
+          <div className="flex max-h-[92vh] w-full max-w-7xl flex-col rounded-lg border border-ink-200 bg-white shadow-xl dark:border-ink-800 dark:bg-ink-950">
+            <div className="flex items-center justify-between gap-3 border-b border-ink-200 px-4 py-3 dark:border-ink-800">
+              <div className="text-sm font-medium text-ink-900 dark:text-ink-50">Architecture diagram</div>
+              <button
+                type="button"
+                onClick={() => setExpanded(false)}
+                className="rounded-md border border-ink-200 bg-white px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:bg-ink-800"
+              >
+                Close
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-auto p-4">
+              {renderSvg("h-auto max-w-none", { width: Math.max(activeLayout.width, 1100) })}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
