@@ -43,7 +43,7 @@ export default function NewProjectPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
       <h1 className="text-3xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
         Start a new blueprint
       </h1>
@@ -51,10 +51,10 @@ export default function NewProjectPage() {
         Pick a fully-populated template to use as a reference, or start blank. You can edit every answer afterwards.
       </p>
 
-      <div className="mt-8 grid lg:grid-cols-[1.4fr_1fr] gap-8">
-        <div>
+      <div className="mt-8 grid min-w-0 lg:grid-cols-[1.4fr_1fr] gap-6 lg:gap-8">
+        <div className="min-w-0">
           <h2 className="text-sm font-semibold text-ink-800 dark:text-ink-100 mb-3">Templates</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid min-w-0 sm:grid-cols-2 gap-3">
             {TEMPLATES.map((t) => (
               <TemplateCard
                 key={t.id}
@@ -70,19 +70,19 @@ export default function NewProjectPage() {
           </div>
         </div>
 
-        <div>
-          <Card className="p-6 space-y-4 sticky top-20">
+        <div className="min-w-0">
+          <Card className="w-full p-5 sm:p-6 space-y-4 lg:sticky lg:top-20">
             <div>
               <div className="text-xs uppercase tracking-wider text-accent-700 dark:text-accent-300">
                 Selected template
               </div>
-              <div className="mt-1 text-base font-semibold text-ink-900 dark:text-ink-50">
+              <div className="mt-1 text-base font-semibold text-ink-900 dark:text-ink-50 break-words">
                 {active.title}
               </div>
-              <p className="mt-1.5 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">{active.blurb}</p>
+              <p className="mt-1.5 text-sm text-ink-600 dark:text-ink-400 leading-relaxed break-words">{active.blurb}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {active.stackChips?.map((c) => (
-                  <span key={c} className="text-[11px] px-1.5 py-0.5 rounded border border-ink-200 dark:border-ink-700 bg-ink-50 dark:bg-ink-800 text-ink-700 dark:text-ink-200">
+                  <span key={c} className="max-w-full break-words text-[11px] px-1.5 py-0.5 rounded border border-ink-200 dark:border-ink-700 bg-ink-50 dark:bg-ink-800 text-ink-700 dark:text-ink-200">
                     {c}
                   </span>
                 ))}
@@ -90,14 +90,14 @@ export default function NewProjectPage() {
               {active.complianceChips && active.complianceChips.length > 0 && (
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {active.complianceChips.map((c) => (
-                    <span key={c} className="text-[11px] px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200">
+                    <span key={c} className="max-w-full break-words text-[11px] px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200">
                       {c}
                     </span>
                   ))}
                 </div>
               )}
               {active.scaleChip && (
-                <div className="mt-2 text-xs text-ink-500 dark:text-ink-400">{active.scaleChip}</div>
+                <div className="mt-2 text-xs text-ink-500 dark:text-ink-400 break-words">{active.scaleChip}</div>
               )}
               {!isBlank && (
                 <div className="mt-3">
@@ -131,7 +131,7 @@ export default function NewProjectPage() {
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={start}>
+              <Button onClick={start} className="w-full sm:w-auto justify-center">
                 {isBlank ? "Start blank intake" : "Use this template"}
               </Button>
             </div>
@@ -156,17 +156,17 @@ function TemplateCard({
     <button
       onClick={onClick}
       className={
-        "text-left border rounded-xl p-5 transition-colors h-full flex flex-col " +
+        "w-full max-w-full overflow-hidden text-left border rounded-xl p-4 sm:p-5 transition-colors h-full flex flex-col min-w-0 " +
         (active
           ? "border-accent-500 ring-2 ring-accent-200 dark:ring-accent-700/40 bg-accent-50/40 dark:bg-accent-900/20"
           : "border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 hover:border-ink-300 dark:hover:border-ink-700")
       }
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="text-sm font-semibold text-ink-900 dark:text-ink-50">{template.title}</div>
+      <div className="flex min-w-0 items-start justify-between gap-2">
+        <div className="min-w-0 text-sm font-semibold text-ink-900 dark:text-ink-50 break-words">{template.title}</div>
         {!isBlank && <Badge tone={active ? "accent" : "good"}>Pre-filled</Badge>}
       </div>
-      <p className="mt-1.5 text-xs text-ink-600 dark:text-ink-400 leading-relaxed">{template.blurb}</p>
+      <p className="mt-1.5 text-xs text-ink-600 dark:text-ink-400 leading-relaxed break-words">{template.blurb}</p>
 
       {template.vertical && (
         <div className="mt-3 text-[11px] uppercase tracking-wider text-ink-500 dark:text-ink-400">
@@ -179,7 +179,7 @@ function TemplateCard({
           {template.stackChips.map((c) => (
             <span
               key={c}
-              className="text-[10px] px-1.5 py-0.5 rounded border border-ink-200 dark:border-ink-700 bg-ink-50 dark:bg-ink-800 text-ink-700 dark:text-ink-200"
+              className="max-w-full break-words text-[10px] px-1.5 py-0.5 rounded border border-ink-200 dark:border-ink-700 bg-ink-50 dark:bg-ink-800 text-ink-700 dark:text-ink-200"
             >
               {c}
             </span>
@@ -191,7 +191,7 @@ function TemplateCard({
           {template.complianceChips.map((c) => (
             <span
               key={c}
-              className="text-[10px] px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200"
+              className="max-w-full break-words text-[10px] px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200"
             >
               {c}
             </span>
@@ -199,7 +199,7 @@ function TemplateCard({
         </div>
       )}
       {template.scaleChip && (
-        <div className="mt-auto pt-3 text-[11px] text-ink-500 dark:text-ink-400">{template.scaleChip}</div>
+        <div className="mt-auto pt-3 text-[11px] text-ink-500 dark:text-ink-400 break-words">{template.scaleChip}</div>
       )}
     </button>
   );

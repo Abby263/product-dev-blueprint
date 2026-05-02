@@ -57,7 +57,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
       <Link href="/projects" className="text-xs text-ink-500 dark:text-ink-400 hover:text-ink-800 dark:hover:text-ink-100">← Projects</Link>
       <h1 className="text-3xl font-semibold tracking-tight mt-1 text-ink-900 dark:text-ink-50">Settings</h1>
       <p className="text-sm text-ink-600 dark:text-ink-400 mt-1">
@@ -65,7 +65,7 @@ export default function SettingsPage() {
       </p>
 
       <div className="mt-8 space-y-6">
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Storage</div>
           <p className="text-xs text-ink-500 dark:text-ink-400 mt-1">
             {list.length} project{list.length === 1 ? "" : "s"} stored under <code className="text-[11px]">pdb-store-v2</code> in localStorage.
@@ -80,7 +80,7 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        <Card className="p-6 space-y-3">
+        <Card className="p-4 sm:p-6 space-y-3">
           <div>
             <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Import projects</div>
             <p className="text-xs text-ink-500 dark:text-ink-400 mt-1">
@@ -100,7 +100,7 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="text-sm font-medium text-ink-800 dark:text-ink-100">About</div>
           <p className="text-xs text-ink-600 dark:text-ink-400 mt-2 leading-relaxed">
             Product Dev Blueprint is a schema-first product-definition system. Intake answers populate one canonical{" "}

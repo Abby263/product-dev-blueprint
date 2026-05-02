@@ -270,7 +270,7 @@ function readme(p: Project, frontend: ReturnType<typeof pickFrontend>, backend: 
     ``,
     `## Next steps`,
     ``,
-    `1. Open \`17-coding-agent-prompts.md\` from the bundle root and feed each prompt to your coding agent (Cursor / Lovable / Replit).`,
+    `1. Open \`18-coding-agent-prompts.md\` from the bundle root and feed each prompt to your coding agent (Cursor / Lovable / Replit).`,
     `2. The agent should use the IDs in the bundle (FR-/NFR-/FEAT-/ADR-/RISK-) when referencing what it builds.`,
     `3. Keep this README and the scaffold tree in sync as the architecture evolves.`,
     ``,

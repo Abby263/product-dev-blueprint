@@ -88,7 +88,7 @@ export function generatePRD(p: Project): string {
   out.push(
     `## 7a. Features`,
     ``,
-    `Each feature has a stable ID. The full per-feature spec lives in document 13; the roadmap (document 14) groups them by release.`,
+    `Each feature has a stable ID. The full per-feature spec lives in document 15; the roadmap (document 16) groups them by release.`,
     ``,
   );
 

@@ -12,12 +12,20 @@ import { downloadFile, downloadProjectBundle, downloadProjectJSON } from "@/lib/
 import { downloadDocx } from "@/lib/docx";
 import { DOMAIN_ORDER } from "@/lib/schema";
 
+const ARTIFACT_GROUPS = [
+  { title: "Decision brief", keys: ["build-readiness", "exec-summary", "roadmap", "cost-estimate"] },
+  { title: "Product", keys: ["prd", "sow", "feature-spec", "rtm"] },
+  { title: "Technical", keys: ["tech-spec", "system-design", "data-interface", "adr"] },
+  { title: "Risk & compliance", keys: ["risk-register", "compliance", "launch-ops", "test-strategy"] },
+  { title: "Implementation", keys: ["coding-agent-prompts", "ai-architecture"] },
+];
+
 export default function ArtifactsPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
   const project = useStore((s) => s.projects[id]);
   const [hydrated, setHydrated] = useState(false);
-  const [activeKey, setActiveKey] = useState("exec-summary");
+  const [activeKey, setActiveKey] = useState("build-readiness");
   const [downloading, setDownloading] = useState(false);
   useEffect(() => setHydrated(true), []);
 
@@ -55,25 +63,25 @@ export default function ArtifactsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
-      <div className="flex items-start justify-between gap-6 mb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
         <div className="min-w-0">
           <Link href={`/projects/${project.id}`} className="text-xs text-ink-500 dark:text-ink-400 hover:text-ink-800 dark:hover:text-ink-100">
             ← {project.name || "Project"}
           </Link>
-          <h1 className="text-3xl font-semibold tracking-tight mt-1 text-ink-900 dark:text-ink-50">Artifacts</h1>
-          <p className="text-sm text-ink-600 dark:text-ink-400 mt-1 max-w-2xl">
-            Every document below is generated from this project's canonical schema. Change an answer in intake and the
-            relevant sections will update consistently. Bundle includes Markdown + DOCX formats and the raw project.json.
+          <h1 className="text-3xl font-semibold tracking-tight mt-1 text-ink-900 dark:text-ink-50 break-words">Artifacts</h1>
+          <p className="text-sm text-ink-600 dark:text-ink-400 mt-1 max-w-2xl break-words">
+            Start with the readiness report, then open the supporting artifacts as needed. Every artifact is generated
+            from this project's canonical schema and updates when intake changes.
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex w-full lg:w-auto flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 lg:shrink-0">
           <Badge tone={pct === 100 ? "good" : pct > 0 ? "accent" : "warn"}>{pct}% intake</Badge>
-          <Link href={`/projects/${project.id}/intake`}>
-            <Button variant="secondary">Edit intake</Button>
+          <Link href={`/projects/${project.id}/intake`} className="w-full sm:w-auto">
+            <Button variant="secondary" className="w-full justify-center">Edit intake</Button>
           </Link>
-          <Button variant="secondary" onClick={() => downloadProjectJSON(project)}>Download JSON</Button>
-          <Button onClick={downloadFullBundle} disabled={downloading}>
+          <Button variant="secondary" className="w-full sm:w-auto justify-center" onClick={() => downloadProjectJSON(project)}>Download JSON</Button>
+          <Button className="w-full sm:w-auto justify-center" onClick={downloadFullBundle} disabled={downloading}>
             {downloading ? "Packing…" : "Download bundle (.zip)"}
           </Button>
         </div>
@@ -86,43 +94,58 @@ export default function ArtifactsPage() {
         </div>
       )}
 
-      <div className="grid lg:grid-cols-[280px_1fr] gap-6">
-        <aside className="space-y-1">
-          {bundle.map((b) => {
-            const isActive = b.key === active.key;
+      <div className="grid min-w-0 lg:grid-cols-[300px_1fr] gap-6">
+        <aside className="min-w-0 space-y-5">
+          {ARTIFACT_GROUPS.map((group) => {
+            const items = group.keys.map((key) => bundle.find((b) => b.key === key)).filter(Boolean);
+            if (items.length === 0) return null;
             return (
-              <button
-                key={b.key}
-                onClick={() => setActiveKey(b.key)}
-                className={
-                  "w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors " +
-                  (isActive
-                    ? "bg-ink-900 text-white dark:bg-ink-50 dark:text-ink-900"
-                    : "bg-white dark:bg-ink-900 text-ink-800 dark:text-ink-200 hover:bg-ink-100 dark:hover:bg-ink-800 border border-ink-200 dark:border-ink-800")
-                }
-              >
-                <div className="font-medium">{b.title}</div>
-                <div className={isActive ? "text-ink-400 dark:text-ink-600 text-xs mt-0.5" : "text-ink-500 dark:text-ink-400 text-xs mt-0.5"}>
-                  {b.description}
+              <div key={group.title}>
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">
+                  {group.title}
                 </div>
-              </button>
+                <div className="space-y-1">
+                  {items.map((b) => {
+                    if (!b) return null;
+                    const isActive = b.key === active.key;
+                    return (
+                      <button
+                        key={b.key}
+                        onClick={() => setActiveKey(b.key)}
+                        className={
+                          "w-full min-w-0 text-left px-3 py-2.5 rounded-md text-sm transition-colors " +
+                          (isActive
+                            ? "bg-ink-900 text-white dark:bg-ink-50 dark:text-ink-900"
+                            : "bg-white dark:bg-ink-900 text-ink-800 dark:text-ink-200 hover:bg-ink-100 dark:hover:bg-ink-800 border border-ink-200 dark:border-ink-800")
+                        }
+                      >
+                        <div className="font-medium break-words">{b.title}</div>
+                        <div className={isActive ? "text-ink-400 dark:text-ink-600 text-xs mt-0.5 break-words" : "text-ink-500 dark:text-ink-400 text-xs mt-0.5 break-words"}>
+                          {b.description}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </aside>
 
-        <Card className="p-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
+        <Card className="p-4 sm:p-8 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div className="min-w-0">
               <div className="text-xs uppercase tracking-wider text-ink-500 dark:text-ink-400">{active.title}</div>
-              <div className="text-sm text-ink-500 dark:text-ink-400 mt-1">Source file: <code className="text-xs">{active.filename}</code></div>
+              <div className="text-sm text-ink-500 dark:text-ink-400 mt-1 break-words">Source file: <code className="text-xs">{active.filename}</code></div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" onClick={() => downloadFile(active.filename, active.body)}>
+            <div className="flex w-full sm:w-auto flex-wrap items-center gap-2">
+              <Button className="flex-1 sm:flex-none justify-center" variant="secondary" onClick={() => downloadFile(active.filename, active.body)}>
                 .md
               </Button>
-              <Button variant="secondary" onClick={downloadActiveDocx}>.docx</Button>
+              <Button className="flex-1 sm:flex-none justify-center" variant="secondary" onClick={downloadActiveDocx}>.docx</Button>
               <Button
                 variant="ghost"
+                className="flex-1 sm:flex-none justify-center"
                 onClick={() => navigator.clipboard.writeText(active.body)}
               >
                 Copy

@@ -1,4 +1,5 @@
 import { Project } from "../schema";
+import { generateBuildReadiness } from "./build-readiness";
 import { generateExecSummary } from "./exec-summary";
 import { generatePRD } from "./prd";
 import { generateSOW } from "./sow";
@@ -28,6 +29,13 @@ export interface Artifact {
 
 export function generateBundle(project: Project): Artifact[] {
   return [
+    {
+      key: "build-readiness",
+      title: "Build readiness report",
+      filename: "00-build-readiness-report.md",
+      description: "Idea scorecard, scenario checks, validation plan, and MVP guardrails.",
+      body: generateBuildReadiness(project),
+    },
     {
       key: "exec-summary",
       title: "Executive summary",

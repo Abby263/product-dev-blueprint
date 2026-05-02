@@ -14,23 +14,23 @@ export default function ProjectsPage() {
   const list = order.map((id) => projects[id]).filter(Boolean);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      <div className="flex items-end justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
-          <p className="text-sm text-ink-600 dark:text-ink-400 mt-1">
-            Each project owns a canonical schema. Open it to continue intake or regenerate the artifact bundle.
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <div className="min-w-0">
+          <h1 className="text-3xl font-semibold tracking-tight break-words">Projects</h1>
+          <p className="text-sm text-ink-600 dark:text-ink-400 mt-1 break-words">
+            Each project owns a canonical schema. Open it to continue intake or regenerate the readiness report.
           </p>
         </div>
-        <Link href="/projects/new">
-          <Button>New project</Button>
+        <Link href="/projects/new" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto justify-center">New project</Button>
         </Link>
       </div>
 
       {!hydrated ? null : list.length === 0 ? (
         <EmptyState
           title="No projects yet"
-          body="Start a new project to walk through the thirteen intake domains and generate the full artifact bundle."
+          body="Start a new project to evaluate the idea, identify scenarios, and generate a developer-ready handoff."
           action={
             <Link href="/projects/new">
               <Button>Start a new project</Button>
@@ -38,12 +38,12 @@ export default function ProjectsPage() {
           }
         />
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid min-w-0 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {list.map((p) => {
             const completed = DOMAIN_ORDER.filter((d) => p.progress[d] === "complete").length;
             const pct = Math.round((completed / DOMAIN_ORDER.length) * 100);
             return (
-              <Card key={p.id} className="p-5 flex flex-col">
+              <Card key={p.id} className="p-4 sm:p-5 flex flex-col">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <Link href={`/projects/${p.id}`} className="block">
@@ -65,12 +65,12 @@ export default function ProjectsPage() {
                   <span>Updated {new Date(p.updatedAt).toLocaleString()}</span>
                 </div>
 
-                <div className="mt-4 flex items-center gap-2">
-                  <Link href={`/projects/${p.id}/intake`} className="flex-1">
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
+                  <Link href={`/projects/${p.id}/intake`} className="w-full sm:flex-1">
                     <Button variant="primary" className="w-full justify-center">Continue intake</Button>
                   </Link>
-                  <Link href={`/projects/${p.id}/artifacts`}>
-                    <Button variant="secondary">Artifacts</Button>
+                  <Link href={`/projects/${p.id}/artifacts`} className="w-full sm:w-auto">
+                    <Button variant="secondary" className="w-full justify-center">Artifacts</Button>
                   </Link>
                 </div>
 

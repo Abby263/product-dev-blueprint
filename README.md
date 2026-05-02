@@ -2,19 +2,29 @@
 
 > **Live:** [product-dev-blueprint.vercel.app](https://product-dev-blueprint.vercel.app)
 
-Turn any idea into a **production-ready app blueprint**. Describe what you want to build; the platform helps you figure out the SOW, PRD, system design, technical stack, security and compliance posture, and go-to-market plan — together, in one guided flow. The output is a complete bundle of engineering- and exec-ready documents that an agent or team can build from.
+Turn any idea into a **focused build-readiness plan**. Describe what you want to build; the platform helps you evaluate the idea, identify risky scenarios, scope the MVP, and produce developer-ready handoff artifacts from one guided flow.
 
 [![CI](https://github.com/Abby263/product-dev-blueprint/actions/workflows/ci.yml/badge.svg)](https://github.com/Abby263/product-dev-blueprint/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Built for **Product Managers, Founders, Business Analysts, Solution Architects, Engineering Managers, Pre-sales Consultants, and Innovation / Enterprise Transformation teams.**
 
-## What you get
+## What you get first
+
+Every project starts with a **Build readiness report**:
+
+- Idea readiness scorecard across desirability, feasibility, viability, risk readiness, and decision confidence
+- Scenario checks based on vertical, platform, timing model, AI usage, compliance, and data sensitivity
+- Critical gaps that should block build approval
+- MVP build slice, top risks, validation experiments, compliance prompts, and developer guardrails
+
+## Supporting bundle
 
 Every project generates a draft bundle of:
 
 | # | Artifact | Description |
 |---|---|---|
+| 00 | Build readiness report | Scorecard, gaps, scenario checks, validation experiments, MVP guardrails |
 | 01 | Executive summary | One-page business case, audience, success criteria |
 | 02 | PRD | Goals, personas, requirements, features, KPIs |
 | 03 | SOW | Scope, deliverables, milestones, acceptance |
@@ -31,7 +41,7 @@ Every project generates a draft bundle of:
 | 14 | Security & compliance checklist | Frameworks, controls, framework-specific reminders |
 | 15 | Feature specification | Per-feature acceptance, edge cases, security, ops |
 | 16 | Implementation roadmap | Features grouped by release with quality gates |
-| 17 | Cost estimate | Order-of-magnitude monthly infra cost (compute + DB + AI tooling + bandwidth) based on your stack and capacity |
+| 17 | Cost estimate | Order-of-magnitude monthly infra cost based on stack and capacity |
 | 18 | Coding-agent prompt pack | Cursor / Lovable / Replit-ready prompts wired to the bundle |
 
 Stable IDs (`FR-001`, `NFR-001`, `FEAT-001`, `ADR-001`, `RISK-001`, `ASM-001`, `Q-001`, `INT-001`, `ENT-001`, `SLO-001`, `KPI-001`) are assigned at creation and persist across every document.
@@ -44,7 +54,7 @@ Bundle exports include **Markdown** + **DOCX** for every artifact, the raw `proj
 2. **Walk thirteen guided domains** — Problem → Market → Experience → Platform & stack → Functional → Features → Quality attributes → System design → Data & tech → AI → Security → GTM → Governance. Conditional questions branch by surface, vertical, platform, and timing model.
 3. **One canonical schema** — every answer writes to one `Project` object (see [`src/lib/schema.ts`](src/lib/schema.ts)). Intake autosaves to `localStorage`.
 4. **Schema-first generation** — deterministic generators (under [`src/lib/generators/`](src/lib/generators)) read from the schema and render markdown. Change one answer and every relevant document updates consistently.
-5. **Hand off** — download the full bundle as Markdown + DOCX in a single zip, or paste the coding-agent prompt pack into Cursor / Lovable / Replit.
+5. **Decide and hand off** — start with the readiness report, then download the full bundle as Markdown + DOCX in a single zip or paste the coding-agent prompt pack into Cursor / Lovable / Replit.
 
 The platform infers context-specific corner cases (e.g. virtual-queue UX cases when the timing model is real-time) and activates compliance packs (PIPEDA, HIPAA, PHIPA, OSFI, PCI DSS, GDPR, OWASP ASVS, OWASP LLM Top 10, NIST AI RMF) by vertical and geography.
 
@@ -114,7 +124,7 @@ src/
     scaffold.ts                     # Stack-aware boilerplate scaffold
     docx.ts                         # Markdown → DOCX renderer
     export.ts                       # Zip bundle + JSON downloads
-    generators/                     # Markdown renderers per artifact (18 docs)
+    generators/                     # Markdown renderers per artifact (readiness + 18 supporting docs)
 ```
 
 ## Contributing

@@ -42,7 +42,7 @@ export function PlatformStep({ project }: { project: Project }) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <Field label="What are you building?" required hint="Pick everything that applies.">
           <MultiCheck
             value={v.kinds}
@@ -93,7 +93,7 @@ export function PlatformStep({ project }: { project: Project }) {
         )}
       </Card>
 
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Frontend stack</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Framework">
@@ -116,7 +116,7 @@ export function PlatformStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Backend stack</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Framework">
@@ -139,7 +139,7 @@ export function PlatformStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Database</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Primary store">
@@ -156,7 +156,7 @@ export function PlatformStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Cloud & deployment</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Cloud / host">
@@ -228,7 +228,7 @@ export function FeaturesStep({ project }: { project: Project }) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Feature library</div>
@@ -294,7 +294,7 @@ export function FeaturesStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="text-sm font-medium text-ink-800 dark:text-ink-100">KPIs</div>
@@ -305,13 +305,13 @@ export function FeaturesStep({ project }: { project: Project }) {
         {kpis.length === 0 && <div className="text-xs text-ink-500 italic">No KPIs yet.</div>}
         <div className="space-y-2">
           {kpis.map((k, i) => (
-            <div key={k.id} className="grid grid-cols-12 gap-2 items-start">
+            <div key={k.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-start">
               <Badge tone="neutral">{k.id}</Badge>
-              <Input className="col-span-3" placeholder="Name" value={k.name} onChange={(e) => patchKpi(i, { name: e.target.value })} />
-              <Input className="col-span-4" placeholder="Definition" value={k.definition} onChange={(e) => patchKpi(i, { definition: e.target.value })} />
-              <Input className="col-span-2" placeholder="Target" value={k.target} onChange={(e) => patchKpi(i, { target: e.target.value })} />
-              <Input className="col-span-1" placeholder="Cadence" value={k.cadence} onChange={(e) => patchKpi(i, { cadence: e.target.value })} />
-              <button onClick={() => removeKpi(i)} className="col-span-1 text-xs text-red-600 self-center">Remove</button>
+              <Input className="md:col-span-3" placeholder="Name" value={k.name} onChange={(e) => patchKpi(i, { name: e.target.value })} />
+              <Input className="md:col-span-4" placeholder="Definition" value={k.definition} onChange={(e) => patchKpi(i, { definition: e.target.value })} />
+              <Input className="md:col-span-2" placeholder="Target" value={k.target} onChange={(e) => patchKpi(i, { target: e.target.value })} />
+              <Input className="md:col-span-1" placeholder="Cadence" value={k.cadence} onChange={(e) => patchKpi(i, { cadence: e.target.value })} />
+              <button onClick={() => removeKpi(i)} className="md:col-span-1 text-xs text-red-600 self-center">Remove</button>
             </div>
           ))}
         </div>
@@ -335,7 +335,7 @@ export function SystemDesignStep({ project }: { project: Project }) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Capacity expectations</div>
         <div className="grid md:grid-cols-3 gap-5">
           <Field label="Total expected users (lifetime)">
@@ -383,7 +383,7 @@ export function SystemDesignStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Geographic & resilience</div>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Geographic coverage">
@@ -399,7 +399,7 @@ export function SystemDesignStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Strategy</div>
         <Field label="Caching strategy">
           <Textarea rows={2} value={v.cachingStrategy} onChange={(e) => set("cachingStrategy", e.target.value)} placeholder="e.g. CDN edge for static, Redis for hot reads, query cache." />
@@ -426,7 +426,7 @@ export function AIStep({ project }: { project: Project }) {
     update(project.id, { ai: { ...v, [k]: val } });
   }
   return (
-    <Card className="p-6 space-y-5">
+    <Card className="p-4 sm:p-6 space-y-5">
       <Checkbox label="This product needs AI / automation" checked={v.needsAI} onChange={(b) => set("needsAI", b)} />
 
       {v.needsAI && (
@@ -498,7 +498,7 @@ export function ComplianceStep({ project }: { project: Project }) {
     update(project.id, { compliance: { ...v, [k]: val } });
   }
   return (
-    <Card className="p-6 space-y-5">
+    <Card className="p-4 sm:p-6 space-y-5">
       <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Data classes processed</div>
       <div className="flex flex-wrap gap-4">
         <Checkbox label="Personal data" checked={v.processesPersonalData} onChange={(b) => set("processesPersonalData", b)} />

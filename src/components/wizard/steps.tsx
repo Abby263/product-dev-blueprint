@@ -31,7 +31,7 @@ function useDomainPatcher(id: string) {
 export function BasicsStep({ project }: { project: Project }) {
   const { update } = useDomainPatcher(project.id);
   return (
-    <Card className="p-6 space-y-5">
+    <Card className="p-4 sm:p-6 space-y-5">
       <Field label="Project name" required>
         <Input
           value={project.name}
@@ -91,26 +91,26 @@ function StakeholdersEditor({ project }: { project: Project }) {
       )}
       <div className="space-y-2">
         {project.stakeholders.map((s, i) => (
-          <div key={s.id} className="grid grid-cols-12 gap-2 items-start">
+          <div key={s.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-start">
             <Input
-              className="col-span-3"
+              className="md:col-span-3"
               placeholder="Role (e.g. Solution architect)"
               value={s.role}
               onChange={(e) => patchAt(i, { role: e.target.value })}
             />
             <Input
-              className="col-span-3"
+              className="md:col-span-3"
               placeholder="Name (optional)"
               value={s.name || ""}
               onChange={(e) => patchAt(i, { name: e.target.value })}
             />
             <Input
-              className="col-span-5"
+              className="md:col-span-5"
               placeholder="Responsibility"
               value={s.responsibility}
               onChange={(e) => patchAt(i, { responsibility: e.target.value })}
             />
-            <button onClick={() => remove(i)} className="col-span-1 text-xs text-red-600 self-center">Remove</button>
+            <button onClick={() => remove(i)} className="md:col-span-1 text-xs text-red-600 self-center">Remove</button>
           </div>
         ))}
       </div>
@@ -126,7 +126,7 @@ export function ProblemStep({ project }: { project: Project }) {
     update(project.id, { problem: { ...v, [k]: val } });
   }
   return (
-    <Card className="p-6 space-y-5">
+    <Card className="p-4 sm:p-6 space-y-5">
       <Field label="Problem" required hint="What's broken or missing today.">
         <Textarea rows={3} value={v.problem} onChange={(e) => set("problem", e.target.value)} />
       </Field>
@@ -167,7 +167,7 @@ export function MarketStep({ project }: { project: Project }) {
     update(project.id, { market: { ...v, [k]: val } });
   }
   return (
-    <Card className="p-6 space-y-5">
+    <Card className="p-4 sm:p-6 space-y-5">
       <div className="grid md:grid-cols-3 gap-5">
         <Field label="Buyer" hint="Who pays.">
           <Input value={v.buyer} onChange={(e) => set("buyer", e.target.value)} />
@@ -234,7 +234,7 @@ export function ExperienceStep({ project }: { project: Project }) {
     update(project.id, { experience: { ...v, [k]: val } });
   }
   return (
-    <Card className="p-6 space-y-5">
+    <Card className="p-4 sm:p-6 space-y-5">
       <Field label="Experience surfaces" hint="The original branching question — pick everything that applies.">
         <MultiCheck
           value={v.surfaces}
@@ -351,7 +351,7 @@ export function FunctionalStep({ project }: { project: Project }) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Personas</div>
@@ -391,7 +391,7 @@ export function FunctionalStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Requirements</div>
@@ -441,7 +441,7 @@ export function FunctionalStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <Field label="Business rules" hint="Constraints that govern flows (e.g. VIP priority, late-arrival reslotting).">
           <Textarea rows={3} value={v.businessRules} onChange={(e) => setBlock("businessRules", e.target.value)} />
         </Field>
@@ -474,7 +474,7 @@ export function NonFunctionalStep({ project }: { project: Project }) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="grid md:grid-cols-3 gap-5">
           <Field label="Availability target" hint="Don't promise 100%. Pick a target users can feel.">
             <Input value={v.availabilityTarget} onChange={(e) => set("availabilityTarget", e.target.value)} />
@@ -507,7 +507,7 @@ export function NonFunctionalStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Service level objectives</div>
@@ -518,12 +518,12 @@ export function NonFunctionalStep({ project }: { project: Project }) {
         {v.slos.length === 0 && <div className="text-xs text-ink-500 italic">No SLOs yet.</div>}
         <div className="space-y-2">
           {v.slos.map((s, i) => (
-            <div key={s.id} className="grid grid-cols-12 gap-2 items-center">
+            <div key={s.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
               <Badge tone="neutral">{s.id}</Badge>
-              <Input className="col-span-3" placeholder="Surface (e.g. intake save)" value={s.surface} onChange={(e) => patchSlo(i, { surface: e.target.value })} />
-              <Input className="col-span-4" placeholder="Metric (e.g. p95 latency)" value={s.metric} onChange={(e) => patchSlo(i, { metric: e.target.value })} />
-              <Input className="col-span-3" placeholder="Target (e.g. < 300ms)" value={s.target} onChange={(e) => patchSlo(i, { target: e.target.value })} />
-              <button onClick={() => removeSlo(i)} className="col-span-1 text-xs text-red-600">Remove</button>
+              <Input className="md:col-span-3" placeholder="Surface (e.g. intake save)" value={s.surface} onChange={(e) => patchSlo(i, { surface: e.target.value })} />
+              <Input className="md:col-span-4" placeholder="Metric (e.g. p95 latency)" value={s.metric} onChange={(e) => patchSlo(i, { metric: e.target.value })} />
+              <Input className="md:col-span-3" placeholder="Target (e.g. < 300ms)" value={s.target} onChange={(e) => patchSlo(i, { target: e.target.value })} />
+              <button onClick={() => removeSlo(i)} className="md:col-span-1 text-xs text-red-600">Remove</button>
             </div>
           ))}
         </div>
@@ -564,7 +564,7 @@ export function DataTechStep({ project }: { project: Project }) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <p className="text-xs text-ink-500 dark:text-ink-400">
           Stack picks (frontend, backend, database, cloud, auth method) live in the <strong>Platform &amp; channels</strong> step
           — change them there. This step is the canonical model: entities, integrations, residency, and build-vs-buy.
@@ -579,7 +579,7 @@ export function DataTechStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Canonical entities</div>
           <Button variant="ghost" onClick={addEntity}>+ Add entity</Button>
@@ -587,19 +587,19 @@ export function DataTechStep({ project }: { project: Project }) {
         {v.entities.length === 0 && <div className="text-xs text-ink-500 italic">No entities yet.</div>}
         <div className="space-y-2">
           {v.entities.map((e, i) => (
-            <div key={e.id} className="grid grid-cols-12 gap-2 items-center">
+            <div key={e.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
               <Badge tone="neutral">{e.id}</Badge>
-              <Input className="col-span-3" placeholder="Name (e.g. Booking)" value={e.name} onChange={(ev) => patchEntity(i, { name: ev.target.value })} />
-              <Input className="col-span-4" placeholder="Description" value={e.description} onChange={(ev) => patchEntity(i, { description: ev.target.value })} />
-              <Input className="col-span-2" placeholder="Retention (e.g. 7 years)" value={e.retention} onChange={(ev) => patchEntity(i, { retention: ev.target.value })} />
-              <label className="col-span-1 flex items-center gap-1 text-xs"><input type="checkbox" checked={e.sensitive} onChange={(ev) => patchEntity(i, { sensitive: ev.target.checked })} />PII</label>
-              <button onClick={() => removeEntity(i)} className="col-span-1 text-xs text-red-600">Remove</button>
+              <Input className="md:col-span-3" placeholder="Name (e.g. Booking)" value={e.name} onChange={(ev) => patchEntity(i, { name: ev.target.value })} />
+              <Input className="md:col-span-4" placeholder="Description" value={e.description} onChange={(ev) => patchEntity(i, { description: ev.target.value })} />
+              <Input className="md:col-span-2" placeholder="Retention (e.g. 7 years)" value={e.retention} onChange={(ev) => patchEntity(i, { retention: ev.target.value })} />
+              <label className="md:col-span-1 flex items-center gap-1 text-xs"><input type="checkbox" checked={e.sensitive} onChange={(ev) => patchEntity(i, { sensitive: ev.target.checked })} />PII</label>
+              <button onClick={() => removeEntity(i)} className="md:col-span-1 text-xs text-red-600">Remove</button>
             </div>
           ))}
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Integrations</div>
           <Button variant="ghost" onClick={addInteg}>+ Add integration</Button>
@@ -607,17 +607,17 @@ export function DataTechStep({ project }: { project: Project }) {
         {v.integrations.length === 0 && <div className="text-xs text-ink-500 italic">No integrations yet.</div>}
         <div className="space-y-2">
           {v.integrations.map((it, i) => (
-            <div key={it.id} className="grid grid-cols-12 gap-2 items-center">
+            <div key={it.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
               <Badge tone="neutral">{it.id}</Badge>
-              <Input className="col-span-3" placeholder="System" value={it.system} onChange={(e) => patchInteg(i, { system: e.target.value })} />
-              <Select className="col-span-2" value={it.direction} onChange={(e) => patchInteg(i, { direction: e.target.value as Integration["direction"] })}>
+              <Input className="md:col-span-3" placeholder="System" value={it.system} onChange={(e) => patchInteg(i, { system: e.target.value })} />
+              <Select className="md:col-span-2" value={it.direction} onChange={(e) => patchInteg(i, { direction: e.target.value as Integration["direction"] })}>
                 <option value="inbound">Inbound</option>
                 <option value="outbound">Outbound</option>
                 <option value="bidirectional">Bidirectional</option>
               </Select>
-              <Input className="col-span-2" placeholder="Protocol" value={it.protocol} onChange={(e) => patchInteg(i, { protocol: e.target.value })} />
-              <Input className="col-span-3" placeholder="Data class (e.g. PHI)" value={it.dataClass} onChange={(e) => patchInteg(i, { dataClass: e.target.value })} />
-              <button onClick={() => removeInteg(i)} className="col-span-1 text-xs text-red-600">Remove</button>
+              <Input className="md:col-span-2" placeholder="Protocol" value={it.protocol} onChange={(e) => patchInteg(i, { protocol: e.target.value })} />
+              <Input className="md:col-span-3" placeholder="Data class (e.g. PHI)" value={it.dataClass} onChange={(e) => patchInteg(i, { dataClass: e.target.value })} />
+              <button onClick={() => removeInteg(i)} className="md:col-span-1 text-xs text-red-600">Remove</button>
             </div>
           ))}
         </div>
@@ -634,7 +634,7 @@ export function GTMStep({ project }: { project: Project }) {
     update(project.id, { gtm: { ...v, [k]: val } });
   }
   return (
-    <Card className="p-6 space-y-5">
+    <Card className="p-4 sm:p-6 space-y-5">
       <Field label="Packaging">
         <Select value={v.packaging} onChange={(e) => set("packaging", e.target.value as typeof v.packaging)}>
           <option value="saas">SaaS</option>
@@ -755,7 +755,7 @@ export function GovernanceStep({ project }: { project: Project }) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 space-y-5">
+      <Card className="p-4 sm:p-6 space-y-5">
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Owner" required>
             <Input value={g.owner} onChange={(e) => set("owner", e.target.value)} />
@@ -792,7 +792,7 @@ export function GovernanceStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Architecture decisions (ADRs)</div>
           <Button variant="ghost" onClick={addDecision}>+ Add decision</Button>
@@ -825,7 +825,7 @@ export function GovernanceStep({ project }: { project: Project }) {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Risks</div>
           <Button variant="ghost" onClick={addRisk}>+ Add risk</Button>
@@ -833,27 +833,27 @@ export function GovernanceStep({ project }: { project: Project }) {
         {project.risks.length === 0 && <div className="text-xs text-ink-500 italic">No risks yet.</div>}
         <div className="space-y-2">
           {project.risks.map((r, i) => (
-            <div key={r.id} className="grid grid-cols-12 gap-2 items-start">
+            <div key={r.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-start">
               <Badge tone="warn">{r.id}</Badge>
-              <Input className="col-span-4" placeholder="Description" value={r.description} onChange={(e) => patchRisk(i, { description: e.target.value })} />
-              <Select className="col-span-2" value={r.likelihood} onChange={(e) => patchRisk(i, { likelihood: e.target.value as Risk["likelihood"] })}>
+              <Input className="md:col-span-4" placeholder="Description" value={r.description} onChange={(e) => patchRisk(i, { description: e.target.value })} />
+              <Select className="md:col-span-2" value={r.likelihood} onChange={(e) => patchRisk(i, { likelihood: e.target.value as Risk["likelihood"] })}>
                 <option value="low">Likelihood: low</option>
                 <option value="medium">Likelihood: medium</option>
                 <option value="high">Likelihood: high</option>
               </Select>
-              <Select className="col-span-2" value={r.impact} onChange={(e) => patchRisk(i, { impact: e.target.value as Risk["impact"] })}>
+              <Select className="md:col-span-2" value={r.impact} onChange={(e) => patchRisk(i, { impact: e.target.value as Risk["impact"] })}>
                 <option value="low">Impact: low</option>
                 <option value="medium">Impact: medium</option>
                 <option value="high">Impact: high</option>
               </Select>
-              <Input className="col-span-2" placeholder="Mitigation" value={r.mitigation} onChange={(e) => patchRisk(i, { mitigation: e.target.value })} />
-              <button onClick={() => removeRisk(i)} className="col-span-1 text-xs text-red-600 self-center">Remove</button>
+              <Input className="md:col-span-2" placeholder="Mitigation" value={r.mitigation} onChange={(e) => patchRisk(i, { mitigation: e.target.value })} />
+              <button onClick={() => removeRisk(i)} className="md:col-span-1 text-xs text-red-600 self-center">Remove</button>
             </div>
           ))}
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Assumptions</div>
           <Button variant="ghost" onClick={addAssumption}>+ Add assumption</Button>
@@ -861,20 +861,20 @@ export function GovernanceStep({ project }: { project: Project }) {
         {project.assumptions.length === 0 && <div className="text-xs text-ink-500 italic">No assumptions yet.</div>}
         <div className="space-y-2">
           {project.assumptions.map((a, i) => (
-            <div key={a.id} className="grid grid-cols-12 gap-2 items-center">
+            <div key={a.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
               <Badge tone="neutral">{a.id}</Badge>
-              <Input className="col-span-9" placeholder="Assumption" value={a.text} onChange={(e) => patchAssumption(i, { text: e.target.value })} />
-              <label className="col-span-1 flex items-center gap-1 text-xs">
+              <Input className="md:col-span-9" placeholder="Assumption" value={a.text} onChange={(e) => patchAssumption(i, { text: e.target.value })} />
+              <label className="md:col-span-1 flex items-center gap-1 text-xs">
                 <input type="checkbox" checked={a.validated} onChange={(e) => patchAssumption(i, { validated: e.target.checked })} />
                 ✓
               </label>
-              <button onClick={() => removeAssumption(i)} className="col-span-1 text-xs text-red-600">Remove</button>
+              <button onClick={() => removeAssumption(i)} className="md:col-span-1 text-xs text-red-600">Remove</button>
             </div>
           ))}
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Open questions</div>
           <Button variant="ghost" onClick={addQ}>+ Add question</Button>
@@ -882,11 +882,11 @@ export function GovernanceStep({ project }: { project: Project }) {
         {project.openQuestions.length === 0 && <div className="text-xs text-ink-500 italic">No open questions yet.</div>}
         <div className="space-y-2">
           {project.openQuestions.map((q, i) => (
-            <div key={q.id} className="grid grid-cols-12 gap-2 items-center">
+            <div key={q.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
               <Badge tone="neutral">{q.id}</Badge>
-              <Input className="col-span-8" placeholder="Question" value={q.text} onChange={(e) => patchQ(i, { text: e.target.value })} />
-              <Input className="col-span-2" placeholder="Owner" value={q.owner || ""} onChange={(e) => patchQ(i, { owner: e.target.value })} />
-              <button onClick={() => removeQ(i)} className="col-span-1 text-xs text-red-600">Remove</button>
+              <Input className="md:col-span-8" placeholder="Question" value={q.text} onChange={(e) => patchQ(i, { text: e.target.value })} />
+              <Input className="md:col-span-2" placeholder="Owner" value={q.owner || ""} onChange={(e) => patchQ(i, { owner: e.target.value })} />
+              <button onClick={() => removeQ(i)} className="md:col-span-1 text-xs text-red-600">Remove</button>
             </div>
           ))}
         </div>

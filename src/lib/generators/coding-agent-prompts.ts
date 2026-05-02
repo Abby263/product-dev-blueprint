@@ -24,6 +24,7 @@ export function generateCodingAgentPrompts(p: Project): string {
     stack,
     ``,
     `Reference documents in the bundle (read these before responding):`,
+    `- 00-build-readiness-report.md`,
     `- 02-prd.md`,
     `- 03-sow.md`,
     `- 04-tech-spec.md`,
