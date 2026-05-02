@@ -3,10 +3,12 @@
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useEffect, useMemo, useState } from "react";
+import { Children, isValidElement, useEffect, useMemo, useState, type ReactNode } from "react";
+import type { Components } from "react-markdown";
 import { useParams } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Badge, Button, Card } from "@/components/ui";
+import MermaidDiagram from "@/components/MermaidDiagram";
 import { generateBundle } from "@/lib/generators";
 import { downloadFile, downloadProjectBundle, downloadProjectJSON } from "@/lib/export";
 import { downloadDocx } from "@/lib/docx";
@@ -19,6 +21,26 @@ const ARTIFACT_GROUPS = [
   { title: "Risk & compliance", keys: ["risk-register", "compliance", "launch-ops", "test-strategy"] },
   { title: "Implementation", keys: ["coding-agent-prompts"] },
 ];
+
+type CodeElementProps = {
+  className?: string;
+  children?: ReactNode;
+};
+
+function mermaidCodeFromPre(children: ReactNode) {
+  const child = Children.toArray(children)[0];
+  if (!isValidElement<CodeElementProps>(child)) return null;
+  if (!child.props.className?.split(/\s+/).includes("language-mermaid")) return null;
+  return String(child.props.children || "").replace(/\n$/, "");
+}
+
+const markdownComponents: Components = {
+  pre({ node: _node, children, ...props }) {
+    const chart = mermaidCodeFromPre(children);
+    if (chart) return <MermaidDiagram chart={chart} />;
+    return <pre {...props}>{children}</pre>;
+  },
+};
 
 export default function ArtifactsPage() {
   const params = useParams<{ id: string }>();
@@ -153,7 +175,9 @@ export default function ArtifactsPage() {
             </div>
           </div>
           <div className="prose-doc">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{active.body}</ReactMarkdown>
+            <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm]}>
+              {active.body}
+            </ReactMarkdown>
           </div>
         </Card>
       </div>
