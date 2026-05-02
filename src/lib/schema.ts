@@ -393,6 +393,7 @@ export interface Governance {
 
 export interface Project {
   id: string;
+  listed?: boolean;                 // false for template drafts that should stay off Projects until edited
   name: string;
   oneLiner: string;
   ideaDescription: string;        // longer "Detailed idea description"

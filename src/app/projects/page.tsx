@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { Badge, Button, Card, EmptyState, ProgressBar } from "@/components/ui";
-import { DOMAIN_ORDER } from "@/lib/schema";
+import { DOMAIN_ORDER, type Project } from "@/lib/schema";
 import { useEffect, useState } from "react";
 
 export default function ProjectsPage() {
@@ -11,7 +11,9 @@ export default function ProjectsPage() {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
 
-  const list = order.map((id) => projects[id]).filter(Boolean);
+  const list = order
+    .map((id) => projects[id])
+    .filter((project): project is Project => Boolean(project) && project.listed !== false);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
