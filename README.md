@@ -78,6 +78,8 @@ For future LLM-backed artifact generation, the architecture blueprint includes a
 
 ## Run locally
 
+For environment variables and deployment prerequisites, see [`SETUP.md`](SETUP.md).
+
 ```bash
 nvm use            # picks up .nvmrc (Node 20)
 npm install
