@@ -69,6 +69,18 @@ export const ARCHITECTURE_SCENARIOS: ArchitectureScenario[] = [
     ],
   },
   {
+    id: "schema-design-lld",
+    label: "Schema design, indexes, migrations, and ownership",
+    why: "LLD needs table/document schemas, indexes, constraints, partition keys, migration rules, and clear module ownership before implementation starts.",
+    options: [
+      "Normalized relational schema with explicit foreign keys and unique constraints",
+      "Document schema with partition keys, TTL, and denormalized read shapes",
+      "Append-only audit/event schema for regulated state transitions",
+      "Index plan for reads, search, analytics, and tenant isolation",
+      "Expand/contract migration strategy with fixtures and rollback checks",
+    ],
+  },
+  {
     id: "api-boundary",
     label: "API contract and versioning",
     why: "API style determines client complexity, partner readiness, testability, and future coding-agent handoff quality.",
@@ -141,6 +153,18 @@ export const ARCHITECTURE_SCENARIOS: ArchitectureScenario[] = [
     ],
   },
   {
+    id: "deployment-infra",
+    label: "Infrastructure, networking, and deployment runtime",
+    why: "Enterprise deployments need explicit runtime, network boundary, private connectivity, secrets, load balancing, and IaC ownership.",
+    options: [
+      "PaaS/serverless for low-ops request paths",
+      "Container apps/jobs for APIs, workers, syncs, and scheduled evaluations",
+      "Kubernetes only when team/service scale justifies platform overhead",
+      "VPC/VNet, private subnets, private endpoints, NAT, WAF, load balancers, and private DNS",
+      "Terraform/Pulumi/CDK with policy checks, drift detection, and environment promotion gates",
+    ],
+  },
+  {
     id: "observability-audit",
     label: "Observability, auditability, and support",
     why: "Teams need to diagnose incidents, prove compliance, and support customers without reading raw production data.",
@@ -150,6 +174,18 @@ export const ARCHITECTURE_SCENARIOS: ArchitectureScenario[] = [
       "Append-only audit logs for sensitive actions",
       "Privacy-safe support console with break-glass workflow",
       "Cost telemetry per feature, tenant, and integration",
+    ],
+  },
+  {
+    id: "testing-release",
+    label: "Testing, release gates, and coding-agent handoff",
+    why: "PM-ready outputs should become implementation-ready only when contracts, fixtures, acceptance tests, evals, and rollback rules are explicit.",
+    options: [
+      "Contract tests for OpenAPI/AsyncAPI and webhook payloads",
+      "Authorization and tenant-isolation negative tests",
+      "Load, chaos, and DR drills tied to SLO targets",
+      "AI eval gates for RAG/agent outputs where applicable",
+      "Coding-agent task breakdown with file ownership, test fixtures, and acceptance criteria",
     ],
   },
   {
@@ -216,12 +252,15 @@ export function architectureScenarioPriority(project: Project, scenarioId: strin
   if (scenarioId === "authorization-tenancy" && (project.platform.rbacRequired || project.platform.multiTenant)) return "Review now";
   if (scenarioId === "security-baseline" && security.length > 0) return "Review now";
   if (scenarioId === "privacy-compliance" && project.compliance.frameworks.length > 0) return "Review now";
+  if (scenarioId === "schema-design-lld" && (project.dataTech.entities.length > 0 || project.systemDesign.schemaDesignNotes)) return "Review now";
   if (scenarioId === "integration-failure" && project.dataTech.integrations.length > 0) return "Review now";
   if (scenarioId === "async-events" && (project.platform.backgroundJobs || project.platform.eventDriven || project.platform.webhooks)) return "Review now";
   if (scenarioId === "realtime-notifications" && (project.platform.realtimeNeeded || project.systemDesign.notificationsPerDay > 0)) return "Review now";
   if (scenarioId === "scale-cache" && (project.platform.caching || project.systemDesign.peakConcurrent > 1000)) return "Review now";
   if (scenarioId === "resilience-dr" && (project.systemDesign.drNeeded || project.systemDesign.multiRegion)) return "Review now";
+  if (scenarioId === "deployment-infra" && (Boolean(project.platform.cloudServices) || Boolean(project.platform.networking) || project.platform.containerization === "kubernetes")) return "Review now";
   if (scenarioId === "observability-audit" && (project.compliance.auditLogs || project.platform.observability)) return "Review now";
+  if (scenarioId === "testing-release" && (project.systemDesign.testArchitectureNotes || project.functional.requirements.length > 0 || project.ai.evaluation)) return "Review now";
   if (scenarioId === "ai-agents" && project.ai.needsAI) return "Review now";
   if (scenarioId === "mobile-offline" && (project.experience.primaryDevice === "mobile-first" || project.experience.offline || project.platform.responsiveRequired)) return "Review now";
   if (scenarioId === "build-buy-lockin" && project.dataTech.buildVsBuy) return "Review now";
@@ -250,6 +289,8 @@ export function scenarioRecommendation(project: Project, scenarioId: string): st
       return project.platform.database === "postgres"
         ? "Keep Postgres as source of truth; add read models/search/vector stores only for specific access patterns."
         : "Document which store owns each entity and where consistency can be relaxed.";
+    case "schema-design-lld":
+      return "Define schemas, indexes, partition keys, migrations, fixtures, and data-owner modules before coding-agent implementation begins.";
     case "api-boundary":
       return `Generate contract-first ${project.platform.apiStyle.toUpperCase()} APIs with versioning, auth scopes, idempotency, and test fixtures for coding agents.`;
     case "integration-failure":
@@ -272,8 +313,12 @@ export function scenarioRecommendation(project: Project, scenarioId: string): st
       return project.systemDesign.drNeeded
         ? "Set RTO/RPO, backups, restore tests, and active/passive failover before launch."
         : "Single-region is acceptable for MVP, but test backup restore and document the upgrade trigger.";
+    case "deployment-infra":
+      return "Capture runtime, network boundary, private endpoints, load balancing, secrets/KMS, IaC modules, promotion gates, and rollback path.";
     case "observability-audit":
       return "Emit traces, metrics, structured logs, and audit events with tenant/user correlation and PII scrubbing.";
+    case "testing-release":
+      return "Turn PM requirements into contract tests, fixtures, auth-negative tests, load checks, rollback steps, and coding-agent task boundaries.";
     case "ai-agents":
       return project.ai.agentFramework === "deepagents"
         ? "Use DeepAgents-style memory, skills, and subagents for content/architecture generation; require evals and human review before build handoff."

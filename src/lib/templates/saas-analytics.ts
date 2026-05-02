@@ -70,17 +70,31 @@ const payload: Partial<Project> = {
     eventDriven: true,
     rateLimiting: true,
     caching: true,
-    database: "postgres",
+    database: "clickhouse",
     dataShape: "mixed",
     multiTenant: true,
     searchNeeded: true,
     realtimeNeeded: false,
-    cloud: "aws",
-    cicd: "GitHub Actions",
-    iac: "Terraform",
-    observability: "OpenTelemetry + Datadog",
-    containerization: "docker",
+    cloud: "gcp",
+    cicd: "GitHub Actions + Google Cloud Deploy",
+    iac: "Terraform + Google Cloud modules",
+    observability: "OpenTelemetry + Google Cloud Monitoring + Datadog",
+    containerization: "kubernetes",
     envStrategy: "dev / stage / prod with PR previews",
+    deploymentRuntime:
+      "GKE Autopilot for ingestion/query APIs and workers; Cloud Run for connector callbacks and scheduled lightweight jobs; Dataflow for large historical backfills.",
+    cloudServices:
+      "ClickHouse Cloud or self-managed ClickHouse on GKE, Cloud SQL Postgres for config, Pub/Sub, Dataflow, Cloud Storage, BigQuery connector, Secret Manager, Cloud Load Balancing, Cloud Armor.",
+    networking:
+      "GCP VPC with private GKE nodes, Private Service Connect to managed services, Cloud NAT, Cloud Armor WAF, global HTTPS load balancer, restricted egress for warehouse connectors.",
+    scalingApproach:
+      "Horizontal pod autoscaling on ingestion/query workers, Pub/Sub backpressure, ClickHouse sharding by tenant/time, materialized views for hot funnels, cold partitions to object storage.",
+    cicdDetails:
+      "PR checks run SDK contract tests, query golden tests, tenant isolation, SQL sandbox tests, and migration dry-runs; production deploy rolls through canary tenants first.",
+    iacDetails:
+      "Terraform owns VPC, GKE, service accounts, Secret Manager, Pub/Sub, Dataflow templates, load balancers, Cloud Armor, storage lifecycle, monitoring, and per-region environments.",
+    enterpriseControls:
+      "Per-tenant encryption keys where required, workload identity, private warehouse connectivity, audit logs for SQL/data export, DLP scans for event properties, SIEM export.",
   },
   functional: {
     personas: [
@@ -157,11 +171,42 @@ const payload: Partial<Project> = {
       { id: "INT-004", system: "Stripe", direction: "outbound", protocol: "REST", dataClass: "Billing", notes: "Subscription + usage billing." },
       { id: "INT-005", system: "Datadog", direction: "outbound", protocol: "OTLP/HTTPS", dataClass: "Infra metrics + traces", notes: "Observability; PII scrubbed." },
     ],
-    dataResidency: "us-east-1 default; eu-west-1 for EU tenants. Per-tenant primary region pinning.",
+    dataResidency: "us-central1 default; northamerica-northeast1 for Canada; europe-west1 for EU tenants. Per-tenant region pinning for ClickHouse, object storage, and connector state.",
     buildVsBuy:
-      "Buy: identity (Auth0), billing (Stripe), Slack delivery, transactional email (SendGrid). Build: ingestion + columnar query layer + visual builder + multi-tenant admin.",
+      "Buy: identity (Auth0/Okta), billing (Stripe), Slack delivery, transactional email, ClickHouse Cloud where feasible. Build: ingestion, schema registry, columnar query gateway, visual builder, multi-tenant admin, warehouse sync orchestration.",
   },
   systemDesign: {
+    architecturePattern: "service-oriented",
+    authArchitecture: "enterprise-sso",
+    deploymentTopology: "active-passive",
+    tradeoffAreas: ["schema-design-lld", "api-boundary", "async-events", "scale-cache", "deployment-infra", "observability-audit", "testing-release"],
+    securityReviewAreas: ["identity", "authorization", "data-protection", "privacy", "secrets", "api-abuse", "audit", "supply-chain", "incident-response"],
+    highLevelArchitectureNotes:
+      "Next.js app and API gateway serve analytics UX. GKE hosts ingestion, query, connector, billing, and admin services. Pub/Sub buffers event ingestion. ClickHouse stores event facts. Cloud SQL Postgres stores tenant config, dashboards, segments, billing metadata, and audit indexes. Cloud Storage holds cold event partitions and exports.",
+    lowLevelArchitectureNotes:
+      "Modules: Tenant, Project, Ingestion, SchemaRegistry, QueryEngine, Dashboard, Segment, Connector, Export, Billing, Audit. QueryEngine reads tenant-scoped ClickHouse views only. Ingestion writes raw events through Pub/Sub and batched ClickHouse inserts.",
+    domainModelNotes:
+      "Tenant owns projects, members, plans, API keys, event schemas, dashboards, segments, connectors, and retention. Project owns event streams and schema versions. Dashboard owns charts and saved queries. AuditEvent captures data access, exports, SQL runs, and role changes.",
+    schemaDesignNotes:
+      "ClickHouse tables: events_local/events_distributed partitioned by tenant_id and event_date, ordered by tenant_id, project_id, event_name, user_id, timestamp. Postgres tables: tenants, projects, api_keys, schemas, dashboards, charts, segments, connectors, sync_runs, audit_events. Materialized views for daily active users, funnel steps, and cohort buckets.",
+    dataLifecycleNotes:
+      "Events retain 13 months by default; enterprise tenants can set 24-36 months. Cold partitions move to Cloud Storage. Schema evolution is append-only with compatibility checks. Deletion requests tombstone user identity and schedule ClickHouse mutation jobs.",
+    apiContractNotes:
+      "SDK ingestion API supports batch idempotency and schema validation. Query APIs expose typed funnel/cohort/segment contracts. SQL endpoint is read-only, tenant-scoped, timeout-limited, and audited. Connector APIs use OAuth and signed callbacks.",
+    serviceBoundaryNotes:
+      "Ingestion owns event validation and buffering. SchemaRegistry owns compatibility. QueryEngine owns generated SQL and tenant-scoped views. Connector service owns warehouse credentials and sync runs. Dashboard service owns saved objects and sharing policy.",
+    workflowStateNotes:
+      "SyncRun: configured -> scheduled -> backfilling -> incremental -> paused/failed. QueryJob: queued -> running -> completed/timeout/cancelled. Export: requested -> approved -> generated -> expired/deleted.",
+    integrationContractNotes:
+      "Warehouse connectors use least-privilege read credentials, schema drift detection, retries with checkpoints, and pause-on-breaking-change. Slack/email digests use signed links and RBAC checks. Billing webhooks are idempotent.",
+    securityArchitectureNotes:
+      "OIDC/SAML with SCIM, tenant-scoped API keys, row-level tenancy enforced in generated SQL, read-only SQL role, origin allowlists for SDK keys, signed share links with expiry, and audit for every export/query.",
+    observabilityDesignNotes:
+      "Metrics cover ingestion ack latency, Pub/Sub lag, ClickHouse insert lag, query p95/p99, row scan volume, connector freshness, failed exports, tenant cost, and SLO burn. Traces link dashboard query to generated SQL and ClickHouse query ID.",
+    infraArchitectureNotes:
+      "Terraform-managed GCP VPC, private GKE, Cloud Run connector callbacks, Pub/Sub, Dataflow backfill templates, Cloud Storage lifecycle, Cloud Armor, Secret Manager, Cloud Monitoring, and optional ClickHouse Cloud private connectivity.",
+    testArchitectureNotes:
+      "Golden query tests for funnels/cohorts, SQL injection and tenant-isolation negative tests, SDK contract tests, connector fixture tests for schema drift, load tests at 100M events/tenant, and migration dry-runs before deploy.",
     expectedUsersTotal: 5_000_000,
     dau: 50_000,
     mau: 250_000,
@@ -218,13 +263,13 @@ const payload: Partial<Project> = {
     segments: "Mid-market B2B SaaS product + growth + data teams. Sweet spot: Series B-D with 50-300 employees.",
     buyerObjections: "Migration effort from incumbent; cost predictability; data residency for EU customers.",
     salesMotion: "PLG self-serve + assisted sales for >$25K ACV; design partners for enterprise tier.",
-    channelStrategy: "Direct + Snowflake + AWS marketplace listings.",
-    launchGeography: "US + Canada Q1; EU GA Q3 with eu-west-1 region.",
+    channelStrategy: "Direct + Snowflake + Google Cloud marketplace listings.",
+    launchGeography: "US + Canada Q1; EU GA Q3 with europe-west1 region.",
     complianceGating: "SOC 2 Type 1 by month 6; SOC 2 Type 2 by month 18; GDPR DPA + EU residency before EU GA.",
     pricingModel: "Per-MAU tiered + platform fee. Free up to 100K events / mo; Pro at $1K/mo + per-MTU.",
     acquisitionChannels: "Outbound to Heads of Product; conference (Product-Led Growth Summit, GLOW); content marketing on funnel/retention math; existing-customer referrals.",
     retentionStrategy: "Activation playbook (first dashboard in week 1); QBRs for Pro tier; Slack Connect channel for product-led + assisted accounts.",
-    partnerships: "Snowflake + AWS marketplaces; Segment partner integration.",
+    partnerships: "Snowflake + Google Cloud marketplaces; Segment partner integration.",
     competitors: "Amplitude, Mixpanel, Heap, PostHog, in-house ClickHouse setups.",
     positioning:
       "For mid-market B2B SaaS product teams who want first-party analytics without paying premium prices, our platform is warehouse-native, transparent, and SOC 2 / GDPR-ready — without the lock-in or 7-figure renewal of incumbents.",
@@ -233,10 +278,10 @@ const payload: Partial<Project> = {
   governance: {
     owner: "VP Product",
     approvers: "VP Eng, Head of Data, Head of Privacy",
-    dependencies: "Snowflake / BigQuery / Redshift partner program access; AWS spend commit; Auth0 enterprise.",
-    thirdParties: "Auth0, Stripe, AWS, Datadog, SendGrid, Snowflake, BigQuery, Redshift.",
+    dependencies: "Snowflake / BigQuery / Redshift partner program access; GCP spend commit; Auth0 enterprise; ClickHouse Cloud capacity.",
+    thirdParties: "Auth0, Stripe, GCP, Datadog, SendGrid, ClickHouse, Snowflake, BigQuery, Redshift.",
     legalReviews: "DPA + subprocessor list; GDPR data processing terms.",
-    procurementReviews: "AWS spend commit; Auth0 enterprise sign-off.",
+    procurementReviews: "GCP spend commit, ClickHouse Cloud enterprise tier, Auth0 enterprise sign-off.",
     unvalidatedAssumptions: "Mid-market teams will accept warehouse-native sync vs. SDK-only; per-MTU pricing matches buyer mental model.",
     decisionConfidence: "high",
   },
@@ -249,12 +294,12 @@ const payload: Partial<Project> = {
   decisions: [
     { id: "ADR-001", title: "ClickHouse for events (not Postgres / Druid / Pinot)", context: "Need columnar analytics scale.", decision: "ClickHouse cluster for events; partition by tenant + time.", alternatives: "Postgres+TimescaleDB; Druid; Pinot.", consequences: "Higher infra cost than Postgres; sub-5s queries on 100M+ events.", status: "accepted", confidence: "high" },
     { id: "ADR-002", title: "Warehouse-native sync from day 1", context: "Buyer differentiator vs. incumbents.", decision: "Build Snowflake + BigQuery + Redshift connectors for v1 GA.", alternatives: "SDK-only v1, connectors v2.", consequences: "More upfront eng work; major sales win.", status: "accepted", confidence: "medium" },
-    { id: "ADR-003", title: "Per-tenant encryption keys", context: "SOC 2 + buyer trust.", decision: "Customer-managed keys via AWS KMS; rotate quarterly.", alternatives: "Single master key; HSM-backed keys for enterprise only.", consequences: "More ops complexity; required for trust posture.", status: "accepted", confidence: "high" },
+    { id: "ADR-003", title: "Per-tenant encryption keys", context: "SOC 2 + buyer trust.", decision: "Customer-managed keys via Cloud KMS where required; rotate quarterly.", alternatives: "Single master key; HSM-backed keys for enterprise only.", consequences: "More ops complexity; required for trust posture.", status: "accepted", confidence: "high" },
   ],
   risks: [
     { id: "RISK-001", description: "Migration friction from Amplitude / Mixpanel keeps deals stuck.", likelihood: "high", impact: "high", mitigation: "Free migration tooling; design-partner case studies showing time-to-replace." },
     { id: "RISK-002", description: "ClickHouse cluster cost blows past margin target at scale.", likelihood: "medium", impact: "high", mitigation: "Cold-tier policy; per-tenant resource quotas; pre-aggregation for top 80% of queries." },
-    { id: "RISK-003", description: "GDPR data residency contract terms slow EU deals.", likelihood: "high", impact: "medium", mitigation: "Pre-built EU DPA template; eu-west-1 region from day 1 of EU GA." },
+    { id: "RISK-003", description: "GDPR data residency contract terms slow EU deals.", likelihood: "high", impact: "medium", mitigation: "Pre-built EU DPA template; europe-west1 region from day 1 of EU GA." },
   ],
   assumptions: [
     { id: "ASM-001", text: "PLG funnel converts >= 5% of free → paid in 90 days.", validated: false },
@@ -274,7 +319,7 @@ export const SAAS_TEMPLATE: TemplateMeta = {
   blurb:
     "Multi-tenant product analytics: SDK + warehouse sync, funnels, cohorts, dashboards, SQL escape hatch.",
   vertical: "B2B SaaS · product analytics",
-  stackChips: ["Next.js", "NestJS", "Postgres", "ClickHouse", "AWS"],
+  stackChips: ["Next.js", "NestJS", "ClickHouse", "GKE", "GCP"],
   complianceChips: ["SOC 2", "ISO 27001", "GDPR"],
   scaleChip: "B2B SaaS · 50K DAU · 5TB / mo",
   payload,

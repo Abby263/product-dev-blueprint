@@ -50,11 +50,13 @@ export const DATABASE_OPTIONS: OptionDef[] = [
   { value: "postgres", label: "PostgreSQL", hint: "Best for: most apps. Strong relational + JSONB + full-text search + extensions (pgvector for AI). Default choice." },
   { value: "mysql", label: "MySQL", hint: "Best for: existing MySQL shops or where MySQL replication is already operationalized." },
   { value: "mongodb", label: "MongoDB", hint: "Best for: heavily denormalized document workloads, schema-flexible domains. Trade-off: weaker joins." },
+  { value: "cosmosdb", label: "Azure Cosmos DB", hint: "Best for: globally distributed document/key-value workloads in Azure. Design partition keys and RU budgets early." },
   { value: "dynamodb", label: "DynamoDB", hint: "Best for: massive scale with predictable access patterns. AWS-native; expensive if patterns drift." },
   { value: "firebase", label: "Firebase / Firestore", hint: "Best for: mobile-first apps with realtime sync. Vendor-locked; cost can grow fast." },
   { value: "supabase", label: "Supabase", hint: "Best for: small teams that want Postgres + auth + storage + realtime in one managed package." },
   { value: "redis", label: "Redis (primary)", hint: "Rare as primary store. Best for: ephemeral state, queues, real-time leaderboards. Usually a cache." },
   { value: "elasticsearch", label: "Elasticsearch / OpenSearch", hint: "Best for: search-heavy apps, log analytics. Don't make it your primary store." },
+  { value: "clickhouse", label: "ClickHouse", hint: "Best for: high-volume analytics, funnels, cohorts, and event queries. Pair with transactional store for app state." },
   { value: "other", label: "Other", hint: "Anything else — capture the choice in a project ADR." },
 ];
 
@@ -140,6 +142,7 @@ export const VECTOR_DB_OPTIONS: OptionDef[] = [
   { value: "milvus", label: "Milvus / Zilliz", hint: "Best for: very large vector workloads (100M+). Heavier ops than pgvector or Qdrant." },
   { value: "elasticsearch", label: "Elasticsearch / OpenSearch", hint: "Best for: shops already running Elastic. Adds vector to existing search infra." },
   { value: "redis-stack", label: "Redis Stack", hint: "Best for: low-latency vector search co-located with caching. Memory cost can grow fast." },
+  { value: "azure-ai-search", label: "Azure AI Search", hint: "Best for: Azure-native RAG with hybrid vector + keyword search, private endpoints, and enterprise data controls." },
 ];
 
 export const CONTAINERIZATION_OPTIONS: OptionDef[] = [

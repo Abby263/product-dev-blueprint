@@ -78,11 +78,25 @@ const payload: Partial<Project> = {
     searchNeeded: false,
     realtimeNeeded: true,
     cloud: "aws",
-    cicd: "GitHub Actions",
-    iac: "Terraform",
+    cicd: "GitHub Actions with protected production promotion",
+    iac: "Terraform + AWS provider modules",
     observability: "OpenTelemetry + Datadog",
     containerization: "docker",
     envStrategy: "dev / stage / prod with ephemeral preview envs per PR",
+    deploymentRuntime:
+      "ECS Fargate for API and workers; AWS Lambda for lightweight webhooks and scheduled maintenance; optional EKS only for very large enterprise tenants.",
+    cloudServices:
+      "Amazon Aurora PostgreSQL, ElastiCache Redis, SQS, EventBridge, API Gateway/ALB, CloudFront, S3, KMS, Secrets Manager, WAF, SNS/Pinpoint for notification routing.",
+    networking:
+      "Multi-AZ VPC with public ALB/WAF, private app subnets, private database/cache subnets, VPC endpoints for AWS services, NAT gateway, Route 53 health checks.",
+    scalingApproach:
+      "Fargate autoscaling by CPU/RPS, worker scaling by SQS queue depth, Aurora read replicas for analytics reads, Redis hot queue state per branch, per-tenant rate limits during surges.",
+    cicdDetails:
+      "PR checks run queue state-machine tests, contract tests, notification sandbox tests, and tenant-isolation tests; prod deploy requires migration plan and rollback approval.",
+    iacDetails:
+      "Terraform owns VPC, ECS services, Aurora, Redis, SQS/EventBridge, WAF, KMS, IAM, CloudWatch alarms, and per-environment workspaces.",
+    enterpriseControls:
+      "KMS encryption, Secrets Manager rotation, WAF/bot rules, tenant-scoped audit logs, PHI-safe notification templates, SIEM export, least-privilege IAM roles.",
   },
   functional: {
     personas: [
@@ -173,6 +187,37 @@ const payload: Partial<Project> = {
       "Buy: identity (Auth0), notifications (Twilio + SendGrid), billing (Stripe), observability (Datadog). Build: queue engine, fairness algorithm, multi-tenant admin, analytics roll-ups.",
   },
   systemDesign: {
+    architecturePattern: "event-driven",
+    authArchitecture: "enterprise-sso",
+    deploymentTopology: "active-passive",
+    tradeoffAreas: ["identity-auth", "authorization-tenancy", "schema-design-lld", "async-events", "realtime-notifications", "deployment-infra", "testing-release"],
+    securityReviewAreas: ["identity", "authorization", "data-protection", "privacy", "secrets", "api-abuse", "audit", "incident-response"],
+    highLevelArchitectureNotes:
+      "CloudFront/WAF fronts customer web, mobile APIs, staff console, and kiosk surfaces. ECS Fargate hosts FastAPI services and workers. Aurora Postgres is the transactional source of truth; Redis holds hot per-branch queue state; SQS/EventBridge handles notifications, analytics, archival, and integration events.",
+    lowLevelArchitectureNotes:
+      "Modules: Org, Branch, Service, Queue, Ticket, Appointment, ETA, Notification, Policy, Audit, Analytics. Queue writes are transactional; events publish through outbox. Staff console reads hot branch state from Redis with database reconciliation.",
+    domainModelNotes:
+      "Org owns branches, services, hours, policies, operators, and billing. Branch owns queue state, stations, and daily service windows. Ticket is the aggregate for queue/appointment lifecycle and references Customer, Service, ETA snapshots, and AuditEvent.",
+    schemaDesignNotes:
+      "Postgres tables: orgs, branches, services, operators, customers, tickets, ticket_events, appointments, station_sessions, notification_preferences, notification_attempts, policies, audit_events. Partition tickets and audit_events by tenant and month; unique active ticket per customer/service/branch.",
+    dataLifecycleNotes:
+      "Healthcare tenants retain tickets and audit events for 7 years; non-healthcare default is 2 years. Redis state is reconstructable from ticket_events. Old audit partitions archive to S3 with Glacier lifecycle and Athena query access.",
+    apiContractNotes:
+      "REST/OpenAPI contracts for queue join, ticket state changes, staff actions, admin policy changes, and notification callbacks. All write APIs use idempotency keys; WebSocket streams require short-lived JWT and resume cursor.",
+    serviceBoundaryNotes:
+      "Queue module owns Ticket transitions and fairness rules. ETA module computes predictions from service-time stats. Notification module owns channel preferences and provider calls. Policy module owns late-arrival and merge rules. Audit module records immutable state changes.",
+    workflowStateNotes:
+      "Ticket: draft -> waiting -> called -> serving -> completed/cancelled/no_show/reslotted. Appointment: booked -> checked_in -> merged -> served/no_show. NotificationAttempt: queued -> sent -> delivered/failed -> retried/dead_letter.",
+    integrationContractNotes:
+      "Twilio/SendGrid provider calls use retry budgets and delivery webhooks. Auth0/SSO group sync uses SCIM. Stripe billing webhooks are idempotent and replayable. Provider outage degrades to in-app notifications and operator warnings.",
+    securityArchitectureNotes:
+      "Tenant/branch-scoped RBAC, signed ticket IDs, no PHI in SMS/email bodies, KMS encryption, tenant-scoped Redis keys, audit for every operator action, WAF/rate limits on public join endpoints.",
+    observabilityDesignNotes:
+      "Traces carry tenant, branch, ticket, and station IDs. Dashboards cover queue join latency, ETA broadcast latency, WebSocket fan-out, notification delivery, SQS depth, Redis hit rate, and branch-level SLO burn.",
+    infraArchitectureNotes:
+      "Terraform-managed AWS VPC, ECS Fargate, Aurora Multi-AZ, ElastiCache, SQS, EventBridge, CloudFront/WAF, S3 archival, KMS, Secrets Manager, Route 53, and Datadog monitors. Active/passive DR starts with backup restore drills.",
+    testArchitectureNotes:
+      "State-machine tests for Ticket and Appointment, concurrency tests for simultaneous staff actions, tenant-isolation negative tests, notification sandbox contract tests, load tests for 5K concurrent users per branch, and WebSocket reconnect/resume tests.",
     expectedUsersTotal: 5_000_000,
     dau: 200_000,
     mau: 1_500_000,

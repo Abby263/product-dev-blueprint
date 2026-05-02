@@ -3,8 +3,23 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DOMAIN_LABEL, DOMAIN_ORDER, DomainKey, Project } from "@/lib/schema";
+import {
+  DOMAIN_LABEL,
+  DOMAIN_ORDER,
+  DOMAIN_OWNER,
+  DOMAIN_OWNER_LABEL,
+  DOMAIN_OWNER_SHORT,
+  DomainKey,
+  DomainOwner,
+  Project,
+} from "@/lib/schema";
 import { Badge, Button, ProgressBar } from "@/components/ui";
+
+function ownerTone(owner: DomainOwner): "neutral" | "accent" | "warn" {
+  if (owner === "technical-solution-architect") return "accent";
+  if (owner === "product-manager") return "warn";
+  return "neutral";
+}
 
 export default function WizardShell({
   project,
@@ -48,6 +63,7 @@ export default function WizardShell({
             {DOMAIN_ORDER.map((d) => {
               const status = project.progress[d];
               const active = d === step;
+              const owner = DOMAIN_OWNER[d];
               return (
                 <button
                   key={d}
@@ -59,7 +75,19 @@ export default function WizardShell({
                       : "text-ink-700 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800")
                   }
                 >
-                  <span className="truncate">{DOMAIN_LABEL[d]}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate">{DOMAIN_LABEL[d]}</span>
+                    <span
+                      className={
+                        "mt-1 inline-flex rounded-full border px-1.5 py-0.5 text-[10px] font-medium leading-none " +
+                        (active
+                          ? "border-white/30 bg-white/15 text-white dark:border-ink-900/20 dark:bg-ink-900/10 dark:text-ink-900"
+                          : "border-ink-200 bg-white text-ink-500 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-400")
+                      }
+                    >
+                      {DOMAIN_OWNER_SHORT[owner]}
+                    </span>
+                  </span>
                   {status === "complete" && (
                     <span className={active ? "text-emerald-600 dark:text-emerald-700" : "text-emerald-600 dark:text-emerald-400"} aria-label="complete">✓</span>
                   )}
@@ -77,6 +105,11 @@ export default function WizardShell({
             <div>
               <div className="text-xs uppercase tracking-wider text-ink-500 dark:text-ink-400">Step {idx + 1} of {DOMAIN_ORDER.length}</div>
               <h1 className="text-2xl font-semibold tracking-tight mt-1 text-ink-900 dark:text-ink-50">{DOMAIN_LABEL[step]}</h1>
+              <div className="mt-2">
+                <Badge tone={ownerTone(DOMAIN_OWNER[step])}>
+                  Answered by: {DOMAIN_OWNER_LABEL[DOMAIN_OWNER[step]]}
+                </Badge>
+              </div>
             </div>
             <Badge tone={project.progress[step] === "complete" ? "good" : "warn"}>
               {project.progress[step] === "complete" ? "Complete" : "Draft"}

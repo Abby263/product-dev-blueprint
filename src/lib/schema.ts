@@ -223,7 +223,7 @@ export interface PlatformChoice {
   rateLimiting: boolean;
   caching: boolean;
 
-  database: "postgres" | "mysql" | "mongodb" | "dynamodb" | "firebase" | "supabase" | "redis" | "elasticsearch" | "other";
+  database: "postgres" | "mysql" | "mongodb" | "cosmosdb" | "dynamodb" | "firebase" | "supabase" | "redis" | "elasticsearch" | "clickhouse" | "other";
   dataShape: "structured" | "semi-structured" | "unstructured" | "mixed";
   multiTenant: boolean;
   searchNeeded: boolean;
@@ -235,6 +235,13 @@ export interface PlatformChoice {
   observability: string;
   containerization: "docker" | "kubernetes" | "none";
   envStrategy: string;        // dev/stage/prod
+  deploymentRuntime?: string; // e.g. Vercel Functions, Azure Container Apps, ECS/Fargate, AKS/GKE/EKS
+  cloudServices?: string;     // managed services expected in the target cloud
+  networking?: string;        // VPC/VNet/subnets/private endpoints/WAF/LB/private DNS
+  scalingApproach?: string;   // autoscaling, queue depth scaling, read replicas, partitioning
+  cicdDetails?: string;       // promotion gates, eval gates, approvals, release controls
+  iacDetails?: string;        // Terraform modules, policies, environment ownership
+  enterpriseControls?: string;// KMS/secrets/private links/SIEM/audit controls
 }
 
 export interface SystemDesign {
@@ -245,6 +252,17 @@ export interface SystemDesign {
   securityReviewAreas?: string[];
   highLevelArchitectureNotes?: string;
   lowLevelArchitectureNotes?: string;
+  domainModelNotes?: string;
+  schemaDesignNotes?: string;
+  dataLifecycleNotes?: string;
+  apiContractNotes?: string;
+  serviceBoundaryNotes?: string;
+  workflowStateNotes?: string;
+  integrationContractNotes?: string;
+  securityArchitectureNotes?: string;
+  observabilityDesignNotes?: string;
+  infraArchitectureNotes?: string;
+  testArchitectureNotes?: string;
   expectedUsersTotal: number;
   dau: number;
   mau: number;
@@ -297,7 +315,8 @@ export type VectorDB =
   | "chroma"
   | "milvus"
   | "elasticsearch"
-  | "redis-stack";
+  | "redis-stack"
+  | "azure-ai-search";
 
 export interface AIAutomation {
   needsAI: boolean;
@@ -460,12 +479,12 @@ export const DOMAIN_LABEL: Record<DomainKey, string> = {
   problem: "Problem & objectives",
   market: "Customer & market",
   experience: "Experience surface",
-  platform: "Product surface & stack",
+  platform: "Product surface & cloud stack",
   functional: "Functional requirements",
   features: "Feature builder",
   nonfunctional: "Quality attributes",
-  systemDesign: "Architecture & scale",
-  dataTech: "Data, integrations & tradeoffs",
+  systemDesign: "Solution architecture & LLD",
+  dataTech: "Data model & integrations",
   ai: "AI & automation",
   compliance: "Security & compliance",
   gtm: "Commercial & GTM",
@@ -477,14 +496,45 @@ export const DOMAIN_BLURB: Record<DomainKey, string> = {
   problem: "What problem, for whom, why now, what success looks like.",
   market: "Buyers, end users, alternatives, differentiation, pricing context.",
   experience: "Surfaces, devices, channels, timing model, accessibility.",
-  platform: "What you're building, where it runs, auth, APIs, cloud, and stack.",
+  platform: "What you're building, where it runs, auth, APIs, cloud, infrastructure, and stack.",
   functional: "Personas, requirements with acceptance criteria, edge cases.",
   features: "Feature library with user stories, priority, complexity, value.",
   nonfunctional: "Availability, recovery, performance, privacy, SLOs.",
-  systemDesign: "Architecture pattern, capacity, scaling, resilience, and tradeoff checks.",
-  dataTech: "Canonical data, integrations, residency, and build-vs-buy decisions.",
+  systemDesign: "HLD, LLD, capacity, schema design, scaling, resilience, and tradeoff checks.",
+  dataTech: "Canonical entities, integrations, residency, and build-vs-buy decisions.",
   ai: "AI/automation needs, RAG, evals, guardrails, model provider.",
   compliance: "Regulatory frameworks, encryption, RBAC, residency, audit.",
   gtm: "Packaging, pricing, segments, channels, competitors, KPIs.",
   governance: "Owners, approvers, dependencies, decisions, confidence.",
+};
+
+export type DomainOwner = "product-manager" | "technical-solution-architect" | "shared";
+
+export const DOMAIN_OWNER: Record<DomainKey, DomainOwner> = {
+  basics: "shared",
+  problem: "product-manager",
+  market: "product-manager",
+  experience: "product-manager",
+  platform: "technical-solution-architect",
+  functional: "product-manager",
+  features: "shared",
+  nonfunctional: "shared",
+  systemDesign: "technical-solution-architect",
+  dataTech: "technical-solution-architect",
+  ai: "technical-solution-architect",
+  compliance: "shared",
+  gtm: "product-manager",
+  governance: "shared",
+};
+
+export const DOMAIN_OWNER_LABEL: Record<DomainOwner, string> = {
+  "product-manager": "Product Manager",
+  "technical-solution-architect": "Technical Solution Architect",
+  shared: "PM + Architect",
+};
+
+export const DOMAIN_OWNER_SHORT: Record<DomainOwner, string> = {
+  "product-manager": "PM",
+  "technical-solution-architect": "Architect",
+  shared: "Shared",
 };

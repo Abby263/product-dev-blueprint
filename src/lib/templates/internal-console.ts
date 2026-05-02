@@ -73,12 +73,26 @@ const payload: Partial<Project> = {
     multiTenant: false,
     searchNeeded: true,
     realtimeNeeded: false,
-    cloud: "aws",
-    cicd: "GitHub Actions",
-    iac: "Terraform",
-    observability: "OpenTelemetry + Datadog",
+    cloud: "azure",
+    cicd: "GitHub Actions with internal approval gates",
+    iac: "Terraform + Azure modules",
+    observability: "OpenTelemetry + Azure Monitor + Datadog",
     containerization: "docker",
     envStrategy: "dev / stage / prod",
+    deploymentRuntime:
+      "Azure App Service or Azure Container Apps for Django APIs and background workers; Azure Functions for lightweight scheduled exports.",
+    cloudServices:
+      "Azure Database for PostgreSQL, Azure Cache for Redis, Azure Service Bus, Azure Blob Storage, Azure Key Vault, Azure Monitor, Application Insights, Azure Front Door/WAF.",
+    networking:
+      "Private VNet integration, private endpoints for database/cache/storage, restricted admin ingress via VPN or corporate IdP policy, Azure Front Door/WAF, private DNS zones.",
+    scalingApproach:
+      "Small internal footprint: scale API instances by CPU/RPS, workers by Service Bus depth, read replica for heavy audit/search reads, cache Account 360 modules with short TTL.",
+    cicdDetails:
+      "PR checks run RBAC matrix tests, approval workflow tests, audit coverage tests, and migration dry-runs; production requires ops/compliance approval.",
+    iacDetails:
+      "Terraform owns App Service/Container Apps, PostgreSQL, Redis, Service Bus, Key Vault, networking, private endpoints, monitoring, and policy assignments.",
+    enterpriseControls:
+      "Key Vault secrets, KMS-managed encryption, SSO-only access, break-glass approval, immutable audit export to Blob, SIEM forwarding, least-privilege managed identities.",
   },
   functional: {
     personas: [
@@ -155,6 +169,37 @@ const payload: Partial<Project> = {
     buildVsBuy: "Buy: identity (Google Workspace), observability. Build: console UI + approval framework + action runner + audit explorer.",
   },
   systemDesign: {
+    architecturePattern: "modular-monolith",
+    authArchitecture: "enterprise-sso",
+    deploymentTopology: "single-region",
+    tradeoffAreas: ["identity-auth", "authorization-tenancy", "schema-design-lld", "api-boundary", "deployment-infra", "observability-audit", "testing-release"],
+    securityReviewAreas: ["identity", "authorization", "data-protection", "privacy", "secrets", "audit", "incident-response"],
+    highLevelArchitectureNotes:
+      "Internal users authenticate through corporate OIDC/SCIM. Azure Front Door/WAF and private networking protect the React/Django console. Django exposes typed internal action APIs. Azure Database for PostgreSQL stores workflow/audit data; Redis caches account modules; Service Bus runs async actions and exports.",
+    lowLevelArchitectureNotes:
+      "Modules: Identity, RBAC, AccountSearch, Account360, Approval, ActionRunner, Refund, PlanChange, ExceptionQueue, Audit, Export. Sensitive actions execute through Approval and ActionRunner; every read/write of protected data emits AuditEvent.",
+    domainModelNotes:
+      "InternalUser owns role memberships and sessions. Approval owns submitter, approver, action payload, thresholds, state, and expiry. ActionDefinition owns schema, permission, side effects, and rollback metadata. AuditEvent is append-only and references actor, target, action, request, and diff.",
+    schemaDesignNotes:
+      "Postgres tables: users, roles, permissions, role_bindings, action_definitions, approvals, approval_events, action_runs, exceptions, audit_events, saved_searches. Index audit_events by actor_id, target_id, action, created_at; partition audit_events monthly.",
+    dataLifecycleNotes:
+      "Audit events retain 13 months by default, extended for compliance categories. Large exports stream to Blob and expire automatically. Offboarded users keep immutable actor references but active sessions are revoked immediately.",
+    apiContractNotes:
+      "REST/OpenAPI APIs for account search, approval submit/review/apply, action execution, audit search/export, and exception triage. Sensitive writes require idempotency keys and approval token validation.",
+    serviceBoundaryNotes:
+      "RBAC module owns permission checks. Approval module owns state transitions. ActionRunner owns typed execution and rollback metadata. Audit module owns append-only writes and export. Account modules are read adapters over internal systems.",
+    workflowStateNotes:
+      "Approval: submitted -> pending_review -> approved/rejected/expired -> applied/failed. ActionRun: queued -> executing -> succeeded/failed/rolled_back. Export: requested -> generating -> ready -> expired.",
+    integrationContractNotes:
+      "Internal Billing/CRM/Support APIs use short timeouts, typed adapters, and partial rendering. Failed async actions route to ExceptionQueue. SCIM group sync is monitored and permission changes invalidate sessions.",
+    securityArchitectureNotes:
+      "SSO-only, hardware-key MFA for privileged roles, RBAC matrix tests, approver cannot be submitter, PII read logging, Key Vault secrets, private endpoints, immutable audit export, and break-glass workflow.",
+    observabilityDesignNotes:
+      "Dashboards track account search latency, approval latency, audit write coverage, failed action runs, Service Bus depth, internal API dependency latency, and permission-denied spikes.",
+    infraArchitectureNotes:
+      "Terraform-managed Azure App Service/Container Apps, PostgreSQL, Redis, Service Bus, Blob audit export, Key Vault, private endpoints, Front Door/WAF, Monitor/App Insights, Datadog forwarder, and single-region backup restore drills.",
+    testArchitectureNotes:
+      "RBAC matrix tests, approval state-machine tests, audit coverage tests for every sensitive action, contract tests for internal APIs, migration dry-runs, and fixtures for refund/plan-change/exception workflows.",
     expectedUsersTotal: 50,
     dau: 25,
     mau: 30,
@@ -226,7 +271,7 @@ const payload: Partial<Project> = {
     owner: "Director of Internal Tools",
     approvers: "VP Customer Operations, Head of Compliance, VP Engineering",
     dependencies: "Internal Billing / CRM / Support API maintainers; Google Workspace admin team.",
-    thirdParties: "Google Workspace, AWS, Datadog, GitHub.",
+    thirdParties: "Google Workspace, Azure, Datadog, GitHub.",
     legalReviews: "PIPEDA audit trail review; internal data-handling policy review.",
     procurementReviews: "—",
     unvalidatedAssumptions: "Ops team will adopt over Retool patches; approval workflow latency is acceptable.",
@@ -265,7 +310,7 @@ export const INTERNAL_CONSOLE_TEMPLATE: TemplateMeta = {
   blurb:
     "RBAC + audit-logged console replacing five spreadsheets and three side-tools. Approval workflows for sensitive actions.",
   vertical: "Internal tooling",
-  stackChips: ["React", "Django", "Postgres", "AWS"],
+  stackChips: ["React", "Django", "Postgres", "Azure"],
   complianceChips: ["SOC 2", "PIPEDA"],
   scaleChip: "Internal · 25 ops users · audit-first",
   payload,

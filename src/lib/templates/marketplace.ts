@@ -74,11 +74,25 @@ const payload: Partial<Project> = {
     searchNeeded: true,
     realtimeNeeded: true,
     cloud: "aws",
-    cicd: "GitHub Actions",
-    iac: "Terraform",
+    cicd: "GitHub Actions with mobile build lanes and protected prod deploys",
+    iac: "Terraform + AWS modules",
     observability: "OpenTelemetry + Datadog + Sentry",
     containerization: "docker",
     envStrategy: "dev / stage / prod with PR previews",
+    deploymentRuntime:
+      "ECS Fargate for marketplace APIs, chat, matching, and trust-safety workers; Lambda for payment/verification webhooks; managed mobile build pipelines for React Native.",
+    cloudServices:
+      "Aurora PostgreSQL, OpenSearch, ElastiCache Redis, SQS, EventBridge, S3, CloudFront, WAF, KMS, Secrets Manager, Cognito/Auth0 integration, SNS/Pinpoint.",
+    networking:
+      "AWS VPC with public ALB/WAF, private app/database/search/cache subnets, VPC endpoints, NAT egress, CloudFront for media/CDN, private connectivity to OpenSearch and Aurora.",
+    scalingApproach:
+      "Fargate autoscaling by RPS/CPU, SQS worker scaling for verification/T&S/payment events, OpenSearch index partitioning by geo/category, Redis pub/sub for chat fan-out, image/media processing queue.",
+    cicdDetails:
+      "PR checks run marketplace state-machine tests, payment webhook contract tests, T&S policy tests, mobile smoke builds, and tenant/privacy negative tests; prod deploy requires rollback and migration approval.",
+    iacDetails:
+      "Terraform owns networking, ECS services, Aurora, Redis, OpenSearch, queues/events, S3 media, KMS, WAF, IAM, monitoring, and environment promotion.",
+    enterpriseControls:
+      "Stripe-hosted PCI boundary, KMS encryption, Secrets Manager, signed media uploads, audit logs for payments/T&S/disputes, fraud/rate-limit rules, SIEM export.",
   },
   functional: {
     personas: [
@@ -161,6 +175,37 @@ const payload: Partial<Project> = {
       "Buy: payments (Stripe Connect), identity verification (Persona), background checks (Checkr), notifications, maps, identity (Auth0). Build: marketplace + matching + chat + T&S console + dispute flow.",
   },
   systemDesign: {
+    architecturePattern: "service-oriented",
+    authArchitecture: "managed-oidc",
+    deploymentTopology: "active-passive",
+    tradeoffAreas: ["identity-auth", "schema-design-lld", "api-boundary", "integration-failure", "realtime-notifications", "deployment-infra", "testing-release"],
+    securityReviewAreas: ["identity", "authorization", "data-protection", "privacy", "secrets", "api-abuse", "audit", "incident-response"],
+    highLevelArchitectureNotes:
+      "CloudFront/WAF fronts web and API traffic; mobile apps call marketplace APIs through ALB/API gateway. ECS services own jobs, bids, chat, payments, verification, T&S, reviews, and search. Aurora Postgres is the transactional source of truth; OpenSearch powers pro/job discovery; Redis supports chat/session fan-out; SQS/EventBridge isolates external provider workflows.",
+    lowLevelArchitectureNotes:
+      "Modules: Identity, Customer, Pro, Job, Bid, Match, Chat, Payment, Verification, Review, Dispute, TrustSafety, Audit. Payment and dispute workflows are strict state machines. Search index is a read model generated from Pro/Job changes.",
+    domainModelNotes:
+      "Customer and Pro are distinct account aggregates. Job owns scope, location, budget, status, winning bid, and completion. Bid belongs to Job and Pro. Conversation belongs to matched Job participants. Payment/Payout and Dispute own regulated state transitions and audit evidence.",
+    schemaDesignNotes:
+      "Postgres tables for users, pros, verifications, jobs, bids, conversations, messages, payments, payouts, disputes, reviews, flags, moderation_actions, audit_events. Partition messages by month; partial indexes for active jobs and open disputes; OpenSearch indexes pro profiles and active jobs by geo/category.",
+    dataLifecycleNotes:
+      "Payment/dispute records retain 7 years. Chat retains 13 months unless attached to dispute. Verification docs are stored by provider with tokenized references. Media in S3 uses lifecycle rules and virus scan metadata.",
+    apiContractNotes:
+      "REST/OpenAPI APIs for job posting, bidding, chat, payments, verification, disputes, and T&S actions. Stripe/verification webhooks are signed, idempotent, and replayable. Mobile APIs include backward-compatible versioned responses.",
+    serviceBoundaryNotes:
+      "Job service owns posting and lifecycle. Match service owns bid feed/ranking. Chat service owns messages and redaction. Payment service owns Stripe state. T&S service owns flags and moderation actions. Audit service is append-only.",
+    workflowStateNotes:
+      "Job: draft -> posted -> bidding -> awarded -> in_progress -> completed/disputed/cancelled. Payment: authorized -> held_in_escrow -> released/refunded/disputed. Verification: submitted -> pending_provider -> approved/rejected/manual_review.",
+    integrationContractNotes:
+      "Stripe Connect webhooks use idempotency and reconciliation jobs. Persona/Checkr failures route to manual review. Twilio/SendGrid retries respect quiet hours. Maps/geocoding failures preserve draft jobs and prompt for manual location entry.",
+    securityArchitectureNotes:
+      "OIDC with MFA for admins, scoped roles for T&S/support/payments, Stripe-hosted card capture, phone/email redaction in chat, signed media URLs, rate limits on posting/bidding/chat, fraud rules, and full audit of payment/dispute actions.",
+    observabilityDesignNotes:
+      "Dashboards track search latency, chat delivery, payment webhook lag, verification SLA, SQS depth, fraud/rate-limit blocks, dispute rate, media processing, and mobile API error rates. Sentry captures web/mobile UX regressions.",
+    infraArchitectureNotes:
+      "Terraform-managed AWS VPC, ECS Fargate services, Lambda webhooks, Aurora, OpenSearch, Redis, SQS/EventBridge, S3 media pipeline, CloudFront/WAF, KMS, Secrets Manager, Datadog/Sentry monitors, and active/passive DR backups.",
+    testArchitectureNotes:
+      "Payment webhook contract tests, dispute/payment state-machine tests, chat redaction tests, search relevance fixtures, authorization-negative tests for support/T&S roles, mobile smoke builds, and load tests for search/chat bursts.",
     expectedUsersTotal: 10_000_000,
     dau: 80_000,
     mau: 600_000,

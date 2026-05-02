@@ -33,7 +33,29 @@ import {
 } from "@/lib/options";
 import { ARCHITECTURE_TRADEOFF_OPTIONS, SECURITY_REVIEW_OPTIONS } from "@/lib/architecture-scenarios";
 
-// ─── Product surface & stack ────────────────────────────────────────────────
+function SectionHeading({
+  title,
+  owner,
+  description,
+}: {
+  title: string;
+  owner: "Product Manager" | "Technical Solution Architect" | "PM + Architect";
+  description?: string;
+}) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+      <div>
+        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">{title}</div>
+        {description && <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">{description}</p>}
+      </div>
+      <Badge tone={owner === "Technical Solution Architect" ? "accent" : owner === "Product Manager" ? "warn" : "neutral"}>
+        {owner}
+      </Badge>
+    </div>
+  );
+}
+
+// ─── Product surface & cloud stack ──────────────────────────────────────────
 export function PlatformStep({ project }: { project: Project }) {
   const update = useStore((s) => s.updateProject);
   const v = project.platform;
@@ -161,7 +183,11 @@ export function PlatformStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-4 sm:p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Cloud & deployment</div>
+        <SectionHeading
+          title="Cloud, deployment, and enterprise operations"
+          owner="Technical Solution Architect"
+          description="Capture the runtime, managed services, network boundary, scaling approach, and release controls expected for an enterprise-grade build."
+        />
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Cloud / host">
             <OptionSelect value={v.cloud} options={CLOUD_OPTIONS} onChange={(val) => set("cloud", val as typeof v.cloud)} />
@@ -180,6 +206,62 @@ export function PlatformStep({ project }: { project: Project }) {
           </Field>
           <Field label="Observability" hint="e.g. OpenTelemetry + Datadog, Grafana + Loki + Tempo.">
             <Input value={v.observability} onChange={(e) => set("observability", e.target.value)} placeholder="OpenTelemetry + Datadog" />
+          </Field>
+          <Field label="Deployment runtime / services" hint="e.g. Vercel Functions, Azure Container Apps, ECS/Fargate, AKS/GKE/EKS.">
+            <Textarea
+              rows={2}
+              value={v.deploymentRuntime ?? ""}
+              onChange={(e) => set("deploymentRuntime", e.target.value)}
+              placeholder="API runtime, worker runtime, scheduled jobs, model/eval runners."
+            />
+          </Field>
+          <Field label="Managed cloud services" hint="Databases, queues, search, object storage, AI, secrets, monitoring.">
+            <Textarea
+              rows={2}
+              value={v.cloudServices ?? ""}
+              onChange={(e) => set("cloudServices", e.target.value)}
+              placeholder="e.g. Azure OpenAI, Azure AI Search, Cosmos DB, Service Bus, Key Vault."
+            />
+          </Field>
+          <Field label="Network and security boundary" hint="VPC/VNet, subnets, private endpoints, WAF, load balancers, private DNS.">
+            <Textarea
+              rows={2}
+              value={v.networking ?? ""}
+              onChange={(e) => set("networking", e.target.value)}
+              placeholder="Hub-spoke VNet, private endpoints, WAF, NAT, private DNS."
+            />
+          </Field>
+          <Field label="Scaling approach" hint="Autoscale rules, queue-depth workers, replicas, partitioning, backpressure.">
+            <Textarea
+              rows={2}
+              value={v.scalingApproach ?? ""}
+              onChange={(e) => set("scalingApproach", e.target.value)}
+              placeholder="KEDA/HPA, read replicas, per-tenant partitions, rate limits."
+            />
+          </Field>
+          <Field label="CI/CD release gates" hint="Approvals, automated tests, eval gates, migrations, rollback controls.">
+            <Textarea
+              rows={2}
+              value={v.cicdDetails ?? ""}
+              onChange={(e) => set("cicdDetails", e.target.value)}
+              placeholder="PR checks, contract tests, AI evals, staged deploys, approval gates."
+            />
+          </Field>
+          <Field label="IaC and policy details" hint="Terraform modules, drift checks, policy-as-code, environment ownership.">
+            <Textarea
+              rows={2}
+              value={v.iacDetails ?? ""}
+              onChange={(e) => set("iacDetails", e.target.value)}
+              placeholder="Terraform workspaces, module ownership, drift detection, policy checks."
+            />
+          </Field>
+          <Field label="Enterprise controls" hint="Secrets, KMS, private links, SIEM export, break-glass, audit evidence.">
+            <Textarea
+              rows={2}
+              value={v.enterpriseControls ?? ""}
+              onChange={(e) => set("enterpriseControls", e.target.value)}
+              placeholder="KMS, Key Vault/Secrets Manager, SIEM stream, private connectivity, break-glass."
+            />
           </Field>
         </div>
       </Card>
@@ -324,7 +406,7 @@ export function FeaturesStep({ project }: { project: Project }) {
   );
 }
 
-// ─── Architecture & scale ───────────────────────────────────────────────────
+// ─── Solution architecture & LLD ────────────────────────────────────────────
 export function SystemDesignStep({ project }: { project: Project }) {
   const update = useStore((s) => s.updateProject);
   const v = project.systemDesign;
@@ -340,12 +422,11 @@ export function SystemDesignStep({ project }: { project: Project }) {
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6 space-y-5">
-        <div>
-          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Architecture choices and review scenarios</div>
-          <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
-            Capture the tradeoffs a senior PM, architect, and lead engineer would expect before a coding tool starts implementation.
-          </p>
-        </div>
+        <SectionHeading
+          title="Architecture choices and review scenarios"
+          owner="Technical Solution Architect"
+          description="Capture the tradeoffs a senior PM, architect, and lead engineer would expect before a coding tool starts implementation."
+        />
         <div className="grid md:grid-cols-3 gap-5">
           <Field label="Architecture pattern">
             <OptionSelect
@@ -404,7 +485,101 @@ export function SystemDesignStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-4 sm:p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Capacity expectations</div>
+        <SectionHeading title="Architect-owned LLD inputs" owner="Technical Solution Architect" description="These answers turn the idea into implementation-ready schemas, contracts, modules, workflows, and test boundaries." />
+        <div className="grid md:grid-cols-2 gap-5">
+          <Field label="Domain model and aggregates" hint="Core domains, aggregate roots, bounded contexts, and ownership.">
+            <Textarea
+              rows={3}
+              value={v.domainModelNotes ?? ""}
+              onChange={(e) => set("domainModelNotes", e.target.value)}
+              placeholder="e.g. Tenant owns Corpus, Conversation, Policy; AgentRun belongs to Conversation."
+            />
+          </Field>
+          <Field label="Schema design and indexes" hint="Tables/documents, keys, constraints, partition keys, indexes, and migration rules.">
+            <Textarea
+              rows={3}
+              value={v.schemaDesignNotes ?? ""}
+              onChange={(e) => set("schemaDesignNotes", e.target.value)}
+              placeholder="e.g. Conversation(id, tenant_id, end_user_id); chunks partitioned by tenant + document_version."
+            />
+          </Field>
+          <Field label="Data lifecycle and migration" hint="Retention, archival, deletion, backfills, expand/contract migrations.">
+            <Textarea
+              rows={3}
+              value={v.dataLifecycleNotes ?? ""}
+              onChange={(e) => set("dataLifecycleNotes", e.target.value)}
+              placeholder="e.g. 13-month trace retention; immutable audit; blue/green index rebuilds."
+            />
+          </Field>
+          <Field label="API contracts and versioning" hint="OpenAPI/GraphQL/gRPC/AsyncAPI contracts, idempotency, scopes, and error shapes.">
+            <Textarea
+              rows={3}
+              value={v.apiContractNotes ?? ""}
+              onChange={(e) => set("apiContractNotes", e.target.value)}
+              placeholder="e.g. POST /agent/messages idempotency key; tool calls typed with JSON Schema."
+            />
+          </Field>
+          <Field label="Service and module boundaries" hint="Which module owns what, public interfaces, and allowed dependencies.">
+            <Textarea
+              rows={3}
+              value={v.serviceBoundaryNotes ?? ""}
+              onChange={(e) => set("serviceBoundaryNotes", e.target.value)}
+              placeholder="e.g. Corpus module owns indexing; Agent module reads retrieval interface only."
+            />
+          </Field>
+          <Field label="Workflow state machines" hint="Important states, transitions, retries, human approvals, and dead-letter paths.">
+            <Textarea
+              rows={3}
+              value={v.workflowStateNotes ?? ""}
+              onChange={(e) => set("workflowStateNotes", e.target.value)}
+              placeholder="e.g. Document: draft -> approved -> indexing -> indexed -> archived."
+            />
+          </Field>
+          <Field label="Integration contracts and failure handling" hint="Provider timeouts, retries, webhooks, replay commands, and fallback UX.">
+            <Textarea
+              rows={3}
+              value={v.integrationContractNotes ?? ""}
+              onChange={(e) => set("integrationContractNotes", e.target.value)}
+              placeholder="e.g. Ticketing connector requires idempotent upsert and provider-specific circuit breaker."
+            />
+          </Field>
+          <Field label="Security architecture" hint="OAuth/SSO, RBAC/ABAC, tenant isolation, secrets, audit, abuse controls.">
+            <Textarea
+              rows={3}
+              value={v.securityArchitectureNotes ?? ""}
+              onChange={(e) => set("securityArchitectureNotes", e.target.value)}
+              placeholder="e.g. tenant-aware claims, scoped service principals, private endpoints, audit every admin action."
+            />
+          </Field>
+          <Field label="Observability and SLO instrumentation" hint="Metrics, traces, logs, audit events, dashboards, alerting, cost telemetry.">
+            <Textarea
+              rows={3}
+              value={v.observabilityDesignNotes ?? ""}
+              onChange={(e) => set("observabilityDesignNotes", e.target.value)}
+              placeholder="e.g. trace every retrieval + model call; SLO burn alerts by tenant and surface."
+            />
+          </Field>
+          <Field label="Infrastructure and deployment architecture" hint="Runtime, network boundary, IaC, environments, rollout, rollback, and DR.">
+            <Textarea
+              rows={3}
+              value={v.infraArchitectureNotes ?? ""}
+              onChange={(e) => set("infraArchitectureNotes", e.target.value)}
+              placeholder="e.g. Azure Container Apps API/workers, private endpoints, Terraform, staged promotion."
+            />
+          </Field>
+          <Field label="Test architecture and quality gates" hint="Contract tests, auth-negative tests, load tests, evals, fixtures, and coding-agent handoff gates.">
+            <Textarea
+              rows={3}
+              value={v.testArchitectureNotes ?? ""}
+              onChange={(e) => set("testArchitectureNotes", e.target.value)}
+              placeholder="e.g. generated fixtures per entity; tenant-isolation tests; eval gate before prod deploy."
+            />
+          </Field>
+        </div>
+      </Card>
+
+      <Card className="p-4 sm:p-6 space-y-5">
+        <SectionHeading title="Capacity expectations" owner="PM + Architect" />
         <div className="grid md:grid-cols-3 gap-5">
           <Field label="Total expected users (lifetime)">
             <Input type="number" min={0} value={v.expectedUsersTotal} onChange={(e) => set("expectedUsersTotal", Number(e.target.value || 0))} />
@@ -452,7 +627,7 @@ export function SystemDesignStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-4 sm:p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Geographic & resilience</div>
+        <SectionHeading title="Geographic and resilience posture" owner="Technical Solution Architect" />
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="Geographic coverage">
             <Input value={v.geographicCoverage} onChange={(e) => set("geographicCoverage", e.target.value)} placeholder="e.g. North America; later EU" />
@@ -468,7 +643,7 @@ export function SystemDesignStep({ project }: { project: Project }) {
       </Card>
 
       <Card className="p-4 sm:p-6 space-y-5">
-        <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Strategy</div>
+        <SectionHeading title="Scaling strategy" owner="Technical Solution Architect" />
         <Field label="Caching strategy">
           <Textarea rows={2} value={v.cachingStrategy} onChange={(e) => set("cachingStrategy", e.target.value)} placeholder="e.g. CDN edge for static, Redis for hot reads, query cache." />
         </Field>

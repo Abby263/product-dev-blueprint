@@ -71,17 +71,31 @@ const payload: Partial<Project> = {
     eventDriven: true,
     rateLimiting: true,
     caching: true,
-    database: "postgres",
+    database: "cosmosdb",
     dataShape: "mixed",
     multiTenant: true,
     searchNeeded: true,
     realtimeNeeded: true,
-    cloud: "aws",
-    cicd: "GitHub Actions",
-    iac: "Terraform",
-    observability: "OpenTelemetry + Datadog + LangSmith",
+    cloud: "azure",
+    cicd: "GitHub Actions or Azure DevOps Pipelines",
+    iac: "Terraform + Azure Verified Modules",
+    observability: "Azure Monitor + Application Insights + OpenTelemetry + LangSmith",
     containerization: "docker",
     envStrategy: "dev / stage / prod with eval suite gating prod releases",
+    deploymentRuntime:
+      "Azure Container Apps for API and agent workers; Container Apps Jobs for corpus sync, reindexing, and eval runs; optional AKS for dedicated enterprise tenants.",
+    cloudServices:
+      "Azure OpenAI, Azure AI Search, Azure Cosmos DB, Azure Service Bus, Azure Event Grid, Azure Blob Storage, Azure Key Vault, Azure Monitor, Application Insights.",
+    networking:
+      "Hub-spoke VNet, private subnets, private endpoints for Azure OpenAI/Search/Cosmos/Storage, private DNS zones, Azure Front Door + WAF, NAT gateway for controlled egress.",
+    scalingApproach:
+      "KEDA autoscaling on queue depth and CPU, per-tenant throughput budgets, partitioned Azure AI Search indexes for large tenants, Cosmos DB RU autoscale with tenant-aware partition keys.",
+    cicdDetails:
+      "PR checks run unit, contract, tenant-isolation, prompt-injection, and eval suites; stage deploy runs synthetic conversations before approval to prod.",
+    iacDetails:
+      "Terraform modules own networking, private endpoints, Container Apps environments, Cosmos/Search/Service Bus, Key Vault, monitoring, and per-environment policy assignments.",
+    enterpriseControls:
+      "Managed identities, Key Vault-backed secrets, customer-managed keys for regulated tenants, private link-only data services, SIEM export, break-glass admin approvals, immutable audit storage.",
   },
   functional: {
     personas: [
@@ -156,18 +170,49 @@ const payload: Partial<Project> = {
       { id: "ENT-007", name: "EvalSet / EvalRun", description: "Reference questions and run results.", sensitive: false, retention: "Indefinite" },
     ],
     integrations: [
-      { id: "INT-001", system: "OpenAI / Anthropic / Bedrock", direction: "outbound", protocol: "REST", dataClass: "Prompt + completion (PII risk)", notes: "Per-tenant approved provider list." },
-      { id: "INT-002", system: "Pinecone (vector DB)", direction: "outbound", protocol: "REST + gRPC", dataClass: "Embeddings (no raw text)", notes: "Tenant-scoped indexes." },
-      { id: "INT-003", system: "LangSmith", direction: "outbound", protocol: "REST", dataClass: "Trace data (PII redacted)", notes: "Per-tenant project; retention aligned with audit." },
+      { id: "INT-001", system: "Azure OpenAI", direction: "outbound", protocol: "REST", dataClass: "Prompt + completion (PII risk)", notes: "Private endpoint; per-tenant approved deployment/model policy." },
+      { id: "INT-002", system: "Azure AI Search", direction: "outbound", protocol: "REST", dataClass: "Embeddings + chunk metadata", notes: "Hybrid vector/keyword indexes scoped by tenant and data residency." },
+      { id: "INT-003", system: "LangSmith or OpenTelemetry collector", direction: "outbound", protocol: "REST/OTLP", dataClass: "Trace data (PII redacted)", notes: "Per-tenant project or App Insights workspace; retention aligned with audit." },
       { id: "INT-004", system: "Zendesk / Intercom / Help Scout", direction: "bidirectional", protocol: "REST + Webhooks", dataClass: "Tickets, KB articles", notes: "Source for KB sync + handoff destination." },
       { id: "INT-005", system: "Slack", direction: "bidirectional", protocol: "Web API + Events API", dataClass: "Messages", notes: "Slack Connect channels for Pro tier." },
-      { id: "INT-006", system: "Datadog", direction: "outbound", protocol: "OTLP/HTTPS", dataClass: "Metrics + traces", notes: "Infra observability; no raw conversation content." },
+      { id: "INT-006", system: "Azure Monitor / Application Insights", direction: "outbound", protocol: "OTLP/HTTPS", dataClass: "Metrics + traces", notes: "Infra observability; no raw conversation content." },
     ],
-    dataResidency: "us-east-1 by default; eu-west-1 for EU tenants. Vector indexes co-located with primary data.",
+    dataResidency: "East US by default; Canada Central and West Europe for residency-bound tenants. Cosmos DB, Azure AI Search, Blob, and trace stores remain region-aligned.",
     buildVsBuy:
-      "Buy: model providers, vector DB (Pinecone), eval/observability (LangSmith), KB connectors. Build: agent graph (LangGraph), guardrails, multi-provider routing, operator console, eval gating in CI.",
+      "Buy: Azure OpenAI, Azure AI Search, Cosmos DB, Service Bus, Key Vault, LangSmith/OpenTelemetry. Build: DeepAgents/LangGraph orchestration, guardrails, multi-provider policy, operator console, eval gating in CI.",
   },
   systemDesign: {
+    architecturePattern: "event-driven",
+    authArchitecture: "enterprise-sso",
+    deploymentTopology: "hybrid",
+    tradeoffAreas: ["identity-auth", "authorization-tenancy", "schema-design-lld", "deployment-infra", "ai-agents", "testing-release"],
+    securityReviewAreas: ["identity", "authorization", "data-protection", "privacy", "secrets", "api-abuse", "audit", "incident-response", "ai-safety"],
+    highLevelArchitectureNotes:
+      "Azure Front Door + WAF fronts the Next.js/admin surfaces and FastAPI agent API. Azure AD B2C/Auth0 handles tenant identity. Azure Container Apps hosts API, agent workers, sync workers, and eval jobs. Azure OpenAI, Azure AI Search, Cosmos DB, Blob Storage, Service Bus, and Key Vault stay behind private endpoints.",
+    lowLevelArchitectureNotes:
+      "Modules: TenantConfig, Corpus, Retrieval, AgentRun, Conversation, Handoff, Eval, Audit, Billing. DeepAgents workspace writes architecture/content artifacts from validated project input, with architecture/security/content subagents and human approval before artifact publication.",
+    domainModelNotes:
+      "Tenant owns policies, identity mappings, corpus, routing policy, budgets, and retention. Conversation owns messages, retrievals, tool calls, handoffs, cost events, and trace references. Corpus owns documents, versions, chunks, embeddings, approvals, and index jobs.",
+    schemaDesignNotes:
+      "Cosmos containers: tenants, conversations, corpus_documents, agent_runs, eval_runs, audit_events. Partition by tenant_id plus hot-path discriminator where needed. Azure AI Search index per tenant tier or shared index with tenant_id filter; chunks include document_version_id, ACL hash, embedding_ref, and retention metadata.",
+    dataLifecycleNotes:
+      "Document versions are immutable; reindex creates a new active index alias. Conversation and trace data retain 13 months by default. Audit events are append-only and exported to immutable Blob storage. Tenant deletion runs staged purge across Cosmos, Search, Blob, traces, and backups.",
+    apiContractNotes:
+      "Contract-first REST APIs with OpenAPI. POST /agent/messages uses idempotency keys and streaming response channel. Webhooks to ticketing systems use signed payloads and replay IDs. Tool calls use JSON Schema and tenant-scoped OAuth connections.",
+    serviceBoundaryNotes:
+      "Corpus module owns ingestion, chunking, approval, and indexing. Retrieval module exposes search/query only. Agent module orchestrates DeepAgents/LangGraph runs. Handoff module owns ticket creation. Eval module owns test datasets and gates. Audit module is append-only.",
+    workflowStateNotes:
+      "Document: draft -> approved -> indexing -> indexed -> archived. Conversation: open -> answered -> escalated -> resolved. EvalRun: queued -> running -> passed/failed -> approved. Failed jobs land in Service Bus dead-letter queues with replay tooling.",
+    integrationContractNotes:
+      "Every connector has timeout, retry budget, circuit breaker, idempotent upsert, and per-tenant OAuth secret in Key Vault. Ticketing handoff failures queue for operator replay. Provider outage triggers routing policy fallback or safe escalation.",
+    securityArchitectureNotes:
+      "Tenant-aware OIDC claims, RBAC for operators, service principals through managed identities, private endpoints for data/AI services, PII redaction before traces leave runtime, prompt-injection test suite, and immutable audit events for sensitive actions.",
+    observabilityDesignNotes:
+      "OpenTelemetry spans cover request, retrieval, model call, tool call, guardrail decision, handoff, cost, and eval result. SLO dashboards by tenant/surface. Alerts use error-budget burn, retrieval recall, model latency, cost per resolution, and dead-letter depth.",
+    infraArchitectureNotes:
+      "Terraform provisions VNet, private endpoints, Container Apps environment, Container Apps Jobs, Service Bus, Cosmos DB, Azure AI Search, Blob, Key Vault, Front Door/WAF, App Insights, and role assignments. Prod promotion requires eval pass and approval.",
+    testArchitectureNotes:
+      "CI runs unit, OpenAPI contract, tenant isolation, authorization-negative, prompt-injection, retrieval recall, and eval regression suites. Load tests validate streaming, search, Service Bus workers, and Cosmos RU budgets. Coding-agent tasks map to module boundaries and fixtures.",
     expectedUsersTotal: 50_000_000,
     dau: 500_000,
     mau: 3_000_000,
@@ -182,11 +227,11 @@ const payload: Partial<Project> = {
     multiRegion: false,
     drNeeded: true,
     cachingStrategy:
-      "Embedding cache for repeat queries; LLM-response cache for deterministic prompts; Redis for hot session state; CDN for static.",
+      "Azure Cache for Redis for hot session state and prompt/result cache where policy allows; Azure AI Search semantic reranker cache for repeat retrievals; CDN for static.",
     dbScalingStrategy:
-      "Postgres for tenant + config + audit; Pinecone for vectors (tenant indexes); ClickHouse for trace + cost analytics aggregations.",
+      "Cosmos DB for tenant/config/conversation/audit with tenant-aware partition keys and autoscale RU budgets; Azure AI Search for hybrid vector/keyword retrieval; Blob cold tier for old traces and exports.",
     queueStrategy:
-      "SQS for async tool calls and corpus reindexing; EventBridge for cross-service events; WebSocket fan-out via Redis pub/sub for streaming responses.",
+      "Azure Service Bus for async tool calls, corpus reindexing, eval jobs, and handoffs; Event Grid for cross-service lifecycle events; dead-letter queues with replay commands.",
     notes:
       "LLM cost is the dominant infra spend; cache hits and routing policy are the levers. Trace storage compresses well in ClickHouse.",
   },
@@ -195,10 +240,10 @@ const payload: Partial<Project> = {
     kinds: ["chatbot", "agent", "summarizer", "search"],
     ragNeeded: true,
     dataSources: "Approved help-centre articles, public docs, resolved tickets, in-product copy.",
-    modelProvider: "mixed",
-    agentFramework: "langgraph",
-    observability: "langsmith",
-    vectorDb: "pinecone",
+    modelProvider: "azure-openai",
+    agentFramework: "deepagents",
+    observability: "openllmetry",
+    vectorDb: "azure-ai-search",
     humanInLoop: true,
     guardrails: true,
     evaluation: true,
@@ -206,7 +251,7 @@ const payload: Partial<Project> = {
     auditLogs: true,
     privacyFiltering: true,
     notes:
-      "Per-tenant routing policy across OpenAI, Anthropic, and AWS Bedrock. LangGraph agent graph with explicit retrieval, tool, generate, and verify nodes. Eval gating in CI is non-negotiable.",
+      "Azure OpenAI deployment per model class; DeepAgents/LangGraph workspace with memory, skills, and subagents for architecture/content generation plus explicit retrieval, tool, generate, verify, and handoff nodes. Eval gating in CI is non-negotiable.",
   },
   compliance: {
     processesPersonalData: true,
@@ -245,10 +290,10 @@ const payload: Partial<Project> = {
   governance: {
     owner: "VP Product",
     approvers: "VP Eng, Head of Privacy, Head of Customer Support (design partner success)",
-    dependencies: "Model provider contracts (OpenAI, Anthropic, AWS Bedrock); Pinecone enterprise; LangSmith enterprise; Zendesk + Intercom partner program access.",
-    thirdParties: "OpenAI, Anthropic, AWS Bedrock, Pinecone, LangSmith, Zendesk, Intercom, Datadog, Auth0.",
+    dependencies: "Azure OpenAI quota and private endpoint approval; Azure AI Search capacity; Cosmos DB RU budget; LangSmith/OpenTelemetry trace strategy; Zendesk + Intercom partner program access.",
+    thirdParties: "Microsoft Azure, Azure OpenAI, Azure AI Search, Cosmos DB, LangSmith, Zendesk, Intercom, Auth0.",
     legalReviews: "DPAs with all model providers; EU data residency contract terms; subprocessor list per tenant.",
-    procurementReviews: "Pinecone + LangSmith enterprise tier sign-off; AWS spend commit; subprocessor list reviewed quarterly.",
+    procurementReviews: "Azure consumption commitment, Azure OpenAI capacity reservation, LangSmith enterprise tier sign-off, subprocessor list reviewed quarterly.",
     unvalidatedAssumptions: "Tenants will accept multi-provider routing without provider lock-in concerns; design partners will share traces with us during pilot; eval set per tenant is a meaningful unit (vs. pooled).",
     decisionConfidence: "high",
   },
@@ -260,9 +305,9 @@ const payload: Partial<Project> = {
     { id: "s5", role: "Head of Customer Success", responsibility: "Pilot success criteria; ops console workflow" },
   ],
   decisions: [
-    { id: "ADR-001", title: "Use LangGraph for agent orchestration", context: "Need stateful, branchable, human-in-the-loop-friendly agent graphs.", decision: "LangGraph for agent runtime; LangSmith for traces.", alternatives: "LangChain (less stateful), CrewAI (multi-agent — overkill for v1), in-house orchestrator.", consequences: "Tight coupling to LangChain ecosystem; well-supported eval and trace tooling.", status: "accepted", confidence: "high" },
-    { id: "ADR-002", title: "Multi-provider model routing from day 1", context: "Provider outages and price changes are real risks; vendor lock-in is a buyer objection.", decision: "Provider-agnostic agent layer; per-tenant policy chooses Claude / GPT / Bedrock per call.", alternatives: "Single provider (OpenAI) for v1.", consequences: "Higher initial complexity; resilience and pricing flexibility.", status: "accepted", confidence: "high" },
-    { id: "ADR-003", title: "Pinecone for vectors (not pgvector) at v1", context: "Multi-tenant scale + per-tenant index isolation.", decision: "Pinecone managed; revisit pgvector at $5M ARR if cost dominates.", alternatives: "pgvector in tenant Postgres; Qdrant self-host.", consequences: "Higher per-vector cost; ops simplicity.", status: "accepted", confidence: "medium" },
+    { id: "ADR-001", title: "Use DeepAgents/LangGraph for agent orchestration", context: "Need stateful, branchable, human-in-the-loop-friendly agent graphs plus filesystem-style memory, skills, and subagents for PM-ready content generation.", decision: "DeepAgents/LangGraph for agent runtime and generated-content workflows; OpenTelemetry/LangSmith-compatible traces.", alternatives: "Plain SDK calls; LangChain-only chains; in-house orchestrator.", consequences: "More explicit agent workspace design; better architecture/content generation and reviewability.", status: "accepted", confidence: "high" },
+    { id: "ADR-002", title: "Azure OpenAI first with provider abstraction", context: "Enterprise buyers want private networking, data residency, and contracted Azure controls, but model lock-in remains a risk.", decision: "Azure OpenAI on the hot path with a provider abstraction and per-tenant approved model policy.", alternatives: "Single public OpenAI provider; multi-provider from day 1.", consequences: "Stronger enterprise posture; secondary provider rollout remains possible without rewriting the agent boundary.", status: "accepted", confidence: "high" },
+    { id: "ADR-003", title: "Azure AI Search for vectors and hybrid retrieval", context: "Azure-native RAG benefits from private endpoints, hybrid keyword/vector retrieval, semantic ranker, and enterprise access controls.", decision: "Azure AI Search for vector + keyword retrieval; revisit pgvector/Qdrant if cost or portability dominates.", alternatives: "Pinecone, pgvector, Qdrant self-host.", consequences: "Azure coupling; simpler enterprise security and operations.", status: "accepted", confidence: "medium" },
     { id: "ADR-004", title: "Eval gating in CI is mandatory", context: "Eval-driven development is non-negotiable for buyer trust.", decision: "Failing standing eval set blocks deploys; eval results posted to PR.", alternatives: "Manual eval review only.", consequences: "Slower iteration when eval set drifts; much safer trajectory.", status: "accepted", confidence: "high" },
   ],
   risks: [
@@ -291,8 +336,8 @@ export const AI_AGENT_TEMPLATE: TemplateMeta = {
   blurb:
     "RAG-grounded support agent with safe escalation, eval-gated deploys, and an operator trace console.",
   vertical: "B2B SaaS support / CX",
-  stackChips: ["Next.js", "FastAPI", "LangGraph", "Pinecone", "LangSmith"],
+  stackChips: ["Next.js", "FastAPI", "DeepAgents", "Azure OpenAI", "Azure AI Search"],
   complianceChips: ["SOC 2", "ISO 27001", "GDPR", "OWASP LLM"],
-  scaleChip: "B2B SaaS · 500K DAU · multi-provider AI",
+  scaleChip: "B2B SaaS · 500K DAU · Azure-native RAG",
   payload,
 };

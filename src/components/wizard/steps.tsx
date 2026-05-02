@@ -532,7 +532,7 @@ export function NonFunctionalStep({ project }: { project: Project }) {
   );
 }
 
-// ─── Data & Tech ────────────────────────────────────────────────────────────
+// ─── Data model & integrations ──────────────────────────────────────────────
 export function DataTechStep({ project }: { project: Project }) {
   const update = useStore((s) => s.updateProject);
   const v = project.dataTech;
@@ -565,8 +565,12 @@ export function DataTechStep({ project }: { project: Project }) {
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Canonical data and integration ownership</div>
+          <Badge tone="accent">Technical Solution Architect</Badge>
+        </div>
         <p className="text-xs text-ink-500 dark:text-ink-400">
-          Stack picks (frontend, backend, database, cloud, auth method) live in the <strong>Product surface &amp; stack</strong> step
+          Stack picks (frontend, backend, database, cloud, auth method) live in the <strong>Product surface &amp; cloud stack</strong> step
           — change them there. This step is the canonical model: entities, integrations, residency, and build-vs-buy.
         </p>
         <div className="grid md:grid-cols-2 gap-5">
@@ -581,7 +585,10 @@ export function DataTechStep({ project }: { project: Project }) {
 
       <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Canonical entities</div>
+          <div className="flex flex-col gap-1">
+            <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Canonical entities</div>
+            <Badge tone="accent">Technical Solution Architect</Badge>
+          </div>
           <Button variant="ghost" onClick={addEntity}>+ Add entity</Button>
         </div>
         {v.entities.length === 0 && <div className="text-xs text-ink-500 italic">No entities yet.</div>}
@@ -601,7 +608,10 @@ export function DataTechStep({ project }: { project: Project }) {
 
       <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Integrations</div>
+          <div className="flex flex-col gap-1">
+            <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Integrations</div>
+            <Badge tone="accent">Technical Solution Architect</Badge>
+          </div>
           <Button variant="ghost" onClick={addInteg}>+ Add integration</Button>
         </div>
         {v.integrations.length === 0 && <div className="text-xs text-ink-500 italic">No integrations yet.</div>}
