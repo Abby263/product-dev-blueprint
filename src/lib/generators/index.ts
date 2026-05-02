@@ -59,9 +59,9 @@ export function generateBundle(project: Project): Artifact[] {
     },
     {
       key: "tech-spec",
-      title: "Technical design spec",
-      filename: "04-tech-spec.md",
-      description: "Stack, contracts, rollout, monitoring, recovery.",
+      title: "Engineering specification",
+      filename: "04-engineering-spec.md",
+      description: "Stack, contracts, rollout, monitoring, recovery, and tradeoffs.",
       body: generateTechSpec(project),
     },
     {
@@ -115,9 +115,9 @@ export function generateBundle(project: Project): Artifact[] {
     },
     {
       key: "system-design",
-      title: "System design",
-      filename: "12-system-design.md",
-      description: "Capacity estimates, scaling, caching, multi-region, DR.",
+      title: "Architecture blueprint",
+      filename: "12-architecture-blueprint.md",
+      description: "High/low architecture, scaling, tradeoff matrix, DeepAgents path.",
       body: generateSystemDesign(project),
     },
     {

@@ -1,9 +1,15 @@
 import { Project } from "../schema";
+import {
+  ARCHITECTURE_SCENARIOS,
+  architectureScenarioPriority,
+  scenarioRecommendation,
+} from "../architecture-scenarios";
 import { fallback, header } from "./util";
 
 export function generateTechSpec(p: Project): string {
+  const v = p.systemDesign;
   const out: string[] = [
-    header(p, `Technical design specification — ${p.name || "Untitled"}`, "Technical design"),
+    header(p, `Engineering specification — ${p.name || "Untitled"}`, "Engineering specification"),
     `## 1. Context`,
     ``,
     fallback(p.oneLiner),
@@ -25,6 +31,9 @@ export function generateTechSpec(p: Project): string {
     `| IaC | ${fallback(p.platform.iac)} |`,
     `| Observability | ${fallback(p.platform.observability)} |`,
     `| Environment strategy | ${fallback(p.platform.envStrategy)} |`,
+    `| Architecture pattern | ${fallback((v.architecturePattern ?? "modular-monolith").replace(/-/g, " "))} |`,
+    `| Auth architecture | ${fallback((v.authArchitecture ?? "managed-oidc").replace(/-/g, " "))} |`,
+    `| Deployment topology | ${fallback((v.deploymentTopology ?? "single-region").replace(/-/g, " "))} |`,
     `| Data residency | ${fallback(p.dataTech.dataResidency)} |`,
     `| Build vs. buy | ${fallback(p.dataTech.buildVsBuy)} |`,
     ``,
@@ -123,7 +132,17 @@ export function generateTechSpec(p: Project): string {
     `- Data residency: ${fallback(p.dataTech.dataResidency)}.`,
     `- Sensitive data classes from integrations: ${p.dataTech.integrations.map((i) => i.dataClass).filter(Boolean).join(", ") || "_none flagged_"}.`,
     ``,
-    `## 11. Open questions`,
+    `## 11. Engineering tradeoffs to resolve`,
+    ``,
+    `| Area | Priority | Recommended direction |`,
+    `|---|---|---|`,
+    ...ARCHITECTURE_SCENARIOS.filter((scenario) => architectureScenarioPriority(p, scenario.id) === "Review now").map((scenario) => (
+      `| ${scenario.label} | Review now | ${scenarioRecommendation(p, scenario.id)} |`
+    )),
+    ``,
+    `If no rows appear above, review the full architecture checklist in the Architecture blueprint before implementation.`,
+    ``,
+    `## 12. Open questions`,
     ``,
     p.openQuestions.length === 0
       ? "_None._"

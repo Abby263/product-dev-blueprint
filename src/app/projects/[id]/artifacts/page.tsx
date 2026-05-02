@@ -15,9 +15,9 @@ import { DOMAIN_ORDER } from "@/lib/schema";
 const ARTIFACT_GROUPS = [
   { title: "Decision brief", keys: ["build-readiness", "exec-summary", "roadmap", "cost-estimate"] },
   { title: "Product", keys: ["prd", "sow", "feature-spec", "rtm"] },
-  { title: "Technical", keys: ["tech-spec", "system-design", "data-interface", "adr"] },
+  { title: "Architecture & engineering", keys: ["system-design", "tech-spec", "data-interface", "adr", "ai-architecture"] },
   { title: "Risk & compliance", keys: ["risk-register", "compliance", "launch-ops", "test-strategy"] },
-  { title: "Implementation", keys: ["coding-agent-prompts", "ai-architecture"] },
+  { title: "Implementation", keys: ["coding-agent-prompts"] },
 ];
 
 export default function ArtifactsPage() {

@@ -52,7 +52,24 @@ export function generateAIArchitecture(p: Project): string {
     `[Action / response] ── log inputs, outputs, sources, latency, tokens`,
     `\`\`\``,
     ``,
-    `## 4. Guardrails`,
+    ...(v.agentFramework === "deepagents"
+      ? [
+          `## 4. DeepAgents workspace pattern`,
+          ``,
+          `Use DeepAgents for multi-step content, diagram, and handoff generation when outputs must follow product/architecture standards and can be reviewed before use.`,
+          ``,
+          `| Primitive | Recommended use in this product |`,
+          `|---|---|`,
+          `| Memory (\`AGENTS.md\`) | Product voice, PM-quality output bar, architecture principles, security posture, diagram conventions. |`,
+          `| Skills (\`skills/*/SKILL.md\`) | Architecture blueprint writing, tradeoff review, diagram generation, coding-agent handoff, launch-readiness review. |`,
+          `| Subagents (\`subagents.yaml\`) | Security reviewer, platform architect, PM editor, implementation prompt reviewer. |`,
+          `| Tools | Mermaid/SVG/PNG diagram generation, schema validation, artifact export, optional web research with source capture. |`,
+          ``,
+          `Operational guardrail: run this as a server-side job or CLI with explicit API keys; never expose agent filesystem access or provider keys in the browser.`,
+          ``,
+        ]
+      : []),
+    `## ${v.agentFramework === "deepagents" ? "5" : "4"}. Guardrails`,
     ``,
     v.guardrails
       ? [
@@ -64,7 +81,7 @@ export function generateAIArchitecture(p: Project): string {
         ].filter(Boolean).join("\n")
       : `_Guardrails toggle is off — turn on for production AI features._`,
     ``,
-    `## 5. Evaluation`,
+    `## ${v.agentFramework === "deepagents" ? "6" : "5"}. Evaluation`,
     ``,
     v.evaluation
       ? [
@@ -75,25 +92,25 @@ export function generateAIArchitecture(p: Project): string {
         ].join("\n")
       : `_Eval toggle is off — eval-driven development is recommended before launch._`,
     ``,
-    `## 6. Audit & privacy`,
+    `## ${v.agentFramework === "deepagents" ? "7" : "6"}. Audit & privacy`,
     ``,
     v.auditLogs ? `- Append-only audit log of prompt, sources, response, model version, and actor.` : `- Audit logs disabled — required if regulated data is in scope.`,
     v.privacyFiltering ? `- Active PII detection on inputs, outputs, and stored embeddings.` : `- Privacy filtering disabled — review before processing personal or health data.`,
     ``,
-    `## 7. Human-in-the-loop`,
+    `## ${v.agentFramework === "deepagents" ? "8" : "7"}. Human-in-the-loop`,
     ``,
     v.humanInLoop
       ? `Required for high-impact actions. Default: a reviewer queue with SLA on approval; agents proceed only after explicit accept.`
       : `Not required for current scope. Re-enable for any action that creates legal, financial, or clinical effects.`,
     ``,
-    `## 8. NIST AI RMF mapping`,
+    `## ${v.agentFramework === "deepagents" ? "9" : "8"}. NIST AI RMF mapping`,
     ``,
     `- **Govern.** Owners and approvers from project governance section; prompt and policy versions tracked.`,
     `- **Map.** Use cases, data classes (see Compliance), and stakeholder impacts documented in this project.`,
     `- **Measure.** Eval suite (§5) plus cost/latency telemetry.`,
     `- **Manage.** Guardrails (§4), HITL (§7), and rollback through prompt-version pins.`,
     ``,
-    `## 9. Notes`,
+    `## ${v.agentFramework === "deepagents" ? "10" : "9"}. Notes`,
     ``,
     fallback(v.notes),
   ];

@@ -27,9 +27,13 @@ import {
   AI_AGENT_FRAMEWORK_OPTIONS,
   AI_OBSERVABILITY_OPTIONS,
   VECTOR_DB_OPTIONS,
+  ARCHITECTURE_PATTERN_OPTIONS,
+  AUTH_ARCHITECTURE_OPTIONS,
+  DEPLOYMENT_TOPOLOGY_OPTIONS,
 } from "@/lib/options";
+import { ARCHITECTURE_TRADEOFF_OPTIONS, SECURITY_REVIEW_OPTIONS } from "@/lib/architecture-scenarios";
 
-// ─── Platform & channels ────────────────────────────────────────────────────
+// ─── Product surface & stack ────────────────────────────────────────────────
 export function PlatformStep({ project }: { project: Project }) {
   const update = useStore((s) => s.updateProject);
   const v = project.platform;
@@ -320,7 +324,7 @@ export function FeaturesStep({ project }: { project: Project }) {
   );
 }
 
-// ─── System design ──────────────────────────────────────────────────────────
+// ─── Architecture & scale ───────────────────────────────────────────────────
 export function SystemDesignStep({ project }: { project: Project }) {
   const update = useStore((s) => s.updateProject);
   const v = project.systemDesign;
@@ -335,6 +339,70 @@ export function SystemDesignStep({ project }: { project: Project }) {
 
   return (
     <div className="space-y-6">
+      <Card className="p-4 sm:p-6 space-y-5">
+        <div>
+          <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Architecture choices and review scenarios</div>
+          <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
+            Capture the tradeoffs a senior PM, architect, and lead engineer would expect before a coding tool starts implementation.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5">
+          <Field label="Architecture pattern">
+            <OptionSelect
+              value={v.architecturePattern ?? "modular-monolith"}
+              options={ARCHITECTURE_PATTERN_OPTIONS}
+              onChange={(val) => set("architecturePattern", val as typeof v.architecturePattern)}
+            />
+          </Field>
+          <Field label="Auth architecture">
+            <OptionSelect
+              value={v.authArchitecture ?? "managed-oidc"}
+              options={AUTH_ARCHITECTURE_OPTIONS}
+              onChange={(val) => set("authArchitecture", val as typeof v.authArchitecture)}
+            />
+          </Field>
+          <Field label="Deployment topology">
+            <OptionSelect
+              value={v.deploymentTopology ?? "single-region"}
+              options={DEPLOYMENT_TOPOLOGY_OPTIONS}
+              onChange={(val) => set("deploymentTopology", val as typeof v.deploymentTopology)}
+            />
+          </Field>
+        </div>
+        <Field label="Tradeoff areas to explicitly evaluate">
+          <MultiCheck
+            value={v.tradeoffAreas ?? []}
+            onChange={(areas) => set("tradeoffAreas", areas)}
+            options={ARCHITECTURE_TRADEOFF_OPTIONS}
+          />
+        </Field>
+        <Field label="Security and compliance review areas">
+          <MultiCheck
+            value={v.securityReviewAreas ?? []}
+            onChange={(areas) => set("securityReviewAreas", areas)}
+            options={SECURITY_REVIEW_OPTIONS}
+          />
+        </Field>
+        <div className="grid md:grid-cols-2 gap-5">
+          <Field label="High-level architecture notes" hint="Context diagram, deployment shape, users, tenants, and external systems.">
+            <Textarea
+              rows={3}
+              value={v.highLevelArchitectureNotes ?? ""}
+              onChange={(e) => set("highLevelArchitectureNotes", e.target.value)}
+              placeholder="e.g. Customers use responsive web; operators use admin console; Auth0 handles identity; Vercel edge fronts API."
+            />
+          </Field>
+          <Field label="Low-level architecture notes" hint="Service boundaries, modules, data ownership, queues, cache keys, API contracts, and coding-agent handoff details.">
+            <Textarea
+              rows={3}
+              value={v.lowLevelArchitectureNotes ?? ""}
+              onChange={(e) => set("lowLevelArchitectureNotes", e.target.value)}
+              placeholder="e.g. Queue module owns Ticket; notification worker consumes TicketUpdated; cache keys are tenant:branch:*."
+            />
+          </Field>
+        </div>
+      </Card>
+
       <Card className="p-4 sm:p-6 space-y-5">
         <div className="text-sm font-medium text-ink-800 dark:text-ink-100">Capacity expectations</div>
         <div className="grid md:grid-cols-3 gap-5">

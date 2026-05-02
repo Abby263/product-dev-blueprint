@@ -264,7 +264,7 @@ export function generateCostEstimate(p: Project): string {
     `- **Reserved infrastructure** (DDoS protection, WAF, premium support tiers).`,
     `- **Marketing tooling** (analytics, CRM, customer support platforms).`,
     `- **Data egress between cloud regions** (cross-region replication can be material).`,
-    fallback(p.systemDesign.notes ? `\n## System design notes\n\n${p.systemDesign.notes}` : ""),
+    fallback(p.systemDesign.notes ? `\n## Architecture notes\n\n${p.systemDesign.notes}` : ""),
   ];
   return out.join("\n");
 }

@@ -107,6 +107,7 @@ export const AI_PROVIDER_OPTIONS: OptionDef[] = [
 export const AI_AGENT_FRAMEWORK_OPTIONS: OptionDef[] = [
   { value: "none", label: "None", hint: "Plain SDK calls. Best for: simple chat or single-shot completions." },
   { value: "langgraph", label: "LangGraph", hint: "Best for: stateful agent graphs, branching workflows, human-in-the-loop checkpoints. Strong for multi-step reasoning." },
+  { value: "deepagents", label: "LangGraph DeepAgents", hint: "Best for: filesystem-style agent workspaces with memory, on-demand skills, subagents, and generated content/assets." },
   { value: "langchain", label: "LangChain", hint: "Best for: rapid prototyping with many chain primitives. Heavier abstraction; sometimes harder to debug." },
   { value: "llamaindex", label: "LlamaIndex", hint: "Best for: retrieval-heavy apps. Strong indexing, query, and structured-extraction primitives." },
   { value: "crewai", label: "CrewAI", hint: "Best for: multi-agent collaboration patterns (e.g. researcher → critic → writer roles)." },
@@ -145,6 +146,34 @@ export const CONTAINERIZATION_OPTIONS: OptionDef[] = [
   { value: "none", label: "None", hint: "PaaS deploy (Vercel / Netlify / Heroku). Simpler, less portable." },
   { value: "docker", label: "Docker", hint: "Best for: portable builds, consistent local + CI + prod environments. Default for most apps." },
   { value: "kubernetes", label: "Kubernetes", hint: "Best for: many services, multi-tenant scaling. Significant operational cost — only choose if you need it." },
+];
+
+export const ARCHITECTURE_PATTERN_OPTIONS: OptionDef[] = [
+  { value: "modular-monolith", label: "Modular monolith", hint: "Best default for most MVPs: one deployable, clear module boundaries, fewer distributed-systems costs." },
+  { value: "service-oriented", label: "Service-oriented", hint: "Best when a few domains need independent ownership or scaling, without full microservice sprawl." },
+  { value: "microservices", label: "Microservices", hint: "Best for large teams with mature platform ops and independently scaling domains. Expensive too early." },
+  { value: "event-driven", label: "Event-driven", hint: "Best for workflows, integrations, notifications, analytics, and eventual consistency between domains." },
+  { value: "serverless", label: "Serverless", hint: "Best for bursty or low-ops workloads. Watch cold starts, provider limits, and local dev complexity." },
+  { value: "edge-first", label: "Edge-first", hint: "Best for globally distributed read-heavy experiences. Keep state and writes centralized unless necessary." },
+  { value: "hybrid", label: "Hybrid", hint: "Use when the product truly needs multiple patterns. Capture boundaries clearly in ADRs." },
+];
+
+export const AUTH_ARCHITECTURE_OPTIONS: OptionDef[] = [
+  { value: "managed-oidc", label: "Managed OIDC / OAuth2", hint: "Default for modern SaaS: Auth0, Clerk, Cognito, Azure AD B2C, or similar. Avoid building auth early." },
+  { value: "enterprise-sso", label: "Enterprise SSO", hint: "Use for B2B buyers that require SAML/OIDC, SCIM, tenant policies, and IdP-driven lifecycle." },
+  { value: "session-cookie", label: "Server session cookies", hint: "Good for classic web apps. Strong logout and revocation; needs CSRF and secure cookie controls." },
+  { value: "api-key-m2m", label: "API keys / machine-to-machine", hint: "Use for partners, webhooks, or service accounts. Scope, rotate, audit, and never expose in browsers." },
+  { value: "mobile-token", label: "Mobile token flow", hint: "Use for native apps: PKCE, secure storage, refresh-token rotation, biometric re-auth for sensitive actions." },
+  { value: "hybrid", label: "Hybrid auth", hint: "Common for platforms: users via OIDC/SSO, services via mTLS or client credentials, partners via scoped API keys." },
+];
+
+export const DEPLOYMENT_TOPOLOGY_OPTIONS: OptionDef[] = [
+  { value: "single-region", label: "Single region", hint: "Default for MVPs. Lower cost and simpler consistency. Add DR drills before regulated launch." },
+  { value: "active-passive", label: "Active/passive multi-region", hint: "Best first DR step: warm standby, documented failover, lower complexity than active/active." },
+  { value: "active-active", label: "Active/active multi-region", hint: "Use only when uptime/latency demands justify global consistency and conflict-resolution complexity." },
+  { value: "edge-distributed", label: "Edge distributed", hint: "Best for reads, auth gates, personalization, and low-latency static/dynamic composition near users." },
+  { value: "customer-hosted", label: "Customer-hosted", hint: "Use when enterprise, public sector, or residency rules force deployment inside customer infrastructure." },
+  { value: "hybrid", label: "Hybrid topology", hint: "Use when SaaS, dedicated tenants, edge, and customer-hosted parts coexist. Requires clear support boundaries." },
 ];
 
 export const VERTICAL_OPTIONS: OptionDef[] = [

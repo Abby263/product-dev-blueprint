@@ -121,6 +121,13 @@ export function emptyProject(name: string, oneLiner: string, ideaDescription = "
       buildVsBuy: "",
     },
     systemDesign: {
+      architecturePattern: "modular-monolith",
+      authArchitecture: "managed-oidc",
+      deploymentTopology: "single-region",
+      tradeoffAreas: [],
+      securityReviewAreas: ["identity", "authorization", "data-protection", "secrets", "audit"],
+      highLevelArchitectureNotes: "",
+      lowLevelArchitectureNotes: "",
       expectedUsersTotal: 0,
       dau: 0,
       mau: 0,
@@ -225,11 +232,13 @@ export const useStore = create<State>()(
           overrides.oneLiner || "",
           overrides.ideaDescription || "",
         );
-        // Top-level merge — every domain block in `overrides` replaces the
-        // empty default wholesale. Templates supply complete domain blocks.
+        // Domain blocks merge over defaults so older templates/projects keep
+        // newly-added optional fields without requiring a manual migration.
         const project: Project = {
           ...base,
           ...overrides,
+          systemDesign: { ...base.systemDesign, ...overrides.systemDesign },
+          ai: { ...base.ai, ...overrides.ai },
           id: base.id,
           createdAt: base.createdAt,
           updatedAt: base.updatedAt,

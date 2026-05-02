@@ -19,8 +19,8 @@ export function generateRTM(p: Project): string {
 
   p.functional.requirements.forEach((r) => {
     const sourceName = r.sourcePersona && personasById[r.sourcePersona] ? personasById[r.sourcePersona] : "—";
-    // Design refs: the tech spec sections we know exist
-    const designRefs = ["Tech §3 Surfaces", "Tech §4 Entities", "Tech §5 Integrations"].join("; ");
+    // Design refs: engineering specification sections we know exist.
+    const designRefs = ["Eng §3 Surfaces", "Eng §4 Entities", "Eng §5 Integrations", "Arch §11 Tradeoffs"].join("; ");
     const testRefs = `Test §${r.id}`;
     out.push(`| ${r.id} | ${r.title || "_untitled_"} | ${r.priority} | ${sourceName} | ${designRefs} | ${testRefs} |`);
   });

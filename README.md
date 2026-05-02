@@ -28,7 +28,7 @@ Every project generates a draft bundle of:
 | 01 | Executive summary | One-page business case, audience, success criteria |
 | 02 | PRD | Goals, personas, requirements, features, KPIs |
 | 03 | SOW | Scope, deliverables, milestones, acceptance |
-| 04 | Technical design spec | Stack, contracts, rollout, monitoring, recovery |
+| 04 | Engineering specification | Stack, contracts, rollout, monitoring, recovery, tradeoffs |
 | 05 | ADR pack | Decisions with context, alternatives, consequences |
 | 06 | Data & interface spec | Entities, integrations, retention, residency |
 | 07 | Requirements traceability matrix | Each requirement linked to design and tests |
@@ -36,7 +36,7 @@ Every project generates a draft bundle of:
 | 09 | Launch & operations plan | SLOs, runbook, rollback, on-call posture |
 | 10 | Marketing & GTM brief | Positioning, segments, pricing, launch geography |
 | 11 | Risk register & governance | Risks, assumptions, open questions, compliance packs |
-| 12 | System design | Capacity, scaling, caching, multi-region, DR |
+| 12 | Architecture blueprint | High-level architecture, low-level architecture, scaling, DR, tradeoff matrix |
 | 13 | AI architecture | Pipeline, RAG, evals, guardrails, HITL |
 | 14 | Security & compliance checklist | Frameworks, controls, framework-specific reminders |
 | 15 | Feature specification | Per-feature acceptance, edge cases, security, ops |
@@ -51,7 +51,7 @@ Bundle exports include **Markdown** + **DOCX** for every artifact, the raw `proj
 ## How it works
 
 1. **Describe your idea** — name the project, write a one-liner, paste a longer description.
-2. **Walk thirteen guided domains** — Problem → Market → Experience → Platform & stack → Functional → Features → Quality attributes → System design → Data & tech → AI → Security → GTM → Governance. Conditional questions branch by surface, vertical, platform, and timing model.
+2. **Walk thirteen guided domains** — Problem → Market → Experience → Product surface & stack → Functional → Features → Quality attributes → Architecture & scale → Data, integrations & tradeoffs → AI → Security → GTM → Governance. Conditional questions branch by surface, vertical, platform, and timing model.
 3. **One canonical schema** — every answer writes to one `Project` object (see [`src/lib/schema.ts`](src/lib/schema.ts)). Intake autosaves to `localStorage`.
 4. **Schema-first generation** — deterministic generators (under [`src/lib/generators/`](src/lib/generators)) read from the schema and render markdown. Change one answer and every relevant document updates consistently.
 5. **Decide and hand off** — start with the readiness report, then download the full bundle as Markdown + DOCX in a single zip or paste the coding-agent prompt pack into Cursor / Lovable / Replit.
@@ -62,7 +62,11 @@ A rule-based **feature suggestion engine** seeds tailored feature lists when the
 
 Every dropdown in the wizard ships with **inline "best for" guidance** under the selected option — so you don't need to leave the page to research what each stack/framework choice implies.
 
-The AI step covers more than just provider choice: **agent framework** (LangGraph, LangChain, LlamaIndex, CrewAI, AutoGen, OpenAI Assistants, Vercel AI SDK, Haystack), **observability/tracing** (LangSmith, Langfuse, W&B Weave, Arize, OpenLLMetry, Datadog LLM, Helicone), and **vector database** (pgvector, Pinecone, Weaviate, Qdrant, Chroma, Milvus, etc.) — all with the same inline guidance.
+The architecture step generates both **high-level** and **low-level** architecture views from the user's inputs, plus a tradeoff matrix covering identity/OAuth/SSO, authorization, tenant isolation, security, privacy, data consistency, APIs, integrations, async workflows, realtime, caching, DR, observability, AI agents, mobile/offline, and build-vs-buy decisions.
+
+The AI step covers more than just provider choice: **agent framework** (LangGraph, LangGraph DeepAgents, LangChain, LlamaIndex, CrewAI, AutoGen, OpenAI Assistants, Vercel AI SDK, Haystack), **observability/tracing** (LangSmith, Langfuse, W&B Weave, Arize, OpenLLMetry, Datadog LLM, Helicone), and **vector database** (pgvector, Pinecone, Weaviate, Qdrant, Chroma, Milvus, etc.) — all with the same inline guidance.
+
+For future LLM-backed artifact generation, the architecture blueprint includes a DeepAgents-ready path inspired by LangChain's [content-builder example](https://github.com/langchain-ai/deepagents/tree/main/examples/content-builder-agent): persistent memory (`AGENTS.md`), on-demand skills (`skills/*/SKILL.md`), and delegated subagents (`subagents.yaml`) running in a server-side Python worker, never in the browser.
 
 ## Stack
 
@@ -120,6 +124,7 @@ src/
     store.ts                        # Zustand store
     ids.ts                          # Stable ID allocation
     options.ts                      # Dropdown option catalog with "best for" hints
+    architecture-scenarios.ts       # Architecture/tradeoff scenario catalog
     feature-suggestions.ts          # Rule-based feature seeding
     scaffold.ts                     # Stack-aware boilerplate scaffold
     docx.ts                         # Markdown → DOCX renderer

@@ -37,8 +37,8 @@ const EVALUATION_OUTPUTS = [
 const SUPPORTING_BUNDLE = [
   "PRD",
   "SOW",
-  "Technical design",
-  "System design",
+  "Engineering spec",
+  "Architecture blueprint",
   "Feature specification",
   "Implementation roadmap",
   "Risk register",

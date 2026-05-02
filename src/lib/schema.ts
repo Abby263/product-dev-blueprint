@@ -238,6 +238,13 @@ export interface PlatformChoice {
 }
 
 export interface SystemDesign {
+  architecturePattern?: "modular-monolith" | "service-oriented" | "microservices" | "event-driven" | "serverless" | "edge-first" | "hybrid";
+  authArchitecture?: "managed-oidc" | "enterprise-sso" | "session-cookie" | "api-key-m2m" | "mobile-token" | "hybrid";
+  deploymentTopology?: "single-region" | "active-passive" | "active-active" | "edge-distributed" | "customer-hosted" | "hybrid";
+  tradeoffAreas?: string[];
+  securityReviewAreas?: string[];
+  highLevelArchitectureNotes?: string;
+  lowLevelArchitectureNotes?: string;
   expectedUsersTotal: number;
   dau: number;
   mau: number;
@@ -264,6 +271,7 @@ export type AIAgentFramework =
   | "llamaindex"
   | "crewai"
   | "autogen"
+  | "deepagents"
   | "openai-assistants"
   | "vercel-ai-sdk"
   | "haystack"
@@ -451,12 +459,12 @@ export const DOMAIN_LABEL: Record<DomainKey, string> = {
   problem: "Problem & objectives",
   market: "Customer & market",
   experience: "Experience surface",
-  platform: "Platform & channels",
+  platform: "Product surface & stack",
   functional: "Functional requirements",
   features: "Feature builder",
   nonfunctional: "Quality attributes",
-  systemDesign: "System design",
-  dataTech: "Data & tech stack",
+  systemDesign: "Architecture & scale",
+  dataTech: "Data, integrations & tradeoffs",
   ai: "AI & automation",
   compliance: "Security & compliance",
   gtm: "Commercial & GTM",
@@ -468,12 +476,12 @@ export const DOMAIN_BLURB: Record<DomainKey, string> = {
   problem: "What problem, for whom, why now, what success looks like.",
   market: "Buyers, end users, alternatives, differentiation, pricing context.",
   experience: "Surfaces, devices, channels, timing model, accessibility.",
-  platform: "What you're building (web, mobile, desktop, SaaS, AI agent…) and the stack.",
+  platform: "What you're building, where it runs, auth, APIs, cloud, and stack.",
   functional: "Personas, requirements with acceptance criteria, edge cases.",
   features: "Feature library with user stories, priority, complexity, value.",
   nonfunctional: "Availability, recovery, performance, privacy, SLOs.",
-  systemDesign: "Capacity estimates, scaling, caching, multi-region, DR.",
-  dataTech: "Canonical entities, integrations, residency, build vs. buy.",
+  systemDesign: "Architecture pattern, capacity, scaling, resilience, and tradeoff checks.",
+  dataTech: "Canonical data, integrations, residency, and build-vs-buy decisions.",
   ai: "AI/automation needs, RAG, evals, guardrails, model provider.",
   compliance: "Regulatory frameworks, encryption, RBAC, residency, audit.",
   gtm: "Packaging, pricing, segments, channels, competitors, KPIs.",

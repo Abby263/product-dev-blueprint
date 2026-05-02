@@ -566,7 +566,7 @@ export function DataTechStep({ project }: { project: Project }) {
     <div className="space-y-6">
       <Card className="p-4 sm:p-6 space-y-5">
         <p className="text-xs text-ink-500 dark:text-ink-400">
-          Stack picks (frontend, backend, database, cloud, auth method) live in the <strong>Platform &amp; channels</strong> step
+          Stack picks (frontend, backend, database, cloud, auth method) live in the <strong>Product surface &amp; stack</strong> step
           — change them there. This step is the canonical model: entities, integrations, residency, and build-vs-buy.
         </p>
         <div className="grid md:grid-cols-2 gap-5">
