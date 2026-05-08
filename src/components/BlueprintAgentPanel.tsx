@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { buildAgentProposal, type AgentMode, type AgentProposal } from "@/lib/blueprint-agent";
+import type { AgentMode, AgentProposal } from "@/lib/blueprint-agent";
 import { useStore } from "@/lib/store";
 import {
   DOMAIN_LABEL,
@@ -59,26 +59,53 @@ export default function BlueprintAgentPanel({
   const [prompt, setPrompt] = useState("");
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
   const [applied, setApplied] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [agentError, setAgentError] = useState<string | null>(null);
+  const [agentModel, setAgentModel] = useState<string | null>(null);
   const didAutoRun = useRef(false);
 
   const selectedMode = useMemo(() => MODES.find((entry) => entry.value === mode) || MODES[0], [mode]);
   const showFocusHint = Boolean(focusStep && mode !== "complete-missing");
   const visibleChanges = proposal?.changes.slice(0, compact ? 5 : 10) || [];
 
-  function generateProposal() {
-    const next = buildAgentProposal(project, {
-      prompt: prompt.trim() || undefined,
-      mode,
-      focusStep: mode === "complete-missing" ? undefined : focusStep,
-    });
-    setProposal(next);
+  async function generateProposal() {
+    setLoading(true);
+    setAgentError(null);
     setApplied(false);
+
+    try {
+      const response = await fetch("/api/agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project,
+          prompt: prompt.trim(),
+          mode,
+          focusStep: mode === "complete-missing" ? null : focusStep || null,
+          threadId: project.id,
+        }),
+      });
+      const data = (await response.json()) as AgentApiResponse;
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.ok ? "The AI Agent request failed." : data.message);
+      }
+
+      setProposal(data.proposal);
+      setAgentModel(data.run?.model || null);
+    } catch (error) {
+      setProposal(null);
+      setAgentModel(null);
+      setAgentError(error instanceof Error ? error.message : "The AI Agent request failed.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     if (!autoRun || didAutoRun.current) return;
     didAutoRun.current = true;
-    generateProposal();
+    void generateProposal();
   }, [autoRun, project.id]);
 
   function applyProposal() {
@@ -94,14 +121,15 @@ export default function BlueprintAgentPanel({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone="accent">Blueprint Agent</Badge>
+            <Badge>LLM-backed</Badge>
             <Badge>Review before apply</Badge>
           </div>
           <h2 className="mt-3 text-lg sm:text-xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
             Autogenerate the remaining blueprint
           </h2>
           <p className="mt-2 text-sm text-ink-600 dark:text-ink-400 leading-relaxed max-w-3xl">
-            Add whatever details you know. The agent proposes schema changes, follow-up questions, and assumptions; the
-            existing generators keep the final document format stable.
+            Add whatever details you know. The Python DeepAgents runtime proposes schema changes, follow-up questions,
+            and assumptions; the existing generators keep the final document format stable.
           </p>
         </div>
         {showFocusHint && focusStep && (
@@ -141,8 +169,8 @@ export default function BlueprintAgentPanel({
       </div>
 
       <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
-        <Button onClick={generateProposal} className="w-full sm:w-auto justify-center">
-          Generate proposal
+        <Button onClick={() => void generateProposal()} disabled={loading} className="w-full sm:w-auto justify-center">
+          {loading ? "Running AI Agent..." : "Generate with AI Agent"}
         </Button>
         <Button
           variant="ghost"
@@ -150,13 +178,27 @@ export default function BlueprintAgentPanel({
             setPrompt("");
             setProposal(null);
             setApplied(false);
+            setAgentError(null);
+            setAgentModel(null);
           }}
+          disabled={loading}
           className="w-full sm:w-auto justify-center"
         >
           Clear
         </Button>
         {applied && <span className="text-sm text-emerald-700 dark:text-emerald-300">Proposal applied as draft.</span>}
       </div>
+
+      {agentError && (
+        <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-200">
+          <div className="font-medium">AI Agent is not available</div>
+          <p className="mt-1 leading-relaxed">{agentError}</p>
+          <p className="mt-2 text-xs leading-relaxed">
+            Configure server-side variables such as <code>AI_AGENT_MODEL</code> and the matching provider key in Vercel
+            or local Vercel dev. Browser-exposed keys are not supported.
+          </p>
+        </div>
+      )}
 
       {proposal && (
         <div className="mt-5 border-t border-ink-200 dark:border-ink-800 pt-5">
@@ -171,6 +213,7 @@ export default function BlueprintAgentPanel({
               </Badge>
               <Badge>{proposal.changes.length} changes</Badge>
               <Badge>{proposal.followUpQuestions.length} questions</Badge>
+              {agentModel && <Badge>{agentModel}</Badge>}
             </div>
           </div>
 
@@ -224,8 +267,8 @@ export default function BlueprintAgentPanel({
 
           <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <p className="text-xs text-ink-500 dark:text-ink-400 leading-relaxed">
-              User-entered fields are preserved unless they are blank or match known defaults. Accepted updates are
-              stored as draft intake fields and regenerate all artifacts.
+              This is an LLM proposal, not an auto-commit. Accepted updates are stored as draft intake fields and
+              regenerate all artifacts through the deterministic generators.
             </p>
             <Button onClick={applyProposal} disabled={proposal.changes.length === 0} className="w-full sm:w-auto justify-center">
               Apply approved changes
@@ -236,6 +279,19 @@ export default function BlueprintAgentPanel({
     </Card>
   );
 }
+
+type AgentApiResponse =
+  | {
+      ok: true;
+      source: "deepagents";
+      proposal: AgentProposal;
+      run?: { model?: string; threadId?: string };
+    }
+  | {
+      ok: false;
+      error: string;
+      message: string;
+    };
 
 function ReviewList({ title, empty, items }: { title: string; empty: string; items: string[] }) {
   return (

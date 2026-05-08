@@ -1,47 +1,59 @@
 # Blueprint Agent Runtime
 
-This document describes the current agent-assisted flow and the intended backend path for a real DeepAgents runtime.
+This document describes the current Python DeepAgents runtime and the backend path for a durable multi-user agent.
 
 ## Current Runtime
 
-The shipped app uses a local schema-aware Blueprint Agent helper in `src/lib/blueprint-agent.ts`.
+The shipped app uses a server-side Python DeepAgents runtime:
 
-- It runs in the browser and requires no API keys.
-- It reads the current `Project` schema plus optional user prompt text.
+- API endpoint: `api/agent.py`
+- Agent package: `ai_agents/blueprint_agent`
+- Memory: `ai_agents/blueprint_agent/AGENTS.md`
+- Skills: `ai_agents/blueprint_agent/skills/*/SKILL.md`
+- Subagents: `ai_agents/blueprint_agent/subagents.yaml`
+
+The runtime:
+
+- Runs on the server through a Vercel Python Function.
+- Requires `AI_AGENT_MODEL` and the matching provider key.
+- Reads the current `Project` schema plus optional user prompt text.
 - It proposes missing PM, architecture, data, AI, compliance, GTM, governance, and delivery fields.
 - It returns assumptions, confidence, follow-up questions, touched domains, and a schema patch.
 - The user reviews proposed changes before applying them.
 - Deterministic generators still render every final artifact.
 
-This is intentionally not a live model integration. It provides the product workflow and review UX without introducing server credentials or background jobs.
+The previous local deterministic helper remains in `src/lib/blueprint-agent.ts` as a schema helper, but the UI now calls `/api/agent` for the primary generation path.
 
-## Future DeepAgents Runtime
-
-A real DeepAgents integration should run server-side and preserve the same contract:
+## Request Flow
 
 1. UI sends project context and user message to a server route.
-2. Server creates an `AgentRun` and queues work when the job can be long-running.
-3. Worker runs a DeepAgents content-writer workspace with memory, skills, and subagents.
-4. Agent produces a structured `Project` schema patch, assumptions, questions, confidence, and review notes.
-5. UI displays the proposal and applies it only after user approval.
-6. Artifact generators render the final Markdown, DOCX, JSON, and zip outputs.
+2. Python function validates runtime configuration.
+3. DeepAgents loads memory, skills, and subagents from `ai_agents/blueprint_agent`.
+4. Agent returns JSON with summary, confidence, follow-up questions, assumptions, and schema-path changes.
+5. Python schema contract validates allowed paths and converts changes into a frontend proposal patch.
+6. UI displays the proposal and applies it only after user approval.
+7. Artifact generators render the final Markdown, DOCX, JSON, and zip outputs.
 
-Suggested workspace shape:
+## Current Workspace Shape
 
 ```text
-agents/content-writer/
+ai_agents/blueprint_agent/
   AGENTS.md
   skills/
-    product-blueprint/SKILL.md
-    architecture-blueprint/SKILL.md
-    artifact-quality/SKILL.md
+    product-blueprint/
+      SKILL.md
+    architecture-blueprint/
+      SKILL.md
+    artifact-quality/
+      SKILL.md
   subagents.yaml
-  content_writer.py
+  blueprint_agent.py
+  schema_contract.py
 ```
 
 ## Persistence Model
 
-Future backend tables or collections should include:
+The current version is synchronous and browser-local for project storage. Future backend tables or collections should include:
 
 - `organizations`
 - `users`
@@ -64,4 +76,3 @@ Future backend tables or collections should include:
 - Require RBAC for applying agent proposals and exporting bundles.
 - Log accepted/rejected changes for audit and future evaluation.
 - Make any self-learning loop opt-in and evaluation-gated.
-
