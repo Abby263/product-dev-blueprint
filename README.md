@@ -7,7 +7,7 @@
 
 Product Dev Blueprint is a schema-first product planning application for turning a rough software idea into a focused build-readiness plan. It helps a Product Manager, Solution Architect, founder, or engineering lead pressure-test an idea before development starts, then generates a traceable artifact bundle that can be handed to an engineering team or coding agent.
 
-The current production application is a client-side Next.js app with deterministic artifact generation. It does not require model API keys, auth, a database, or a backend service to run.
+The current production application is a client-side Next.js app with deterministic artifact generation and a local schema-aware Blueprint Agent. It does not require model API keys, auth, a database, or a backend service to run.
 
 ## UI Demo
 
@@ -56,6 +56,7 @@ Product Dev Blueprint is designed to answer four questions before a team commits
 |---|---|
 | UI | Next.js 14 App Router, React, TypeScript, Tailwind CSS |
 | Persistence | Browser `localStorage` through Zustand |
+| Blueprint Agent | Local schema-aware proposal helper that fills missing fields after user review |
 | Artifact generation | Deterministic TypeScript generators in `src/lib/generators` |
 | HLD / LLD | Generated from user inputs through the system-design generator |
 | Mermaid diagrams | Rendered as visual diagrams in generated architecture artifacts |
@@ -63,7 +64,7 @@ Product Dev Blueprint is designed to answer four questions before a team commits
 | Auth | Not implemented |
 | Backend database | Not implemented |
 | Live LLM calls | Not implemented in the current runtime |
-| DeepAgents | Planned server-side integration path documented, not wired at runtime |
+| DeepAgents | Planned server-side integration path documented; current agent UI preserves the same proposal/review contract |
 
 Required runtime environment variables today: **none**. See [`SETUP.md`](SETUP.md) for current and future API key guidance.
 
@@ -72,6 +73,9 @@ Required runtime environment variables today: **none**. See [`SETUP.md`](SETUP.m
 ```mermaid
 flowchart LR
   A["Start with blank idea or template"] --> B["Complete PM-owned intake"]
+  A --> G["Optionally run Blueprint Agent"]
+  G --> H["Review questions, assumptions, and proposed schema changes"]
+  H --> B
   B --> C["Complete Solution Architect intake"]
   C --> D["Generate readiness report"]
   D --> E["Review product, architecture, risk, and delivery artifacts"]
@@ -79,6 +83,14 @@ flowchart LR
 ```
 
 ## Capabilities
+
+### Blueprint Agent
+
+- Start from a rough idea and generate a reviewable schema proposal.
+- Trigger the agent from project creation, overview, intake, or artifacts.
+- Choose a full completion pass, Product Manager pass, Solution Architect pass, or readiness review.
+- Review proposed changes, assumptions, confidence, follow-up questions, and touched domains before applying.
+- Preserve the exact artifact bundle format by writing accepted changes back to the canonical `Project` schema.
 
 ### Idea Evaluation
 
@@ -166,7 +178,7 @@ flowchart TB
   Generators --> Exporter
 ```
 
-Future server-side capabilities such as accounts, shared projects, background generation, and DeepAgents content writing should be added behind server APIs or workers. Provider keys must never be exposed to browser bundles.
+Future server-side capabilities such as accounts, shared projects, background generation, and DeepAgents content writing should be added behind server APIs or workers. Provider keys must never be exposed to browser bundles. See [`docs/architecture/agent-runtime.md`](docs/architecture/agent-runtime.md) for the agent backend path.
 
 ## Tech Stack
 

@@ -1,0 +1,17 @@
+---
+description: Repository development workflow for Product Dev Blueprint
+globs: **/*
+alwaysApply: true
+---
+
+# Development Workflow
+
+- Work on a branch. Do not commit directly to `main`.
+- Use pull requests for all production changes.
+- Keep every change schema-first. Update `src/lib/schema.ts` before adding fields to UI or generators.
+- Preserve generated artifact filenames, headings, and stable IDs unless the product explicitly changes the bundle contract.
+- Run `npm run typecheck` and `npm run build` before marking a change ready.
+- Do not expose provider secrets in browser code or `NEXT_PUBLIC_*` variables.
+- Use the existing UI primitives in `src/components/ui.tsx` and keep mobile web layouts usable.
+- If the change affects architecture artifacts, verify HLD, LLD, schema design, API, security, data, infra, scaling, and observability sections still render.
+

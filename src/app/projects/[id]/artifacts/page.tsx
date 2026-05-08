@@ -8,6 +8,7 @@ import type { Components } from "react-markdown";
 import { useParams } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Badge, Button, Card } from "@/components/ui";
+import BlueprintAgentPanel from "@/components/BlueprintAgentPanel";
 import MermaidDiagram from "@/components/MermaidDiagram";
 import { generateBundle } from "@/lib/generators";
 import { downloadFile, downloadProjectBundle, downloadProjectJSON } from "@/lib/export";
@@ -107,6 +108,10 @@ export default function ArtifactsPage() {
             {downloading ? "Packing…" : "Download bundle (.zip)"}
           </Button>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <BlueprintAgentPanel project={project} compact />
       </div>
 
       {pct < 100 && (

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Badge, Button, Card, ProgressBar } from "@/components/ui";
+import BlueprintAgentPanel from "@/components/BlueprintAgentPanel";
 import { DOMAIN_BLURB, DOMAIN_LABEL, DOMAIN_ORDER } from "@/lib/schema";
 
 export default function ProjectOverview() {
@@ -61,6 +62,10 @@ export default function ProjectOverview() {
           <ProgressBar value={completed} max={DOMAIN_ORDER.length} />
         </div>
       </Card>
+
+      <div className="mt-6">
+        <BlueprintAgentPanel project={project} />
+      </div>
 
       <h2 className="text-lg font-semibold mt-10 mb-3 text-ink-900 dark:text-ink-50">Domains</h2>
       <div className="grid min-w-0 sm:grid-cols-2 gap-3">

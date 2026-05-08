@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
-import { Badge, Button, Card } from "@/components/ui";
+import { suggestProjectTitle } from "@/lib/blueprint-agent";
+import { Badge, Button, Card, Field, Textarea } from "@/components/ui";
 import { TEMPLATES, BLANK_TEMPLATE } from "@/lib/templates";
 import type { TemplateMeta } from "@/lib/templates/types";
 
@@ -34,8 +36,10 @@ const TEMPLATE_FILTERS = ["All", "AI", "SaaS", "Marketplace", "Internal", "Blank
 
 export default function NewProjectPage() {
   const router = useRouter();
+  const createProject = useStore((s) => s.createProject);
   const createDraftProject = useStore((s) => s.createDraftProject);
   const createDraftFromTemplate = useStore((s) => s.createDraftFromTemplate);
+  const [agentIdea, setAgentIdea] = useState("");
 
   function start(template: TemplateMeta) {
     if (!template.payload) {
@@ -46,6 +50,16 @@ export default function NewProjectPage() {
 
     const id = createDraftFromTemplate(template.payload);
     router.push(`/projects/${id}/intake`);
+  }
+
+  function startWithAgent() {
+    const idea = agentIdea.trim();
+    if (!idea) return;
+
+    const title = suggestProjectTitle(idea);
+    const oneLiner = idea.length > 160 ? `${idea.slice(0, 157).trim()}...` : idea;
+    const id = createProject(title, oneLiner, idea);
+    router.push(`/projects/${id}/intake?agent=1`);
   }
 
   return (
@@ -94,6 +108,44 @@ export default function NewProjectPage() {
             </Card>
           ))}
         </div>
+      </section>
+
+      <section className="mt-6">
+        <Card className="p-4 sm:p-5 border-accent-200 dark:border-accent-800">
+          <div className="grid min-w-0 lg:grid-cols-[0.75fr_1.25fr] gap-4 lg:gap-6">
+            <div>
+              <Badge tone="accent">Agent-assisted</Badge>
+              <h2 className="mt-3 text-xl sm:text-2xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+                Start with a rough idea
+              </h2>
+              <p className="mt-2 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
+                Share the idea in plain language. The Blueprint Agent can ask follow-up questions, propose missing PM
+                and architect inputs, and keep all generated files in the existing format.
+              </p>
+            </div>
+            <div className="min-w-0">
+              <Field
+                label="Initial idea"
+                hint="You can add more details later from any project page. Empty fields will be proposed by the agent."
+              >
+                <Textarea
+                  rows={4}
+                  value={agentIdea}
+                  onChange={(event) => setAgentIdea(event.target.value)}
+                  placeholder="Example: Build an Azure-based RAG chatbot for enterprise support teams with SSO, source citations, admin review, audit logs, and scalable worker jobs..."
+                />
+              </Field>
+              <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                <Button onClick={startWithAgent} disabled={!agentIdea.trim()} className="w-full sm:w-auto justify-center">
+                  Create with agent
+                </Button>
+                <span className="text-xs text-ink-500 dark:text-ink-400">
+                  You will review changes before applying them.
+                </span>
+              </div>
+            </div>
+          </div>
+        </Card>
       </section>
 
       <section className="mt-8 grid min-w-0 lg:grid-cols-[260px_1fr] gap-5 lg:gap-6">
