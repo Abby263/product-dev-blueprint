@@ -7,7 +7,7 @@
 
 Product Dev Blueprint is a schema-first product planning application for turning a rough software idea into a focused build-readiness plan. It helps a Product Manager, Solution Architect, founder, or engineering lead pressure-test an idea before development starts, then generates a traceable artifact bundle that can be handed to an engineering team or coding agent.
 
-The current production application is a client-side Next.js app with deterministic artifact generation and a local schema-aware Blueprint Agent. It does not require model API keys, auth, a database, or a backend service to run.
+The application includes a Python DeepAgents AI Agent for LLM-backed blueprint proposals and deterministic TypeScript generators for final artifacts. The core UI can still load without model keys, but the AI Agent requires server-side model configuration.
 
 ## UI Demo
 
@@ -56,24 +56,24 @@ Product Dev Blueprint is designed to answer four questions before a team commits
 |---|---|
 | UI | Next.js 14 App Router, React, TypeScript, Tailwind CSS |
 | Persistence | Browser `localStorage` through Zustand |
-| Blueprint Agent | Local schema-aware proposal helper that fills missing fields after user review |
+| Blueprint Agent | Python DeepAgents runtime at `/api/agent` that returns reviewable schema proposals |
 | Artifact generation | Deterministic TypeScript generators in `src/lib/generators` |
 | HLD / LLD | Generated from user inputs through the system-design generator |
 | Mermaid diagrams | Rendered as visual diagrams in generated architecture artifacts |
 | Exports | Markdown, DOCX, JSON, and zip bundle |
 | Auth | Not implemented |
 | Backend database | Not implemented |
-| Live LLM calls | Not implemented in the current runtime |
-| DeepAgents | Planned server-side integration path documented; current agent UI preserves the same proposal/review contract |
+| Live LLM calls | Implemented for Blueprint Agent proposals when server model env vars are configured |
+| DeepAgents | Integrated in `ai_agents/blueprint_agent` with memory, skills, and subagents |
 
-Required runtime environment variables today: **none**. See [`SETUP.md`](SETUP.md) for current and future API key guidance.
+Required to use the AI Agent: `AI_AGENT_MODEL` and the matching server-side provider key. See [`SETUP.md`](SETUP.md).
 
 ## Core Workflow
 
 ```mermaid
 flowchart LR
   A["Start with blank idea or template"] --> B["Complete PM-owned intake"]
-  A --> G["Optionally run Blueprint Agent"]
+  A --> G["Run Python DeepAgents Blueprint Agent"]
   G --> H["Review questions, assumptions, and proposed schema changes"]
   H --> B
   B --> C["Complete Solution Architect intake"]
@@ -86,11 +86,12 @@ flowchart LR
 
 ### Blueprint Agent
 
-- Start from a rough idea and generate a reviewable schema proposal.
+- Start from a rough idea and generate a reviewable LLM-backed schema proposal.
 - Trigger the agent from project creation, overview, intake, or artifacts.
 - Choose a full completion pass, Product Manager pass, Solution Architect pass, or readiness review.
 - Review proposed changes, assumptions, confidence, follow-up questions, and touched domains before applying.
 - Preserve the exact artifact bundle format by writing accepted changes back to the canonical `Project` schema.
+- Use dedicated Python agent files under `ai_agents/blueprint_agent`, including `AGENTS.md`, skills, and subagents.
 
 ### Idea Evaluation
 
@@ -126,7 +127,7 @@ For AI use cases, the app captures:
 - Prompt-injection and AI safety review areas
 - Model observability and tracing options
 - Human-in-the-loop escalation and approval flows
-- Future DeepAgents content-writer architecture, with server-side memory, skills, and subagents
+- DeepAgents content-writer architecture, with server-side memory, skills, and subagents
 
 ### Export And Handoff
 
@@ -158,7 +159,7 @@ Q-001, INT-001, ENT-001, SLO-001, KPI-001
 
 ## Architecture Overview
 
-The shipped app is intentionally simple and frontend-only. This makes it easy to run, demo, and deploy while the product workflow is still being refined.
+The app keeps a schema-first flow: the Python AI Agent proposes schema changes, browser state stores accepted inputs, and deterministic generators render final artifacts.
 
 ```mermaid
 flowchart TB
@@ -166,19 +167,24 @@ flowchart TB
   UI["Next.js App Router UI"]
   Store["Zustand localStorage store"]
   Schema["Canonical Project schema"]
+  Agent["Python DeepAgents /api/agent"]
+  AgentFiles["ai_agents memory, skills, subagents"]
   Generators["Deterministic artifact generators"]
   Renderer["Markdown / Mermaid / DOCX renderer"]
   Exporter["Zip, JSON, Markdown, DOCX exports"]
 
   Browser --> UI
   UI --> Store
+  UI --> Agent
+  Agent --> AgentFiles
+  Agent --> Schema
   Store --> Schema
   Schema --> Generators
   Generators --> Renderer
   Generators --> Exporter
 ```
 
-Future server-side capabilities such as accounts, shared projects, background generation, and DeepAgents content writing should be added behind server APIs or workers. Provider keys must never be exposed to browser bundles. See [`docs/architecture/agent-runtime.md`](docs/architecture/agent-runtime.md) for the agent backend path.
+Future server-side capabilities such as accounts, shared projects, long-running background generation, and durable agent history should be added behind server APIs or workers. Provider keys must never be exposed to browser bundles. See [`docs/architecture/agent-runtime.md`](docs/architecture/agent-runtime.md) for the agent backend path.
 
 ## Tech Stack
 
@@ -186,6 +192,7 @@ Future server-side capabilities such as accounts, shared projects, background ge
 |---|---|
 | Framework | Next.js 14 App Router |
 | Language | TypeScript |
+| AI Agent Runtime | Python DeepAgents Vercel Function |
 | UI | React, Tailwind CSS |
 | State | Zustand with browser persistence |
 | Markdown | `react-markdown`, `remark-gfm` |
@@ -199,6 +206,7 @@ Future server-side capabilities such as accounts, shared projects, background ge
 Prerequisites:
 
 - Node.js 20 or newer
+- Python 3.12 for the Vercel Python AI Agent runtime
 - npm
 - Optional: Vercel CLI for manual deployments
 
@@ -216,18 +224,25 @@ Open:
 http://localhost:3000
 ```
 
+For full-stack local development with the Python `/api/agent` function:
+
+```bash
+npx vercel dev
+```
+
 Run production checks:
 
 ```bash
 npm run typecheck
 npm run build
+python3 -m py_compile api/agent.py ai_agents/blueprint_agent/*.py
 ```
 
 Scripts:
 
 | Script | Purpose |
 |---|---|
-| `npm run dev` | Start the local Next.js dev server |
+| `npm run dev` | Start the local Next.js UI server |
 | `npm run build` | Build the production app |
 | `npm run start` | Serve the built app locally |
 | `npm run typecheck` | Run TypeScript without emitting files |
@@ -235,14 +250,21 @@ Scripts:
 
 ## Environment Variables
 
-No `.env.local` file is required for the current application.
+No `.env.local` file is required to load the UI, templates, deterministic artifacts, or exports.
 
-Do not add model keys such as `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `LANGSMITH_API_KEY` unless a server-side generation runtime is added. If DeepAgents or live model generation is implemented later, use server-only variables and never expose them through `NEXT_PUBLIC_*`.
+The AI Agent requires server-only model configuration:
+
+```bash
+AI_AGENT_MODEL=openai:gpt-4o-mini
+OPENAI_API_KEY=sk-...
+```
+
+Use the matching provider key for the selected `AI_AGENT_MODEL`. Never expose provider keys through `NEXT_PUBLIC_*`.
 
 See [`SETUP.md`](SETUP.md) for:
 
 - Current runtime requirements
-- Future DeepAgents variables
+- AI Agent model/provider variables
 - Vercel deployment variables
 - Auth/database variables for a future multi-user version
 - Troubleshooting notes
@@ -277,6 +299,10 @@ npx vercel deploy --prod --yes
   workflows/ci.yml                  # Type-check and build
   dependabot.yml                    # Dependency update checks
   pull_request_template.md
+api/
+  agent.py                          # Python Vercel Function for the LLM Blueprint Agent
+ai_agents/
+  blueprint_agent/                   # DeepAgents memory, skills, subagents, and schema contract
 docs/
   assets/                           # README demo screenshots
 src/
@@ -316,6 +342,8 @@ src/
 - Data is not synchronized across devices or users.
 - Clearing browser/site data can delete local projects.
 - There is no server-side backup in the current implementation.
+- The AI Agent sends the current project context to the configured server-side model provider.
+- Model provider keys must stay server-side and must never use `NEXT_PUBLIC_*`.
 - Generated artifacts are drafts and should be reviewed before use in production delivery.
 
 For a production multi-user version, add auth, a database, server-side exports, access controls, audit logs, and backup/retention policies before storing real customer or regulated data.
@@ -327,6 +355,7 @@ Before merging:
 ```bash
 npm run typecheck
 npm run build
+python3 -m py_compile api/agent.py ai_agents/blueprint_agent/*.py
 ```
 
 CI runs the same required checks on pull requests and pushes to `main`.
@@ -337,7 +366,7 @@ Near-term product improvements:
 
 - Persist projects server-side with accounts and shared workspaces
 - Add version history, comments, and review workflow
-- Add live DeepAgents-based content writer generation behind a server runtime
+- Persist agent runs, messages, feedback, and approved case studies
 - Add uploaded context documents for deeper artifact generation
 - Add richer diagram export options
 - Add Linear/Jira/GitHub issue export

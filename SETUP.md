@@ -1,6 +1,6 @@
 # Setup Guide
 
-This guide reflects the app as it exists today. The current product is a client-side Next.js app that generates planning artifacts from deterministic TypeScript generators and includes a local schema-aware Blueprint Agent proposal flow. It does **not** call DeepAgents, OpenAI, Anthropic, a database, or an auth provider at runtime.
+This guide reflects the app as it exists today. The product is a Next.js app with deterministic artifact generators and a server-side Python DeepAgents AI Agent for LLM-backed blueprint proposals.
 
 ## Current Runtime
 
@@ -8,18 +8,21 @@ This guide reflects the app as it exists today. The current product is a client-
 |---|---|---:|
 | Intake wizard | Next.js App Router pages and React components | No |
 | Project storage | Browser `localStorage` via Zustand persist | No |
-| Blueprint Agent | Local TypeScript helper that proposes schema updates, assumptions, and follow-up questions | No |
+| Blueprint Agent | Python DeepAgents function at `/api/agent` that proposes schema updates, assumptions, and follow-up questions | Yes |
 | Document generation | Local TypeScript markdown/DOCX generators in `src/lib/generators` and `src/lib/docx.ts` | No |
 | HLD/LLD architecture output | Deterministic generator based on user inputs in `src/lib/generators/system-design.ts` | No |
-| DeepAgents content writer | Planned server-side upgrade path; not called by current runtime | No |
+| DeepAgents content writer | Integrated under `ai_agents/blueprint_agent` with memory, skills, and subagents | Yes |
 | Auth/accounts | Not implemented | No |
 | Database/shared projects | Not implemented | No |
 
-Required environment variables for the shipped app: **none**.
+Required environment variables for the core UI: **none**.
+
+Required environment variables for the AI Agent: `AI_AGENT_MODEL` plus the matching provider key.
 
 ## Prerequisites
 
 - Node.js 20 or newer. The repo includes `.nvmrc` with Node 20.
+- Python 3.12 for the Vercel Python AI Agent runtime. The repo includes `.python-version`.
 - npm, using the checked-in `package-lock.json`.
 - Optional: Vercel CLI for manual deployments.
 
@@ -35,6 +38,12 @@ Open:
 
 ```text
 http://localhost:3000
+```
+
+`npm run dev` starts the Next.js UI. It does not run Vercel Python functions locally. For the full stack, including `/api/agent`, use Vercel dev:
+
+```bash
+npx vercel dev
 ```
 
 The app stores draft projects in the current browser only. Clearing site data or using the app's Settings page can remove local projects.
@@ -64,9 +73,32 @@ npm run build
 
 ### Required For Current App
 
-No `.env.local` file is needed.
+No `.env.local` file is needed to load the UI, templates, artifacts, and exports.
 
-Do **not** add model keys such as `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `LANGSMITH_API_KEY` unless a server-side generation runtime is added. They are not read by the current code.
+The AI Agent requires server-side model configuration:
+
+| Variable | Required when | Notes |
+|---|---|---|
+| `AI_AGENT_MODEL` | AI Agent generation is enabled | LangChain model string, for example `openai:gpt-4o-mini`, `anthropic:claude-sonnet-4-5`, or `google_genai:gemini-2.5-pro`. |
+| `OPENAI_API_KEY` | `AI_AGENT_MODEL` starts with `openai:` | Server-side only. |
+| `ANTHROPIC_API_KEY` | `AI_AGENT_MODEL` starts with `anthropic:` | Server-side only. |
+| `GOOGLE_API_KEY` | `AI_AGENT_MODEL` starts with `google_genai:` | Server-side only. |
+| `GOOGLE_APPLICATION_CREDENTIALS` | `AI_AGENT_MODEL` starts with `google_vertexai:` | Server-side only. |
+| `AZURE_OPENAI_API_KEY` | `AI_AGENT_MODEL` starts with `azure_openai:` | Server-side only. |
+| `AZURE_OPENAI_ENDPOINT` | `AI_AGENT_MODEL` starts with `azure_openai:` | Server-side only. |
+| `LANGSMITH_API_KEY` | LangSmith tracing/evals are enabled | Optional. |
+| `LANGCHAIN_TRACING_V2` | LangSmith tracing is enabled | Optional, usually `true`. |
+| `LANGCHAIN_PROJECT` | LangSmith tracing is enabled | Optional trace grouping name. |
+
+Example `.env.local` for Vercel dev with OpenAI:
+
+```bash
+AI_AGENT_MODEL=openai:gpt-4o-mini
+OPENAI_API_KEY=sk-...
+LANGSMITH_API_KEY=lsv2_...
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_PROJECT=product-dev-blueprint
+```
 
 ### Never Expose Server Keys To The Browser
 
@@ -80,56 +112,22 @@ NEXT_PUBLIC_LANGSMITH_API_KEY=
 
 Any `NEXT_PUBLIC_*` variable is bundled for browser access. Model provider keys, tracing keys, database URLs, and deployment tokens must stay server-only.
 
-### Future DeepAgents Runtime Only
-
-If a real-time DeepAgents/content-writer runtime is added later, it should run server-side through an API route, Python worker, or background job. At that point, use server-only variables like these:
-
-| Variable | Required when | Notes |
-|---|---|---|
-| `DEEPAGENTS_ENABLED` | DeepAgents runtime exists and should be enabled | Feature flag. Example: `true`. |
-| `MODEL_PROVIDER` | Live LLM generation is enabled | Example: `openai`, `anthropic`, `azure-openai`, `bedrock`, `vertex`. |
-| `OPENAI_API_KEY` | `MODEL_PROVIDER=openai` | Server-side only. |
-| `ANTHROPIC_API_KEY` | `MODEL_PROVIDER=anthropic` | Server-side only. |
-| `AZURE_OPENAI_API_KEY` | `MODEL_PROVIDER=azure-openai` | Server-side only. |
-| `AZURE_OPENAI_ENDPOINT` | `MODEL_PROVIDER=azure-openai` | Server-side only. |
-| `LANGSMITH_API_KEY` | LangSmith tracing/evals are enabled | Optional, but useful for agent debugging. |
-| `LANGCHAIN_TRACING_V2` | LangSmith tracing is enabled | Usually `true`. |
-| `LANGCHAIN_PROJECT` | LangSmith tracing is enabled | Trace grouping name. |
-
-Example future `.env.local`:
-
-```bash
-DEEPAGENTS_ENABLED=true
-MODEL_PROVIDER=openai
-OPENAI_API_KEY=sk-...
-LANGSMITH_API_KEY=lsv2_...
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_PROJECT=product-dev-blueprint
-```
-
-Those variables are intentionally future-facing. Adding them today will not change generated artifacts because the current app does not read them.
-
-## What A Real DeepAgents Integration Would Need
-
-The existing app now has the review UX and schema-patch contract that a DeepAgents runtime can later replace. To make DeepAgents generate HLD, LLD, PRD, and other documents in real time, add these pieces first:
-
-1. A server-side generation endpoint, for example `src/app/api/generate/route.ts`, or a separate backend service.
-2. A worker that runs DeepAgents with model credentials on the server, not in browser code.
-3. A content-writer workspace such as:
+## DeepAgents Runtime
 
 ```text
-agents/content-writer/
+api/agent.py
+ai_agents/blueprint_agent/
   AGENTS.md
   skills/
+    product-blueprint/SKILL.md
     architecture-blueprint/SKILL.md
-    product-documents/SKILL.md
-    diagram-generation/SKILL.md
+    artifact-quality/SKILL.md
   subagents.yaml
-  content_writer.py
+  blueprint_agent.py
+  schema_contract.py
 ```
 
-4. Persistence for generation status and outputs if jobs can run longer than a request.
-5. Human review UX, because generated documents should stay draft artifacts until approved.
+The Python function returns schema proposals only. The final Markdown, DOCX, JSON, and zip artifacts are still rendered by the TypeScript generators after user approval.
 
 Do not place DeepAgents prompts, memory, or provider keys in client-side bundles.
 
@@ -162,7 +160,7 @@ Normal flow:
 
 - Pull requests create Vercel preview deployments.
 - Merges to `main` create production deployments.
-- No runtime environment variables are required for the current production app.
+- Runtime environment variables are required for the AI Agent in preview and production.
 
 Manual deploy from a machine already logged into Vercel:
 
@@ -182,10 +180,10 @@ These are deployment secrets, not app runtime variables. Never expose them as `N
 
 ## Adding Environment Variables On Vercel
 
-Only do this after code actually reads the variable server-side.
-
 ```bash
+npx vercel env add AI_AGENT_MODEL production
 npx vercel env add OPENAI_API_KEY production
+npx vercel env add AI_AGENT_MODEL preview
 npx vercel env add OPENAI_API_KEY preview
 ```
 
@@ -220,5 +218,6 @@ In Codex, use the in-app browser preview for UI checks. Chrome headless is not r
 | `npm install` differs from CI | Use `npm ci` for a clean install from `package-lock.json`. |
 | Local projects disappeared | Check browser/site data; projects live only in localStorage. |
 | Vercel deploy succeeds but old UI appears | Confirm the production alias points to the newest deployment in Vercel. |
-| DeepAgents keys do nothing | Expected today. No runtime code reads those keys yet. |
+| AI Agent says it is not configured | Add `AI_AGENT_MODEL` and the matching provider key to the server environment. |
+| `/api/agent` is 404 locally | Use `npx vercel dev`; plain `npm run dev` does not run Vercel Python functions. |
 | Build fails after adding a server feature | Re-check that server-only imports are not pulled into client components. |

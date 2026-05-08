@@ -23,7 +23,8 @@ These rules apply to coding agents working in this repository.
 
 - Keep provider secrets server-side only. Never add `NEXT_PUBLIC_*` model, tracing, database, or deployment keys.
 - Do not introduce a live model call from a client component.
-- If a real AI backend is added, use a server route or worker, persist generation state, and keep human approval before applying changes.
+- The real AI backend lives in Python under `ai_agents/blueprint_agent` and is exposed through `api/agent.py`.
+- Keep human approval before applying any AI-generated schema changes.
 - Prefer small TypeScript helpers over large UI-only logic. The schema and generators should remain testable without rendering React.
 - Preserve local-first behavior unless the feature explicitly adds accounts, shared projects, or backend persistence.
 
@@ -34,4 +35,3 @@ These rules apply to coding agents working in this repository.
 - Use existing UI primitives from `src/components/ui.tsx`.
 - Keep cards for repeated items, panels, and modals. Do not nest cards inside cards.
 - Do not show Mermaid source when a diagram can be rendered visually.
-

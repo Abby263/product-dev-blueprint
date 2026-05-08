@@ -7,10 +7,10 @@ alwaysApply: false
 # Blueprint Agent Rules
 
 - The agent fills the canonical `Project` schema; it does not replace the deterministic artifact generators.
+- The LLM runtime is Python DeepAgents code under `ai_agents/blueprint_agent` and is exposed through `api/agent.py`.
 - User-provided values should not be overwritten unless the UI shows the proposed change and the user applies it.
 - Agent output must include assumptions, confidence, follow-up questions, and proposed schema changes.
 - Generated documents remain drafts until reviewed by a Product Manager, Technical Solution Architect, or shared owner shown in the UI.
 - Long-running or model-backed generation must run server-side through an API route or worker. Client components may trigger and display runs, but must not call model providers directly.
 - Future self-learning behavior must be opt-in, auditable, and evaluation-gated. Do not train or retrieve from private user data without explicit consent.
 - Preserve the artifact bundle contract so Cursor, Codex, and similar tools can consume the exported files consistently.
-
