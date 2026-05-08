@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui";
+import BlueprintAgentPanel from "@/components/BlueprintAgentPanel";
 import WizardShell from "@/components/wizard/WizardShell";
 import {
   BasicsStep,
@@ -30,6 +31,7 @@ export default function IntakePage() {
   const params = useParams<{ id: string }>();
   const search = useSearchParams();
   const stepParam = search.get("step") as DomainKey | null;
+  const shouldAutoRunAgent = search.get("agent") === "1";
   const id = params.id;
   const project = useStore((s) => s.projects[id]);
   const markStep = useStore((s) => s.markStep);
@@ -59,6 +61,7 @@ export default function IntakePage() {
       step={step}
       onMarkComplete={() => markStep(project.id, step, "complete")}
     >
+      <BlueprintAgentPanel project={project} focusStep={step} autoRun={shouldAutoRunAgent} />
       {step === "basics" && <BasicsStep project={project} />}
       {step === "problem" && <ProblemStep project={project} />}
       {step === "market" && <MarketStep project={project} />}

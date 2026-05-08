@@ -1,6 +1,6 @@
 # Setup Guide
 
-This guide reflects the app as it exists today. The current product is a client-side Next.js app that generates planning artifacts from deterministic TypeScript generators. It does **not** call DeepAgents, OpenAI, Anthropic, a database, or an auth provider at runtime.
+This guide reflects the app as it exists today. The current product is a client-side Next.js app that generates planning artifacts from deterministic TypeScript generators and includes a local schema-aware Blueprint Agent proposal flow. It does **not** call DeepAgents, OpenAI, Anthropic, a database, or an auth provider at runtime.
 
 ## Current Runtime
 
@@ -8,9 +8,10 @@ This guide reflects the app as it exists today. The current product is a client-
 |---|---|---:|
 | Intake wizard | Next.js App Router pages and React components | No |
 | Project storage | Browser `localStorage` via Zustand persist | No |
+| Blueprint Agent | Local TypeScript helper that proposes schema updates, assumptions, and follow-up questions | No |
 | Document generation | Local TypeScript markdown/DOCX generators in `src/lib/generators` and `src/lib/docx.ts` | No |
 | HLD/LLD architecture output | Deterministic generator based on user inputs in `src/lib/generators/system-design.ts` | No |
-| DeepAgents content writer | Not wired into runtime yet | No |
+| DeepAgents content writer | Planned server-side upgrade path; not called by current runtime | No |
 | Auth/accounts | Not implemented | No |
 | Database/shared projects | Not implemented | No |
 
@@ -110,7 +111,7 @@ Those variables are intentionally future-facing. Adding them today will not chan
 
 ## What A Real DeepAgents Integration Would Need
 
-The existing app only documents a DeepAgents-ready direction. To make DeepAgents generate HLD, LLD, PRD, and other documents in real time, add these pieces first:
+The existing app now has the review UX and schema-patch contract that a DeepAgents runtime can later replace. To make DeepAgents generate HLD, LLD, PRD, and other documents in real time, add these pieces first:
 
 1. A server-side generation endpoint, for example `src/app/api/generate/route.ts`, or a separate backend service.
 2. A worker that runs DeepAgents with model credentials on the server, not in browser code.
@@ -131,6 +132,8 @@ agents/content-writer/
 5. Human review UX, because generated documents should stay draft artifacts until approved.
 
 Do not place DeepAgents prompts, memory, or provider keys in client-side bundles.
+
+See [`docs/architecture/agent-runtime.md`](docs/architecture/agent-runtime.md) for the expected server-side flow and persistence model.
 
 ## Future Persistence And Auth
 
