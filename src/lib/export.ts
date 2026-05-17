@@ -63,7 +63,7 @@ export async function downloadProjectBundle(project: Project) {
       ``,
       `- \`markdown/\` — version-control friendly source for every artifact`,
       `- \`docx/\` — Word-compatible deliverables for every artifact`,
-      `- \`scaffold/\` — boilerplate folder structure, README, .env.example, docker-compose, and CI stub matching your platform choices`,
+      `- \`scaffold/\` — boilerplate folder structure, README, .env.example, docker-compose, CI stub, and static coding-agent guideline files`,
       `- \`project.json\` — raw canonical schema (regenerate the bundle from this)`,
       ``,
       `## Artifacts`,

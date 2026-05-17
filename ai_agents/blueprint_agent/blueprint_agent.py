@@ -76,7 +76,7 @@ def configured_model() -> str:
     model = os.environ.get("AI_AGENT_MODEL", "").strip()
     if not model:
         raise AgentConfigurationError(
-            "AI_AGENT_MODEL is required. Example values: openai:gpt-4o-mini, anthropic:claude-sonnet-4-5, google_genai:gemini-2.5-pro."
+            "AI_AGENT_MODEL is required. Example values: openai:gpt-5.4-mini, anthropic:claude-sonnet-4-5, google_genai:gemini-2.5-pro."
         )
 
     provider = model.split(":", 1)[0].lower()

@@ -19,6 +19,15 @@ Required environment variables for the core UI: **none**.
 
 Required environment variables for the AI Agent: `AI_AGENT_MODEL` plus the matching provider key.
 
+Recommended OpenAI agent model:
+
+```bash
+AI_AGENT_MODEL=openai:gpt-5.4-mini
+OPENAI_API_KEY=sk-...
+```
+
+OpenAI's current public docs list `gpt-5.4-mini` as the mini model for high-volume workloads. `gpt-4.5-mini` is not listed in the official model docs at the time this setup guide was updated. If an OpenAI account has private access to another model slug, use the exact LangChain model string accepted by that account.
+
 ## Prerequisites
 
 - Node.js 20 or newer. The repo includes `.nvmrc` with Node 20.
@@ -30,7 +39,7 @@ Required environment variables for the AI Agent: `AI_AGENT_MODEL` plus the match
 
 ```bash
 nvm use
-npm install
+npm ci
 npm run dev
 ```
 
@@ -40,10 +49,26 @@ Open:
 http://localhost:3000
 ```
 
-`npm run dev` starts the Next.js UI. It does not run Vercel Python functions locally. For the full stack, including `/api/agent`, use Vercel dev:
+`npm run dev` starts the Next.js UI. It does not run Vercel Python functions locally.
+
+For the full stack, including `/api/agent`, create `.env.local` with the AI Agent variables:
+
+```bash
+AI_AGENT_MODEL=openai:gpt-5.4-mini
+OPENAI_API_KEY=sk-...
+```
+
+Then start Vercel dev:
 
 ```bash
 npx vercel dev
+```
+
+Python dependencies are declared in `requirements.txt`. Vercel installs them for deployments and `npx vercel dev`. If you want to validate Python locally without Vercel, install them first:
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -m py_compile api/agent.py ai_agents/blueprint_agent/*.py
 ```
 
 The app stores draft projects in the current browser only. Clearing site data or using the app's Settings page can remove local projects.
@@ -55,6 +80,7 @@ Use these before opening a PR:
 ```bash
 npm run typecheck
 npm run build
+python3 -m py_compile api/agent.py ai_agents/blueprint_agent/*.py
 ```
 
 `npm run lint` exists in `package.json`, but this Next.js version no longer ships the old `next lint` command path in the same way. Treat `typecheck` and `build` as the required checks unless lint tooling is updated separately.
@@ -79,7 +105,7 @@ The AI Agent requires server-side model configuration:
 
 | Variable | Required when | Notes |
 |---|---|---|
-| `AI_AGENT_MODEL` | AI Agent generation is enabled | LangChain model string, for example `openai:gpt-4o-mini`, `anthropic:claude-sonnet-4-5`, or `google_genai:gemini-2.5-pro`. |
+| `AI_AGENT_MODEL` | AI Agent generation is enabled | LangChain model string. Recommended OpenAI value: `openai:gpt-5.4-mini`. Other provider examples: `anthropic:claude-sonnet-4-5` or `google_genai:gemini-2.5-pro`. |
 | `OPENAI_API_KEY` | `AI_AGENT_MODEL` starts with `openai:` | Server-side only. |
 | `ANTHROPIC_API_KEY` | `AI_AGENT_MODEL` starts with `anthropic:` | Server-side only. |
 | `GOOGLE_API_KEY` | `AI_AGENT_MODEL` starts with `google_genai:` | Server-side only. |
@@ -93,7 +119,7 @@ The AI Agent requires server-side model configuration:
 Example `.env.local` for Vercel dev with OpenAI:
 
 ```bash
-AI_AGENT_MODEL=openai:gpt-4o-mini
+AI_AGENT_MODEL=openai:gpt-5.4-mini
 OPENAI_API_KEY=sk-...
 LANGSMITH_API_KEY=lsv2_...
 LANGCHAIN_TRACING_V2=true
@@ -187,6 +213,12 @@ npx vercel env add AI_AGENT_MODEL preview
 npx vercel env add OPENAI_API_KEY preview
 ```
 
+When prompted for `AI_AGENT_MODEL`, enter:
+
+```text
+openai:gpt-5.4-mini
+```
+
 After changing production env vars, trigger a new production deployment:
 
 ```bash
@@ -218,6 +250,7 @@ In Codex, use the in-app browser preview for UI checks. Chrome headless is not r
 | `npm install` differs from CI | Use `npm ci` for a clean install from `package-lock.json`. |
 | Local projects disappeared | Check browser/site data; projects live only in localStorage. |
 | Vercel deploy succeeds but old UI appears | Confirm the production alias points to the newest deployment in Vercel. |
-| AI Agent says it is not configured | Add `AI_AGENT_MODEL` and the matching provider key to the server environment. |
+| AI Agent says it is not configured | Add `AI_AGENT_MODEL=openai:gpt-5.4-mini` and `OPENAI_API_KEY` to the server environment, or use a different supported provider/model pair. |
+| AI Agent model is rejected by provider | Confirm the model slug exists for the configured provider/account. Official OpenAI docs currently list `gpt-5.4-mini`; `gpt-4.5-mini` is not listed publicly. |
 | `/api/agent` is 404 locally | Use `npx vercel dev`; plain `npm run dev` does not run Vercel Python functions. |
 | Build fails after adding a server feature | Re-check that server-only imports are not pulled into client components. |
