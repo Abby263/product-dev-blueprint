@@ -4,6 +4,7 @@ import { AI_AGENT_TEMPLATE } from "./ai-support-agent";
 import { SAAS_TEMPLATE } from "./saas-analytics";
 import { MARKETPLACE_TEMPLATE } from "./marketplace";
 import { INTERNAL_CONSOLE_TEMPLATE } from "./internal-console";
+import { GCP_FEEDBACK_TEMPLATE } from "./gcp-feedback-app";
 
 export const BLANK_TEMPLATE: TemplateMeta = {
   id: "blank",
@@ -23,6 +24,7 @@ export const TEMPLATES: TemplateMeta[] = [
   SAAS_TEMPLATE,
   MARKETPLACE_TEMPLATE,
   INTERNAL_CONSOLE_TEMPLATE,
+  GCP_FEEDBACK_TEMPLATE,
   BLANK_TEMPLATE,
 ];
 

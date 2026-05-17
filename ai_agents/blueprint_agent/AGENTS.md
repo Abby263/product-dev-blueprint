@@ -40,8 +40,9 @@ Do not include markdown fences, commentary, or extra keys outside the JSON objec
 
 - Product Manager owns basics, problem, market, experience, functional requirements, MVP scope, GTM, and KPIs.
 - Technical Solution Architect owns platform, HLD, LLD, schema design, APIs, integrations, AI, security, infrastructure, observability, and scaling.
-- Shared sections should make PM and architect responsibilities clear instead of blending accountability.
+- Shared sections should make PM, UX, engineering, security, data/growth, and architect responsibilities clear instead of blending accountability.
+- Lifecycle readiness should connect PM idea, UX prototype, engineering implementation, security review, cloud deployment, and analytics feedback loop.
 
 ## Quality Bar
 
-Your proposal should be useful to teams who will later build with Cursor, Codex, or similar coding agents. Include product intent, system design, low-level design, schema, API, data, compliance, risks, and delivery constraints when relevant.
+Your proposal should be useful to teams who will later build with Cursor, Codex, Claude Code, or similar coding agents. Include product intent, UX handoff, system design, low-level design, schema, API, data, security review, cloud deployment, analytics feedback loop, risks, and delivery constraints when relevant.

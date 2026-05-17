@@ -59,6 +59,7 @@ Product Dev Blueprint is designed to answer four questions before a team commits
 | Blueprint Agent | Python DeepAgents runtime at `/api/agent` that returns reviewable schema proposals |
 | Artifact generation | Deterministic TypeScript generators in `src/lib/generators` |
 | HLD / LLD | Generated from user inputs through the system-design generator |
+| Lifecycle plan | Generated PM → UX → engineering → security → deployment → analytics execution plan |
 | Mermaid diagrams | Rendered as visual diagrams in generated architecture artifacts |
 | Exports | Markdown, DOCX, JSON, and zip bundle |
 | Auth | Not implemented |
@@ -84,9 +85,10 @@ flowchart LR
   G --> H["Review questions, assumptions, and proposed schema changes"]
   H --> B
   B --> C["Complete Solution Architect intake"]
-  C --> D["Generate readiness report"]
-  D --> E["Review product, architecture, risk, and delivery artifacts"]
-  E --> F["Export Markdown, DOCX, JSON, and coding-agent prompts"]
+  C --> I["Complete lifecycle readiness"]
+  I --> D["Generate readiness report"]
+  D --> E["Review product, architecture, risk, lifecycle, and delivery artifacts"]
+  E --> F["Export Markdown, DOCX, JSON, scaffold, and coding-agent prompts"]
 ```
 
 ## Capabilities
@@ -125,6 +127,15 @@ flowchart LR
 - Infra, cloud services, networking, CI/CD, Terraform/IaC, observability, DR, scaling, and release gates
 - Architecture tradeoff matrix covering build-vs-buy, events, caching, realtime, privacy, security, data residency, and operational risk
 
+### SDLC-To-Cloud Lifecycle Planning
+
+- Persona handoff from Product Manager to UX Designer, Software Engineer, Security Engineer, Data/Growth Analyst, and Solution Architect
+- Prototype/wireframe source and UX handoff notes
+- Cloud deployment target, managed services, MCP/documentation sources, skills, and subagents
+- Security review checklist and deployment approval gate
+- Analytics feedback loop for post-launch product improvement
+- A Google Cloud feedback-app template covering Cloud Run, Firestore, BigQuery, Looker, Cloud Logging/Monitoring, IAM/service accounts, and Claude on Google Cloud / Vertex AI
+
 ### AI Product Planning
 
 For AI use cases, the app captures:
@@ -155,7 +166,7 @@ The app does generate a large supporting bundle, but the UI and README intention
 | Architecture blueprint | Engineering specification, architecture blueprint, AI architecture, data/interface spec, ADR pack |
 | Delivery package | Feature specification, requirements traceability matrix, test strategy, launch/operations plan |
 | Governance | Risk register, security/compliance checklist |
-| Coding handoff | Coding-agent prompt pack and scaffold bundle |
+| Coding handoff | Coding-agent prompt pack, lifecycle execution plan, and scaffold bundle |
 
 Stable IDs are assigned across the project schema and reused in generated artifacts:
 
@@ -358,6 +369,7 @@ src/
     architecture-scenarios.ts       # Tradeoff and architecture scenario catalog
     feature-suggestions.ts          # Rule-based feature seeding
     scaffold.ts                     # Stack-aware scaffold export
+    templates/gcp-feedback-app.ts   # Google Cloud feedback-app reference scenario
     docx.ts                         # Markdown to DOCX rendering
     export.ts                       # Zip and JSON export helpers
     generators/                     # Deterministic artifact generators

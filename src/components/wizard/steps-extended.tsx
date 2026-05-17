@@ -11,6 +11,7 @@ import {
   AIAgentFramework,
   AIObservability,
   VectorDB,
+  defaultLifecycleReadiness,
 } from "@/lib/schema";
 import { nextId } from "@/lib/ids";
 import { suggestFeatures, newBlankFeature } from "@/lib/feature-suggestions";
@@ -791,5 +792,81 @@ export function ComplianceStep({ project }: { project: Project }) {
         </Field>
       </div>
     </Card>
+  );
+}
+
+// ─── Lifecycle readiness ───────────────────────────────────────────────────
+export function LifecycleStep({ project }: { project: Project }) {
+  const update = useStore((s) => s.updateProject);
+  const v = project.lifecycle ?? defaultLifecycleReadiness();
+
+  function set<K extends keyof typeof v>(k: K, val: (typeof v)[K]) {
+    update(project.id, { lifecycle: { ...v, [k]: val } });
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-4 sm:p-6 space-y-5">
+        <SectionHeading
+          title="Persona execution plan"
+          owner="PM + Architect"
+          description="Capture how the idea moves from PM intent to UX, engineering, security, deployment, and post-launch learning."
+        />
+        <div className="grid md:grid-cols-2 gap-5">
+          <Field label="Product Manager plan" hint="Idea framing, scope decisions, KPI ownership, and acceptance gates.">
+            <Textarea rows={3} value={v.productManagerPlan} onChange={(e) => set("productManagerPlan", e.target.value)} />
+          </Field>
+          <Field label="UX Designer plan" hint="Prototype/wireframe source, design-system inputs, accessibility, and handoff expectations.">
+            <Textarea rows={3} value={v.uxDesignerPlan} onChange={(e) => set("uxDesignerPlan", e.target.value)} />
+          </Field>
+          <Field label="Software Engineer plan" hint="Implementation slices, repo shape, coding-agent prompts, tests, and deployable components.">
+            <Textarea rows={3} value={v.softwareEngineerPlan} onChange={(e) => set("softwareEngineerPlan", e.target.value)} />
+          </Field>
+          <Field label="Security Engineer plan" hint="Cloud/security review, identity/IAM, OWASP, secrets, abuse controls, and approval gate.">
+            <Textarea rows={3} value={v.securityEngineerPlan} onChange={(e) => set("securityEngineerPlan", e.target.value)} />
+          </Field>
+          <Field label="Data / Growth Analyst plan" hint="Events, analytics warehouse, dashboards, feedback summaries, and PM improvement loop.">
+            <Textarea rows={3} value={v.dataGrowthPlan} onChange={(e) => set("dataGrowthPlan", e.target.value)} />
+          </Field>
+        </div>
+      </Card>
+
+      <Card className="p-4 sm:p-6 space-y-5">
+        <SectionHeading
+          title="Cloud implementation readiness"
+          owner="Technical Solution Architect"
+          description="Make cloud deployment, MCP documentation, skills, subagents, and feedback loops explicit before build starts."
+        />
+        <div className="grid md:grid-cols-2 gap-5">
+          <Field label="Prototype or wireframe source" hint="Sketch, Figma, screenshot, design doc, or verbal description the agent should start from.">
+            <Textarea rows={2} value={v.prototypeSource} onChange={(e) => set("prototypeSource", e.target.value)} />
+          </Field>
+          <Field label="UX handoff notes" hint="Component expectations, design tokens, responsive states, accessibility, and review path.">
+            <Textarea rows={2} value={v.uxHandoffNotes} onChange={(e) => set("uxHandoffNotes", e.target.value)} />
+          </Field>
+          <Field label="Cloud deployment target" hint="Runtime, regions, service accounts, deployment promotion, and runtime ownership.">
+            <Textarea rows={3} value={v.cloudDeploymentTarget} onChange={(e) => set("cloudDeploymentTarget", e.target.value)} />
+          </Field>
+          <Field label="Managed services" hint="Database, analytics, queues, storage, observability, dashboards, model provider, and secrets.">
+            <Textarea rows={3} value={v.managedServices} onChange={(e) => set("managedServices", e.target.value)} />
+          </Field>
+          <Field label="MCP / documentation sources" hint="Fresh cloud docs, provider docs, design docs, API refs, BigQuery/Looker or other MCP servers.">
+            <Textarea rows={3} value={v.mcpDocumentationSources} onChange={(e) => set("mcpDocumentationSources", e.target.value)} />
+          </Field>
+          <Field label="Skills and subagents plan" hint="Claude/Codex skills, specialized implementation agents, security reviewer, platform architect, analytics agent.">
+            <Textarea rows={3} value={v.skillsAndSubagentsPlan} onChange={(e) => set("skillsAndSubagentsPlan", e.target.value)} />
+          </Field>
+          <Field label="Security review checklist" hint="OWASP, IAM/service accounts, least privilege, secrets, audit, rate limits, data protection.">
+            <Textarea rows={3} value={v.securityReviewChecklist} onChange={(e) => set("securityReviewChecklist", e.target.value)} />
+          </Field>
+          <Field label="Deployment approval gate" hint="Who signs off, required checks, preview/prod promotion, rollback and incident readiness.">
+            <Textarea rows={3} value={v.deploymentApprovalGate} onChange={(e) => set("deploymentApprovalGate", e.target.value)} />
+          </Field>
+          <Field label="Analytics feedback loop" hint="Events, warehouse, dashboards, feedback analyzer, insight cadence, and PM improvement loop.">
+            <Textarea rows={3} value={v.analyticsFeedbackLoop} onChange={(e) => set("analyticsFeedbackLoop", e.target.value)} />
+          </Field>
+        </div>
+      </Card>
+    </div>
   );
 }

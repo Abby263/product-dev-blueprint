@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Project, DomainKey } from "./schema";
+import { defaultLifecycleReadiness, type Project, type DomainKey } from "./schema";
 import { uid } from "./ids";
 
 interface State {
@@ -225,6 +225,7 @@ export function emptyProject(name: string, oneLiner: string, ideaDescription = "
       unvalidatedAssumptions: "",
       decisionConfidence: "medium",
     },
+    lifecycle: defaultLifecycleReadiness(),
     stakeholders: [],
     decisions: [],
     risks: [],
@@ -235,6 +236,7 @@ export function emptyProject(name: string, oneLiner: string, ideaDescription = "
 }
 
 function withTemplateDefaults(base: Project, overrides: Partial<Project>, listed: boolean): Project {
+  const lifecycleDefaults = templateLifecycleDefaults(base, overrides);
   // Domain blocks merge over defaults so older templates/projects keep
   // newly-added optional fields without requiring a manual migration.
   return {
@@ -243,10 +245,36 @@ function withTemplateDefaults(base: Project, overrides: Partial<Project>, listed
     platform: { ...base.platform, ...overrides.platform },
     systemDesign: { ...base.systemDesign, ...overrides.systemDesign },
     ai: { ...base.ai, ...overrides.ai },
+    lifecycle: { ...base.lifecycle, ...lifecycleDefaults, ...overrides.lifecycle },
     id: base.id,
     listed,
     createdAt: base.createdAt,
     updatedAt: base.updatedAt,
+  };
+}
+
+function templateLifecycleDefaults(base: Project, overrides: Partial<Project>): Project["lifecycle"] {
+  const platform = { ...base.platform, ...overrides.platform };
+  const name = overrides.name || base.name || "this project";
+  const cloud = platform.cloud || "selected cloud";
+  const managedServices = platform.cloudServices || `${cloud} runtime, database, observability, secrets, and storage services.`;
+  const deployment = platform.deploymentRuntime || `${cloud} deployment runtime with protected promotion to production.`;
+
+  return {
+    productManagerPlan: `Review ${name} scope, success metrics, launch criteria, and post-launch improvement cadence before build starts.`,
+    uxDesignerPlan: "Create or review wireframes, responsive states, accessibility states, and design-system handoff before implementation.",
+    softwareEngineerPlan: `Implement ${platform.frontend} frontend, ${platform.backend} backend, ${platform.database} data layer, CI checks, and release slices from the generated artifacts.`,
+    securityEngineerPlan: "Run identity, authorization, data protection, secrets, audit logging, abuse controls, and incident-readiness review before production exposure.",
+    dataGrowthPlan: "Define analytics events, dashboard ownership, feedback review cadence, and PM insight loop before launch.",
+    prototypeSource: "Template-provided starting point; replace with Figma, sketch, screenshot, or product design doc when available.",
+    uxHandoffNotes: "Capture responsive, loading, empty, error, and accessibility states before coding-agent implementation.",
+    cloudDeploymentTarget: deployment,
+    managedServices,
+    mcpDocumentationSources: "Use current provider docs, cloud documentation MCP servers where available, API references, and design docs before implementation.",
+    skillsAndSubagentsPlan: `Use specialized coding-agent workstreams for UI, API/backend, data/analytics, security review, and ${cloud} deployment.`,
+    securityReviewChecklist: "OWASP web/API review, auth/RBAC, service identity, least privilege, secrets, audit logs, rate limits, data classification, and incident response.",
+    deploymentApprovalGate: "Production promotion requires typecheck, build, tests, security review, rollback notes, smoke test, and owner approval.",
+    analyticsFeedbackLoop: "Capture usage, reliability, conversion, and qualitative feedback; review insights with PM and data/growth owner on a fixed cadence.",
   };
 }
 

@@ -1,4 +1,4 @@
-import { Project } from "../schema";
+import { Project, defaultLifecycleReadiness } from "../schema";
 import {
   ARCHITECTURE_SCENARIOS,
   SECURITY_REVIEW_OPTIONS,
@@ -15,6 +15,32 @@ function listOrFallback(items: string[], empty = "_None selected_") {
   return items.length === 0 ? empty : items.join(", ");
 }
 
+function lifecycleOf(p: Project) {
+  return p.lifecycle ?? defaultLifecycleReadiness();
+}
+
+function cloudImplementationGuidance(p: Project): string[] {
+  const lifecycle = lifecycleOf(p);
+  if (p.platform.cloud === "gcp") {
+    return [
+      `- **Google Cloud runtime.** Cloud Run is the default API/backend target; use separate services for API, workers, and dashboard if their scaling profiles differ.`,
+      `- **Operational store.** Firestore fits lightweight feedback/session records; choose Cloud SQL when relational joins, strict transactions, or SQL reporting are central.`,
+      `- **Analytics path.** Stream or batch product events into BigQuery; use Looker/Looker Studio for PM and data/growth dashboards.`,
+      `- **Model and coding path.** Claude on Google Cloud / Vertex AI can be used with project-scoped credentials and regional endpoints when enterprise policy requires it.`,
+      `- **MCP and skills.** ${fallback(lifecycle.mcpDocumentationSources, "Use Google Cloud Developer Knowledge MCP, BigQuery MCP, and cloud deployment skills where available.")}`,
+      `- **Runtime identity.** Use one service account per deployable, least-privilege IAM, Secret Manager, Cloud Logging/Monitoring, and audit logs.`,
+    ];
+  }
+
+  return [
+    `- **Cloud runtime.** ${fallback(lifecycle.cloudDeploymentTarget || p.platform.deploymentRuntime || p.platform.cloud)}`,
+    `- **Managed services.** ${fallback(lifecycle.managedServices || p.platform.cloudServices)}`,
+    `- **MCP and docs.** ${fallback(lifecycle.mcpDocumentationSources, "Use provider documentation MCP servers, architecture docs, and API references approved by the platform team.")}`,
+    `- **Skills and subagents.** ${fallback(lifecycle.skillsAndSubagentsPlan, "Use specialized agents for API/backend, analytics, security review, and deployment where work can be split safely.")}`,
+    `- **Runtime identity.** Use scoped service identities, secrets management, audit logs, and rate limits regardless of cloud provider.`,
+  ];
+}
+
 export function generateSystemDesign(p: Project): string {
   const v = p.systemDesign;
   const reqsPerDay = v.dau * v.avgRequestsPerUserPerDay;
@@ -26,6 +52,7 @@ export function generateSystemDesign(p: Project): string {
   const deploymentTopology = v.deploymentTopology ?? (v.multiRegion ? "active-passive" : "single-region");
   const tradeoffAreas = v.tradeoffAreas ?? [];
   const securityReviewAreas = v.securityReviewAreas ?? [];
+  const lifecycle = lifecycleOf(p);
   const securityLabels = Object.fromEntries(SECURITY_REVIEW_OPTIONS.map((option) => [option.value, option.label]));
   const clients = p.experience.surfaces.length > 0 ? p.experience.surfaces.join(", ") : p.platform.kinds.join(", ") || "web / app clients";
   const integrations = p.dataTech.integrations.length > 0 ? p.dataTech.integrations.map((i) => i.system).join(", ") : "external systems";
@@ -193,19 +220,33 @@ export function generateSystemDesign(p: Project): string {
     `- **IaC and policy.** ${fallback(p.platform.iacDetails || p.platform.iac)}`,
     `- **Enterprise controls.** ${fallback(p.platform.enterpriseControls)}`,
     ``,
-    `## 8. Caching strategy`,
+    `## 8. Cloud deployment, MCP, and skills plan`,
+    ``,
+    `This section turns the architecture into an implementation path for coding agents and cloud deployment.`,
+    ``,
+    ...cloudImplementationGuidance(p),
+    ``,
+    `| SDLC input | Current value |`,
+    `|---|---|`,
+    `| Prototype / wireframe source | ${fallback(lifecycle.prototypeSource)} |`,
+    `| UX handoff notes | ${fallback(lifecycle.uxHandoffNotes)} |`,
+    `| Security review checklist | ${fallback(lifecycle.securityReviewChecklist)} |`,
+    `| Deployment approval gate | ${fallback(lifecycle.deploymentApprovalGate)} |`,
+    `| Analytics feedback loop | ${fallback(lifecycle.analyticsFeedbackLoop)} |`,
+    ``,
+    `## 9. Caching strategy`,
     ``,
     fallback(v.cachingStrategy, "Default: CDN edge for static assets, Redis for hot reads with explicit TTL and invalidation, query-result cache for expensive aggregates."),
     ``,
-    `## 9. Database scaling strategy`,
+    `## 10. Database scaling strategy`,
     ``,
     fallback(v.dbScalingStrategy, "Default: vertical scale until read-replica threshold; then read replicas; then partition by tenant once a single tenant nears node limits. Archive cold data to object storage."),
     ``,
-    `## 10. Queue & event strategy`,
+    `## 11. Queue & event strategy`,
     ``,
     fallback(v.queueStrategy, "Default: managed message bus for events with idempotent consumers, dead-letter queue with alerting, exponential backoff and retry budget."),
     ``,
-    `## 11. Multi-region & DR`,
+    `## 12. Multi-region & DR`,
     ``,
     `- **Geographic coverage.** ${fallback(v.geographicCoverage)}`,
     `- **Deployment topology.** ${sentenceChoice(deploymentTopology)}.`,
@@ -213,7 +254,7 @@ export function generateSystemDesign(p: Project): string {
     `- **DR plan.** ${v.drNeeded ? "Required. Drills run quarterly with documented RTO/RPO." : "Not required at this stage; align with NF RTO/RPO when activated."}`,
     `- **RTO / RPO.** ${p.nonfunctional.rto} / ${p.nonfunctional.rpo}`,
     ``,
-    `## 12. Technical tradeoff matrix`,
+    `## 13. Technical tradeoff matrix`,
     ``,
     `Use this as the architecture review checklist. Items marked **Review now** are either selected in intake or inferred from the current product constraints.`,
     ``,
@@ -231,7 +272,7 @@ export function generateSystemDesign(p: Project): string {
       ? "_No security review areas selected. Minimum recommendation: identity, authorization, data protection, secrets, audit, and incident response._"
       : securityReviewAreas.map((area) => `- ${securityLabels[area] ?? area}`).join("\n"),
     ``,
-    `## 13. Failure scenarios`,
+    `## 14. Failure scenarios`,
     ``,
     `- **DB primary loss.** Promote replica; readers degrade to last cache; writers queued briefly.`,
     `- **Region outage.** Drain to alternate region (if multi-region) or accept downtime within SLO error budget.`,
@@ -239,7 +280,7 @@ export function generateSystemDesign(p: Project): string {
     `- **Cache cluster loss.** Service degrades to direct DB reads; rate-limit aggressively to prevent stampede.`,
     `- **Third-party integration failure.** Circuit-break, return cached state, surface partial-availability message to users.`,
     ``,
-    `## 14. DeepAgents-ready generation path`,
+    `## 15. DeepAgents-ready generation path`,
     ``,
     `If the product later adds AI-generated architecture narratives, diagrams, or PM-ready handoff content, use a server-side DeepAgents/LangGraph worker rather than running LLM orchestration in the browser.`,
     ``,
@@ -264,7 +305,7 @@ export function generateSystemDesign(p: Project): string {
     `- Save generated diagrams/content back into artifacts only after schema validation and human approval.`,
     `- Use subagents for security review, platform review, and PM editing, not for unbounded implementation.`,
     ``,
-    `## 15. Big-tech / startup product review lens`,
+    `## 16. Big-tech / startup product review lens`,
     ``,
     `- **PM sign-off.** The architecture explains customer impact, MVP scope, failure modes, launch gates, and tradeoffs in business language.`,
     `- **Engineering sign-off.** The low-level view identifies module ownership, data ownership, contracts, queues, caches, and observability.`,
@@ -272,7 +313,7 @@ export function generateSystemDesign(p: Project): string {
     `- **Startup practicality.** Defaults avoid premature microservices and keep commodity capabilities bought unless they are the product moat.`,
     `- **Coding-tool readiness.** Cursor/Codex-style agents get stable files, schemas, APIs, acceptance tests, ADRs, and guardrails before writing code.`,
     ``,
-    `## 16. Notes`,
+    `## 17. Notes`,
     ``,
     fallback(v.notes),
   ];

@@ -15,14 +15,29 @@ const OWNER_SECTIONS = [
     items: ["Problem and urgency", "Buyer and user", "Success metrics", "MVP boundary", "Validation plan"],
   },
   {
+    owner: "UX Designer",
+    title: "Prototype and user experience",
+    items: ["Wireframe source", "Design system", "Responsive states", "Accessibility", "Handoff notes"],
+  },
+  {
+    owner: "Software Engineer",
+    title: "Implementation and repo plan",
+    items: ["API slices", "Data model", "Tests", "Skills", "Subagents"],
+  },
+  {
+    owner: "Security Engineer",
+    title: "Security review and release gates",
+    items: ["IAM / service accounts", "OWASP", "Secrets", "Audit logs", "Approval gate"],
+  },
+  {
+    owner: "Data / Growth",
+    title: "Analytics and feedback loop",
+    items: ["Events", "Warehouse", "Dashboard", "Insights", "PM feedback"],
+  },
+  {
     owner: "Solution Architect",
     title: "Architecture, data, and delivery risk",
     items: ["HLD and LLD", "Schema design", "OAuth / SSO", "Security review", "Infra and scaling"],
-  },
-  {
-    owner: "Engineering",
-    title: "Build handoff and execution",
-    items: ["Implementation slices", "Acceptance criteria", "Test strategy", "Risk register", "Coding-agent prompts"],
   },
 ];
 
@@ -32,7 +47,7 @@ const STARTING_PATHS = [
   { label: "Review before generate", body: "Project details open after selection, so the template card stays focused on choosing the starting point." },
 ];
 
-const TEMPLATE_FILTERS = ["All", "AI", "SaaS", "Marketplace", "Internal", "Blank"];
+const TEMPLATE_FILTERS = ["All", "AI", "SaaS", "Marketplace", "Internal", "GCP", "Blank"];
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -90,7 +105,7 @@ export default function NewProjectPage() {
           </div>
         </div>
 
-        <div className="grid min-w-0 md:grid-cols-3 gap-3">
+        <div className="grid min-w-0 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           {OWNER_SECTIONS.map((section) => (
             <Card key={section.owner} className="p-4 sm:p-5">
               <div className="text-[11px] uppercase tracking-wider text-accent-600 dark:text-accent-300">

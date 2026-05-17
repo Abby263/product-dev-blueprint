@@ -76,6 +76,7 @@ const DOMAIN_FROM_PATH: Array<[string, DomainKey]> = [
   ["compliance.", "compliance"],
   ["gtm.", "gtm"],
   ["governance.", "governance"],
+  ["lifecycle.", "lifecycle"],
   ["stakeholders", "basics"],
   ["decisions", "governance"],
   ["risks", "governance"],
@@ -545,8 +546,8 @@ function domainFromPath(path: string): DomainKey {
 function isAllowedForMode(path: string, mode: AgentMode, focusStep?: DomainKey) {
   const domain = domainFromPath(path);
   if (focusStep && mode !== "complete-missing") return domain === focusStep || domain === "governance";
-  if (mode === "product") return ["basics", "problem", "market", "experience", "functional", "features", "gtm", "governance"].includes(domain);
-  if (mode === "architecture") return ["platform", "nonfunctional", "systemDesign", "dataTech", "ai", "compliance", "governance"].includes(domain);
+  if (mode === "product") return ["basics", "problem", "market", "experience", "functional", "features", "gtm", "governance", "lifecycle"].includes(domain);
+  if (mode === "architecture") return ["platform", "nonfunctional", "systemDesign", "dataTech", "ai", "compliance", "governance", "lifecycle"].includes(domain);
   return true;
 }
 

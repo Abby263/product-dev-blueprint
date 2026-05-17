@@ -20,7 +20,7 @@ const ARTIFACT_GROUPS = [
   { title: "Product", keys: ["prd", "sow", "feature-spec", "rtm"] },
   { title: "Architecture & engineering", keys: ["system-design", "tech-spec", "data-interface", "adr", "ai-architecture"] },
   { title: "Risk & compliance", keys: ["risk-register", "compliance", "launch-ops", "test-strategy"] },
-  { title: "Implementation", keys: ["coding-agent-prompts"] },
+  { title: "Implementation", keys: ["coding-agent-prompts", "lifecycle-plan"] },
 ];
 
 type CodeElementProps = {
