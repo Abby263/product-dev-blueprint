@@ -66,7 +66,14 @@ Product Dev Blueprint is designed to answer four questions before a team commits
 | Live LLM calls | Implemented for Blueprint Agent proposals when server model env vars are configured |
 | DeepAgents | Integrated in `ai_agents/blueprint_agent` with memory, skills, and subagents |
 
-Required to use the AI Agent: `AI_AGENT_MODEL` and the matching server-side provider key. See [`SETUP.md`](SETUP.md).
+Required to use the AI Agent: `AI_AGENT_MODEL` and the matching server-side provider key. For OpenAI, use:
+
+```bash
+AI_AGENT_MODEL=openai:gpt-5.4-mini
+OPENAI_API_KEY=sk-...
+```
+
+See [`SETUP.md`](SETUP.md) for the full local and Vercel configuration.
 
 ## Core Workflow
 
@@ -210,11 +217,11 @@ Prerequisites:
 - npm
 - Optional: Vercel CLI for manual deployments
 
-Install and run:
+Install and run the UI only:
 
 ```bash
 nvm use
-npm install
+npm ci
 npm run dev
 ```
 
@@ -225,6 +232,24 @@ http://localhost:3000
 ```
 
 For full-stack local development with the Python `/api/agent` function:
+
+Create `.env.local` with this OpenAI-backed agent configuration:
+
+```bash
+AI_AGENT_MODEL=openai:gpt-5.4-mini
+OPENAI_API_KEY=sk-...
+```
+
+Python dependencies for the Vercel function are declared in `requirements.txt`. Vercel installs them for deployment and `npx vercel dev`.
+
+If you want to run Python checks outside Vercel:
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -m py_compile api/agent.py ai_agents/blueprint_agent/*.py
+```
+
+Start the full stack:
 
 ```bash
 npx vercel dev
@@ -255,11 +280,13 @@ No `.env.local` file is required to load the UI, templates, deterministic artifa
 The AI Agent requires server-only model configuration:
 
 ```bash
-AI_AGENT_MODEL=openai:gpt-4o-mini
+AI_AGENT_MODEL=openai:gpt-5.4-mini
 OPENAI_API_KEY=sk-...
 ```
 
 Use the matching provider key for the selected `AI_AGENT_MODEL`. Never expose provider keys through `NEXT_PUBLIC_*`.
+
+OpenAI's current public docs list `gpt-5.4-mini` as the mini model for high-volume workloads. If your account has access to a private or future model slug, set `AI_AGENT_MODEL` to the exact LangChain provider string accepted by that provider.
 
 See [`SETUP.md`](SETUP.md) for:
 
