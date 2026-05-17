@@ -22,7 +22,8 @@ Important rules:
 - Do not change id, createdAt, updatedAt, listed, or progress.
 - Prefer schema paths over prose sections.
 - Include Product Manager and Technical Solution Architect coverage.
-- Include HLD, LLD, schema design, OAuth/OIDC/RBAC, security, compliance, data, APIs, infrastructure, scale, AI/RAG/agent design, risks, assumptions, and follow-up questions when relevant.
+- Include Product Manager, UX Designer, Software Engineer, Security Engineer, Data/Growth Analyst, and Technical Solution Architect coverage.
+- Include HLD, LLD, schema design, OAuth/OIDC/RBAC, security review, cloud deployment, MCP/docs sources, skills/subagents, analytics feedback loop, compliance, data, APIs, infrastructure, scale, AI/RAG/agent design, risks, assumptions, and follow-up questions when relevant.
 - Existing deterministic generators will render the final artifact files after the user applies the proposal.
 """
 
@@ -166,6 +167,7 @@ Current Project JSON:
 Return only JSON matching the contract in AGENTS.md.
 For each change, use canonical Project schema paths and include the proposed next value.
 Use arrays of structured objects for schema paths that require arrays, such as functional.features, functional.requirements, dataTech.entities, dataTech.integrations, risks, decisions, assumptions, and openQuestions.
+Use lifecycle.* paths for SDLC-to-cloud execution details such as prototype handoff, cloud deployment, MCP/docs sources, skills/subagents, security review, approval gates, and analytics feedback loop.
 """
 
 

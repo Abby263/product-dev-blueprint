@@ -1,9 +1,10 @@
-import { Project } from "../schema";
+import { Project, defaultLifecycleReadiness } from "../schema";
 import { header } from "./util";
 
 export function generateCodingAgentPrompts(p: Project): string {
   const features = p.functional.features;
   const stack = stackSummary(p);
+  const lifecycle = p.lifecycle ?? defaultLifecycleReadiness();
 
   const out: string[] = [
     header(p, `Coding-agent prompt pack — ${p.name || "Untitled"}`, "Prompt pack"),
@@ -42,6 +43,7 @@ export function generateCodingAgentPrompts(p: Project): string {
     `- 15-feature-spec.md`,
     `- 16-implementation-roadmap.md`,
     `- 17-cost-estimate.md`,
+    `- 19-lifecycle-execution-plan.md`,
     ...(p.ai.needsAI ? [`- 13-ai-architecture.md`] : []),
     ``,
     `Constraints:`,
@@ -65,6 +67,48 @@ export function generateCodingAgentPrompts(p: Project): string {
     `7. A "FIRST RUN" checklist a new contributor follows in <15 minutes.`,
     ``,
     `Do NOT generate feature code yet — just scaffolding.`,
+    `\`\`\``,
+    ``,
+    `## 1A. Persona-based implementation plan`,
+    ``,
+    `### UX Designer / frontend agent`,
+    ``,
+    `\`\`\`text`,
+    `Use the prototype and UX handoff notes below to produce production-ready UI states before feature implementation.`,
+    ``,
+    `Prototype source: ${lifecycle.prototypeSource || "(not captured)"}`,
+    `UX handoff: ${lifecycle.uxHandoffNotes || "(not captured)"}`,
+    ``,
+    `Deliverables: responsive screens, loading/empty/error states, accessibility checks, and a short design-system alignment note.`,
+    `\`\`\``,
+    ``,
+    `### Backend/API implementation agent`,
+    ``,
+    `\`\`\`text`,
+    `Implement backend/API slices from 04-engineering-spec.md, 06-data-interface-spec.md, and 12-architecture-blueprint.md.`,
+    `Use MCP/documentation sources where available: ${lifecycle.mcpDocumentationSources || "(not captured)"}`,
+    `Use planned skills/subagents where available: ${lifecycle.skillsAndSubagentsPlan || "(not captured)"}`,
+    ``,
+    `Deliverables: API contracts, validation, persistence, auth/RBAC, integration tests, and observability hooks.`,
+    `\`\`\``,
+    ``,
+    `### Security review agent`,
+    ``,
+    `\`\`\`text`,
+    `Review the implementation against this security checklist: ${lifecycle.securityReviewChecklist || "(use baseline OWASP, IAM/service accounts, secrets, audit, rate limiting, and data-protection checks)"}`,
+    `Deployment gate: ${lifecycle.deploymentApprovalGate || "(CI, tests, security review, rollback plan, and owner approval required)"}`,
+    ``,
+    `Deliverables: findings, severity, required fixes, residual risks, and release/no-release recommendation.`,
+    `\`\`\``,
+    ``,
+    `### Deployment and analytics agents`,
+    ``,
+    `\`\`\`text`,
+    `Deploy using this target: ${lifecycle.cloudDeploymentTarget || p.platform.deploymentRuntime || p.platform.cloud}`,
+    `Managed services: ${lifecycle.managedServices || p.platform.cloudServices || "(not captured)"}`,
+    `Analytics loop: ${lifecycle.analyticsFeedbackLoop || "(capture events, dashboard usage, feedback, response time, and PM review cadence)"}`,
+    ``,
+    `Deliverables: deploy plan, env vars, service identities/IAM, smoke tests, dashboard/event taxonomy, and rollback notes.`,
     `\`\`\``,
     ``,
     `## 2. Data model & migrations`,

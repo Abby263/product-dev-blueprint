@@ -1,8 +1,9 @@
-import { Project } from "../schema";
+import { Project, defaultLifecycleReadiness } from "../schema";
 import { fallback, header, inferCompliancePacks } from "./util";
 
 export function generateLaunchOps(p: Project): string {
   const packs = inferCompliancePacks(p);
+  const lifecycle = p.lifecycle ?? defaultLifecycleReadiness();
   const out: string[] = [
     header(p, `Launch and operations plan — ${p.name || "Untitled"}`, "Launch & ops"),
     `## 1. Launch posture`,
@@ -60,6 +61,22 @@ export function generateLaunchOps(p: Project): string {
     `2. **Canary.** A bounded tenant cohort behind a feature flag.`,
     `3. **General availability.** Widen only when SLOs are green and error budget allows.`,
     `4. **Sunset.** Decommission previous surfaces with explicit migration windows.`,
+    ``,
+    `## 9. Security review gate`,
+    ``,
+    `- **Checklist.** ${fallback(lifecycle.securityReviewChecklist, "Minimum: OWASP web/API review, identity/IAM/service-account least privilege, secrets review, audit logging, data classification, abuse/rate-limit controls, and incident-response readiness.")}`,
+    `- **Cloud identity.** Runtime services must use scoped service identities. Avoid broad owner/editor roles and long-lived credentials.`,
+    `- **Evidence.** Attach security findings, fixes, and residual-risk sign-off to the release PR or launch ticket.`,
+    ``,
+    `## 10. Deployment approval gate`,
+    ``,
+    `- **Approval rule.** ${fallback(lifecycle.deploymentApprovalGate, "Promote to production only after CI, build, tests, security review, rollback plan, and product/engineering owner approval pass.")}`,
+    `- **Rollback trigger.** Error-budget burn, security finding, failed smoke test, analytics ingestion break, or customer-impacting regression.`,
+    ``,
+    `## 11. Analytics feedback loop`,
+    ``,
+    `- **Plan.** ${fallback(lifecycle.analyticsFeedbackLoop, "Capture usage, feedback, response time, conversion, retention, and reliability signals; review with PM and data/growth owner on a fixed cadence.")}`,
+    `- **Decision cadence.** Insights should produce backlog decisions, UX changes, reliability fixes, or GTM adjustments.`,
   );
 
   return out.join("\n");

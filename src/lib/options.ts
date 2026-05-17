@@ -100,7 +100,7 @@ export const AI_PROVIDER_OPTIONS: OptionDef[] = [
   { value: "openai", label: "OpenAI", hint: "Best for: broad capability, function calling, structured outputs. Mature SDKs." },
   { value: "anthropic", label: "Anthropic (Claude)", hint: "Best for: long-context reasoning, careful tool use, prompt caching. Strong on coding tasks." },
   { value: "azure-openai", label: "Azure OpenAI", hint: "Best for: enterprise compliance, EU data residency, contracted SLAs on OpenAI models." },
-  { value: "vertex", label: "Google Vertex", hint: "Best for: Google Cloud shops, Gemini models, integration with GCP data services." },
+  { value: "vertex", label: "Google Vertex / Claude on GCP", hint: "Best for: Google Cloud shops using Gemini or Claude on Google Cloud with project IAM, regional endpoints, and GCP data services." },
   { value: "bedrock", label: "AWS Bedrock", hint: "Best for: AWS-native deployments, multi-model selection (Claude, Llama, Titan, Mistral) under AWS billing." },
   { value: "open-source", label: "Open-source / self-hosted", hint: "Best for: cost control at scale or strict data isolation. Operate vLLM, TGI, Ollama on GPU infra." },
   { value: "mixed", label: "Mixed", hint: "Hot path on hosted, batch on self-hosted; or per-tenant routing." },

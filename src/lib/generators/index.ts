@@ -18,6 +18,7 @@ import { generateFeatureSpec } from "./feature-spec";
 import { generateRoadmap } from "./roadmap";
 import { generateCodingAgentPrompts } from "./coding-agent-prompts";
 import { generateCostEstimate } from "./cost-estimate";
+import { generateLifecyclePlan } from "./lifecycle-plan";
 
 export interface Artifact {
   key: string;
@@ -161,6 +162,13 @@ export function generateBundle(project: Project): Artifact[] {
       filename: "18-coding-agent-prompts.md",
       description: "Cursor / Lovable / Replit-ready prompts wired to the bundle.",
       body: generateCodingAgentPrompts(project),
+    },
+    {
+      key: "lifecycle-plan",
+      title: "Lifecycle execution plan",
+      filename: "19-lifecycle-execution-plan.md",
+      description: "PM, UX, engineering, security, deployment, and analytics feedback-loop handoff.",
+      body: generateLifecyclePlan(project),
     },
   ];
 }

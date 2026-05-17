@@ -27,6 +27,7 @@ DOMAIN_FROM_PATH: list[tuple[str, str]] = [
     ("compliance.", "compliance"),
     ("gtm.", "gtm"),
     ("governance.", "governance"),
+    ("lifecycle.", "lifecycle"),
     ("stakeholders", "basics"),
     ("decisions", "governance"),
     ("risks", "governance"),
@@ -58,6 +59,7 @@ ALLOWED_NESTED_ROOTS = {
     "compliance",
     "gtm",
     "governance",
+    "lifecycle",
 }
 
 BLOCKED_PATHS = {
@@ -167,9 +169,9 @@ def is_allowed_for_mode(path: str, mode: str, focus_step: str | None) -> bool:
     if focus_step and mode != "complete-missing":
         return domain == focus_step or domain == "governance"
     if mode == "product":
-        return domain in {"basics", "problem", "market", "experience", "functional", "features", "gtm", "governance"}
+        return domain in {"basics", "problem", "market", "experience", "functional", "features", "gtm", "governance", "lifecycle"}
     if mode == "architecture":
-        return domain in {"platform", "nonfunctional", "systemDesign", "dataTech", "ai", "compliance", "governance"}
+        return domain in {"platform", "nonfunctional", "systemDesign", "dataTech", "ai", "compliance", "governance", "lifecycle"}
     return True
 
 
@@ -305,5 +307,6 @@ def domain_sort_key(domain: str) -> int:
         "compliance",
         "gtm",
         "governance",
+        "lifecycle",
     ]
     return order.index(domain) if domain in order else len(order)

@@ -11,6 +11,7 @@ This guide reflects the app as it exists today. The product is a Next.js app wit
 | Blueprint Agent | Python DeepAgents function at `/api/agent` that proposes schema updates, assumptions, and follow-up questions | Yes |
 | Document generation | Local TypeScript markdown/DOCX generators in `src/lib/generators` and `src/lib/docx.ts` | No |
 | HLD/LLD architecture output | Deterministic generator based on user inputs in `src/lib/generators/system-design.ts` | No |
+| Lifecycle execution plan | Deterministic PM, UX, engineering, security, deployment, and analytics feedback-loop artifact | No |
 | DeepAgents content writer | Integrated under `ai_agents/blueprint_agent` with memory, skills, and subagents | Yes |
 | Auth/accounts | Not implemented | No |
 | Database/shared projects | Not implemented | No |
@@ -158,6 +159,18 @@ The Python function returns schema proposals only. The final Markdown, DOCX, JSO
 Do not place DeepAgents prompts, memory, or provider keys in client-side bundles.
 
 See [`docs/architecture/agent-runtime.md`](docs/architecture/agent-runtime.md) for the expected server-side flow and persistence model.
+
+## Lifecycle And Cloud Blueprint Outputs
+
+The app includes a lifecycle-readiness domain that captures the handoff from Product Manager to UX Designer, Software Engineer, Security Engineer, Data/Growth Analyst, and Solution Architect.
+
+Generated bundles include:
+
+- `19-lifecycle-execution-plan.md` for the PM → UX → engineering → security → deployment → analytics flow.
+- Enhanced `18-coding-agent-prompts.md` with persona-based prompts.
+- Static scaffold files for coding agents: `CLAUDE.md`, `AGENTS.md`, `.cursor/rules/development-workflow.mdc`, `.claude/skills/development-workflow/SKILL.md`, and `.github/pull_request_template.md`.
+
+The Google Cloud feedback-app template is a reference scenario for Cloud Run, Firestore, BigQuery, Looker/Looker Studio, Cloud Logging/Monitoring, service-account IAM, security review, and Claude on Google Cloud / Vertex AI summaries. Other templates remain cloud-neutral and keep their selected AWS/Azure/GCP/Vercel service guidance.
 
 ## Future Persistence And Auth
 

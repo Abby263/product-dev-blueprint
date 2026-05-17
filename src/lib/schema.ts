@@ -408,6 +408,42 @@ export interface Governance {
   decisionConfidence: Confidence;
 }
 
+export interface LifecycleReadiness {
+  productManagerPlan: string;
+  uxDesignerPlan: string;
+  softwareEngineerPlan: string;
+  securityEngineerPlan: string;
+  dataGrowthPlan: string;
+  prototypeSource: string;
+  uxHandoffNotes: string;
+  cloudDeploymentTarget: string;
+  managedServices: string;
+  mcpDocumentationSources: string;
+  skillsAndSubagentsPlan: string;
+  securityReviewChecklist: string;
+  deploymentApprovalGate: string;
+  analyticsFeedbackLoop: string;
+}
+
+export function defaultLifecycleReadiness(): LifecycleReadiness {
+  return {
+    productManagerPlan: "",
+    uxDesignerPlan: "",
+    softwareEngineerPlan: "",
+    securityEngineerPlan: "",
+    dataGrowthPlan: "",
+    prototypeSource: "",
+    uxHandoffNotes: "",
+    cloudDeploymentTarget: "",
+    managedServices: "",
+    mcpDocumentationSources: "",
+    skillsAndSubagentsPlan: "",
+    securityReviewChecklist: "",
+    deploymentApprovalGate: "",
+    analyticsFeedbackLoop: "",
+  };
+}
+
 // --- Top-level project ----------------------------------------------------
 
 export interface Project {
@@ -431,6 +467,7 @@ export interface Project {
   compliance: ComplianceSecurity;
   gtm: GoToMarket;
   governance: Governance;
+  lifecycle: LifecycleReadiness;
 
   stakeholders: Stakeholder[];
   decisions: Decision[];
@@ -455,7 +492,8 @@ export type DomainKey =
   | "ai"
   | "compliance"
   | "gtm"
-  | "governance";
+  | "governance"
+  | "lifecycle";
 
 export const DOMAIN_ORDER: DomainKey[] = [
   "basics",
@@ -472,6 +510,7 @@ export const DOMAIN_ORDER: DomainKey[] = [
   "compliance",
   "gtm",
   "governance",
+  "lifecycle",
 ];
 
 export const DOMAIN_LABEL: Record<DomainKey, string> = {
@@ -489,6 +528,7 @@ export const DOMAIN_LABEL: Record<DomainKey, string> = {
   compliance: "Security & compliance",
   gtm: "Commercial & GTM",
   governance: "Delivery & governance",
+  lifecycle: "Lifecycle readiness",
 };
 
 export const DOMAIN_BLURB: Record<DomainKey, string> = {
@@ -506,6 +546,7 @@ export const DOMAIN_BLURB: Record<DomainKey, string> = {
   compliance: "Regulatory frameworks, encryption, RBAC, residency, audit.",
   gtm: "Packaging, pricing, segments, channels, competitors, KPIs.",
   governance: "Owners, approvers, dependencies, decisions, confidence.",
+  lifecycle: "PM, UX, engineering, security, cloud deployment, and analytics feedback loop.",
 };
 
 export type DomainOwner = "product-manager" | "technical-solution-architect" | "shared";
@@ -525,6 +566,7 @@ export const DOMAIN_OWNER: Record<DomainKey, DomainOwner> = {
   compliance: "shared",
   gtm: "product-manager",
   governance: "shared",
+  lifecycle: "shared",
 };
 
 export const DOMAIN_OWNER_LABEL: Record<DomainOwner, string> = {

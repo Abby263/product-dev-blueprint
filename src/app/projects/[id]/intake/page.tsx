@@ -24,6 +24,7 @@ import {
   SystemDesignStep,
   AIStep,
   ComplianceStep,
+  LifecycleStep,
 } from "@/components/wizard/steps-extended";
 import { DOMAIN_ORDER, DomainKey } from "@/lib/schema";
 
@@ -76,6 +77,7 @@ export default function IntakePage() {
       {step === "compliance" && <ComplianceStep project={project} />}
       {step === "gtm" && <GTMStep project={project} />}
       {step === "governance" && <GovernanceStep project={project} />}
+      {step === "lifecycle" && <LifecycleStep project={project} />}
     </WizardShell>
   );
 }
