@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "product-dev-blueprint",
+  "repository": "Abby263/product-dev-blueprint",
+  "catalog": "listed",
+  "availability": "request_integration",
+  "name": "Product Blueprint Agent",
+  "category": "Planning",
+  "description": "Turn a product idea into a readiness brief, architecture, and engineering handoff.",
+  "request": "Product idea, constraints, and reviewed intake answers.",
+  "response": "A readiness brief and planning artifacts.",
+  "integration": {
+    "operation": "Propose additions to a reviewed product brief.",
+    "readiness": "Wrap the existing schema proposal API and keep user approval before changes are applied. Review commercial-use terms before client use."
+  }
+}
